@@ -1,0 +1,16 @@
+cabal-version: 2.0
+name:          blog
+version:       0.1.0.0
+build-type:    Simple
+
+executable blog
+  main-is:            Site.hs
+  build-depends:
+      base
+    , hakyll
+    , hakyll-images
+    , skylighting
+
+  ghc-options:        -threaded
+  default-extensions: OverloadedStrings
+  default-language:   Haskell2010
