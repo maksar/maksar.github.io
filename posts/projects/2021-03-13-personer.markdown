@@ -1,0 +1,31 @@
+---
+title: JIRA bot to automatically update fields values
+tags: english, kotlin, JIRA
+---
+
+Personer is a small Kotlin bot, which is started by systemd timer (thanks nixos) and performs a read-update cycle over our project cards (custom JIRA issues). It features modern Kotlin's Flow framework
+
+```kotlin
+@FlowPreview
+suspend fun projectCards(fields: Set<String>) =
+    search(0, 1).total.let { total ->
+        rangeUntil(0, total, env[PERSONER_PAGE_SIZE]).asFlow()
+            .concurrentFlatMap { start -> search(start, env[PERSONER_PAGE_SIZE], fields).issues }
+            .toList()
+    }
+```
+which allows concurrently `flatMap`-ing a flow (fancy name of the lazy stream) with retrying abilities on errors.
+
+```kotlin
+@FlowPreview
+fun <T, R> Flow<T>.concurrentFlatMap(transform: suspend (T) -> Iterable<R>) =
+    flatMapMerge { value ->
+        flow { emitAll(transform(value).asFlow()) }
+    }.retryOnTimeouts()
+
+fun <T> Flow<T>.retryOnTimeouts() =
+    this.flowOn(Dispatchers.IO)
+        .retry { cause -> generateSequence(cause, Throwable::cause).any { it is SocketTimeoutException } }
+```
+
+Tons of boilerplate code above that – is just the consequence of having to inject a [custom parser](https://github.com/maksar/personer/blob/master/src/main/kotlin/com/itransition/personer/Jira.kt#L114) inside the library, which doesn't allow that natively.

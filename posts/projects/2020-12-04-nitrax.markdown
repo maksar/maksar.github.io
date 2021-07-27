@@ -1,0 +1,6 @@
+---
+title: Nixops deployment of all the bots and services
+tags: english, NIX, nixops
+---
+
+Nitrax (NIX + ITRAnsition, I suck at naming) is my [nixops configuration](https://github.com/maksar/nitrax/blob/master/fleet.nix) to deploy bots and helpers. With this [service](https://github.com/maksar/nitrax/blob/master/modules/certiplace.nix) I struggled the most, because of the way unixODBC drivers are working on MacOS and Linux. That is a python bot, which connects to MSSQL database (what a pain to use) to fetch data about recently earned certifications in a company, renders it in a picture and uploads to the intranet. Despite the fact python is well supported by nix2poetry, some tricks (disabling LTO) were needed to build mathplotlib library.

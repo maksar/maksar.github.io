@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Telegram bot for managing Bitbucket repositories</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Telegram bot for managing Bitbucket repositories</h1>
+    <article>
+  <section class="header">
+    March 17, 2021  @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/english.html">english</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/telegram.html">telegram</a> #<a href="../../tags/fibers.html">fibers</a> #<a href="../../tags/rspec.html">rspec</a>
+  </section>
+  <section>
+    <p>Gitman is a Telegram chat bot. It helps to manage source code repositories in Itransition Bitbucket server. Intead of creating repositories manually, our HelpDesk operators are using this bot. It sets up all merge hooks, commit message checks, default reviwers policy, other things which is tidiuos to do by hands.</p>
+<p>Here are some examples of <em>how it looks</em>:</p>
+<p><a href="../../images/gitman/1.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/gitman/1.jpg" /></a> <a href="../../images/gitman/2.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/gitman/2.jpg" /></a> <a href="../../images/gitman/3.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/gitman/3.jpg" /></a> <a href="../../images/gitman/4.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/gitman/4.jpg" /></a></p>
+<p>There are number of technical decisions, which makes this piece of software interesting to mention as a ‘ruby pearl’:</p>
+<ul>
+<li>usage of ruby Fibers feature</li>
+<li>usage of pattern matching feature</li>
+<li>non standard approach on integration testing</li>
+</ul>
+<p>It also features a <a href="https://github.com/maksar/gitman/blob/master/flake.nix#L46-L49">trick</a> (one of the first things I did with nix) with making some environment variables visible for a nix shell in order for the bundler (ruby build tool) to be able to build gems (ruby libraries) with native extensions. It even has a <a href="https://github.com/maksar/gitman/blob/master/flake.nix#L68">check phase</a> enabled ;)</p>
+<p>Under the hood it uses my fork of <a href="https://github.com/nix-community/bundix/pull/75/files">bundix</a> (allows to nixify ruby dependencies) because the official version is forgotten by maintainers and no longer supports modern bundler.</p>
+<p>Being a <a href="https://telegram.org">telegram</a> bot, gitman need to maintain a conversation with a user. Bot is not a stateless command processor, but rather a context-aware conversion member. In order to execute a particular command, it can ask additional question from the user and react to user’s responses.</p>
+<p>Doing stateful operations is not an easy task in ruby. Majority of the frameworks only support stateless requests processing, when each new request doesn’t share any information with a previous one. Having a <em>conversation</em>, would require some kind of storage, <code>session</code> object maybe to store current state of a dialog. That complicates the code, forcing developer to save/restore conversation state of each request.</p>
+<p>Gitman uses ruby Fibers feature to seamlessly suspend and continue code execution flow whenever user posts his/her response in a chat. Code of such dialog can be expressed as a single continuous method, which makes it easy to every aspect of the particular dialog.</p>
+<p>Lets review an example – dialog to create a project inside Itransition’s Bitbucket server:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> project</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  project <span class="kw">=</span> request(<span class="st">&quot;What is Bitbucket PROJECT key?&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (info <span class="kw">=</span> bitbucket<span class="at">.project_info</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    reply(<span class="st">&quot;Ok, </span><span class="sc">#{</span>project<span class="sc">}</span><span class="st"> project already exist.&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    print_info(info)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@create_repository</span><span class="at">.call</span>(project)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    reply(<span class="st">&quot;There is no such project.&quot;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    ask(<span class="st">&quot;Do you want to create it?&quot;</span>, <span class="kw">&amp;</span>method(<span class="wa">:create</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> create</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  name <span class="kw">=</span> request(<span class="st">&quot;Specify project name (human readable):&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  description <span class="kw">=</span> request(<span class="st">&quot;Specify project description:&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  ask(<span class="st">&quot;We are about to create project with name '</span><span class="sc">#{</span>name<span class="sc">}</span><span class="st">', description '</span><span class="sc">#{</span>description<span class="sc">}</span><span class="st">'&quot;</span>) <span class="cf">do</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    print_info(bitbucket<span class="at">.create_project</span>(name, description))</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    answer(<span class="st">&quot;Project created!&quot;</span>, <span class="wa">link: </span>bitbucket<span class="at">.project_link</span>(<span class="dt">Services</span><span class="kw">::</span><span class="dt">Bitbucket</span><span class="kw">::</span><span class="cn">BROWSER_PREFIX</span>))</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Code indeed reads like a conversation, without any callbacks or nasty <code>and_then</code> statements – just a plain old ruby method. Lets review how it is possible for this code to work continuously in a context of several HTTP roundtrips to Telegram API. Base primitives of the dialog are:</p>
+<ul>
+<li><code>ask</code> to ask some question from the user in chat and expect a binary answer – yes or no</li>
+<li><code>request</code> to request some additional text information from the user</li>
+<li><code>reply</code> to post an information statement to the chat, which does not require user’s answer</li>
+<li><code>answer</code> a method to end the dialog (name is not ideal), when bot resets itself to the default state with no on-going conversation</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> ask(question, negative <span class="kw">=</span> <span class="kw">-&gt;</span> <span class="kw">{</span> answer(<span class="st">&quot;Ok then.&quot;</span>) <span class="kw">}</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">case</span> request(question, <span class="wa">answers: </span><span class="kw">[[</span><span class="cn">POSITIVE</span>, <span class="cn">NEGATIVE</span><span class="kw">]]</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> <span class="cn">POSITIVE</span> <span class="cf">then</span> <span class="cf">yield</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> negative<span class="at">.call</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> option(question, <span class="kw">&amp;</span>block)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  ask(question, <span class="kw">-&gt;</span> <span class="kw">{}</span>, <span class="kw">&amp;</span>block)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> request(question, params <span class="kw">=</span> <span class="kw">{}</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Fiber</span><span class="at">.yield</span>(<span class="wa">:question</span>, params<span class="at">.merge</span>(<span class="wa">text: </span>question))</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> reply(statement, params <span class="kw">=</span> <span class="kw">{}</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Fiber</span><span class="at">.yield</span>(<span class="wa">:statement</span>, params<span class="at">.merge</span>(<span class="wa">text: </span>statement))</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> answer(answer, params <span class="kw">=</span> <span class="kw">{}</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  request(answer, params)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Fiber</span><span class="at">.yield</span>(<span class="wa">:end</span>)</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Bot runs forever in a main loop expecting a message from a user. <code>@dialogs</code> hash is a mapping from chat ID to the dialog object instance with suspended Fiber thread. Whenever message appears, main loop fetches an on-going dialog from a <code>@gialogs</code> hash and tries to continue it.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">Telegram</span><span class="kw">::</span><span class="dt">Bot</span><span class="kw">::</span><span class="dt">Client</span><span class="at">.run</span>(<span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;GITMAN_TELEGRAM_TOKEN&quot;</span>)) <span class="cf">do</span> <span class="kw">|</span>bot<span class="kw">|</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">puts</span> <span class="st">&quot;Gitman on duty!&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  bot<span class="at">.listen</span>(<span class="kw">&amp;</span><span class="dt">Runtime</span><span class="at">.new</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    bot, <span class="dt">Dialogs</span><span class="kw">::</span><span class="dt">Default</span><span class="at">.new</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;/create&quot;</span> <span class="kw">=&gt;</span> <span class="fu">proc</span> <span class="kw">{</span> <span class="dt">Dialogs</span><span class="kw">::</span><span class="dt">CreateProject</span><span class="at">.new.call</span> <span class="kw">}</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;/close&quot;</span> <span class="kw">=&gt;</span> <span class="fu">proc</span> <span class="kw">{</span> <span class="dt">Dialogs</span><span class="kw">::</span><span class="dt">CloseProject</span><span class="at">.new.call</span> <span class="kw">}</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>           <span class="st">&quot;/reopen&quot;</span> <span class="kw">=&gt;</span> <span class="fu">proc</span> <span class="kw">{</span> <span class="dt">Dialogs</span><span class="kw">::</span><span class="dt">ReopenProject</span><span class="at">.new.call</span> <span class="kw">}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>         )</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  )<span class="at">.method</span>(<span class="wa">:main_loop</span>))</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> main_loop(message)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">self</span> <span class="cf">unless</span> known_user?(message)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@dialogs</span><span class="kw">[</span>message<span class="at">.chat.id</span><span class="kw">]</span> <span class="kw">=</span> listen(message<span class="at">.chat.id</span>, message<span class="at">.text</span>, <span class="ot">@dialogs</span><span class="kw">[</span>message<span class="at">.chat.id</span><span class="kw">]</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="dv">self</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Continuation happens inside <code>listen</code> method, which <code>resume</code>s a a Fiber inside a dialog, passing a text from a user in it. Dialog has control on what to do next by returning value. Case statement pattern patches on that value</p>
+<ul>
+<li>if a value <code>is_a</code> Fiber – runtime recursively calls <code>listen</code>, allowing a dialog code to execute next statement</li>
+<li>if a value is a payload – runtime decides what to do next (also <code>print</code>ing a message to a chat using Telegram’s API)
+<ul>
+<li>in case of a question – runtime just continue to wait for an user’s answer, returning a dialog, which will be stored in <code>@dialogs</code> until next request comes in</li>
+<li>in case of a statement – recursive <code>listen</code> call is needed, because dialog may contain several consequent <code>reply</code> calls, which all needs to be handled</li>
+<li><code>:end</code> forces dialog to <em>become</em> a default one</li>
+</ul></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> listen(chat, text, dialog)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> reset(chat, <span class="st">&quot;Ok, then.&quot;</span>) <span class="cf">if</span> text <span class="kw">==</span> <span class="st">&quot;/cancel&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">case</span> (result <span class="kw">=</span> dialog<span class="at">.resume</span>(text))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> <span class="dt">Fiber</span> <span class="cf">then</span> listen(chat, text, result)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> <span class="kw">[</span><span class="wa">:question</span> <span class="kw">|</span> <span class="wa">:statement</span>, payload<span class="kw">]</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">print</span>(chat, payload)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    decide(chat, dialog, result, text)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> decide(chat, dialog, result, text)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="cf">rescue</span> <span class="dt">StandardError</span> <span class="kw">=&gt;</span> e</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  reset(chat, <span class="st">&quot;Something bad happens: </span><span class="sc">#{</span>e<span class="sc">}</span><span class="st">\n</span><span class="sc">#{</span>e<span class="at">.message</span><span class="sc">}</span><span class="st">\n</span><span class="sc">#{</span>e<span class="at">.backtrace</span><span class="sc">}</span><span class="st">&quot;</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> decide(chat, dialog, result, text)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">case</span> result</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> <span class="kw">[</span><span class="wa">:question</span>, <span class="kw">*]</span> <span class="cf">then</span> dialog</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> <span class="kw">[</span><span class="wa">:statement</span>, <span class="kw">*]</span> <span class="cf">then</span> listen(chat, text, dialog)</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> <span class="wa">:end</span> <span class="cf">then</span> listen(chat, text, <span class="ot">@dialogs</span><span class="at">.default</span>(<span class="dv">nil</span>))</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">in</span> command <span class="cf">then</span> <span class="fu">print</span>(chat, <span class="wa">text: </span><span class="st">&quot;Unknown internal command: </span><span class="sc">#{</span>command<span class="sc">}</span><span class="st">&quot;</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>That great, but <code>how we can test that</code>, you may ask?.. Well, there is a rabbit in a hat for that – one more runtime! Main loop in that dummy runtime does not maintain different dialogs, but rather replays a list of messages from <code>answers</code> input array, injecting them to the conversation.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> chat(answers)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">[</span><span class="cn">START</span><span class="kw">]</span> <span class="kw">+</span> answers)<span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>text<span class="kw">|</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    main_loop(<span class="dt">Telegram</span><span class="kw">::</span><span class="dt">Bot</span><span class="kw">::</span><span class="dt">Types</span><span class="kw">::</span><span class="dt">Message</span><span class="at">.new</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>      <span class="wa">from: </span><span class="dt">Telegram</span><span class="kw">::</span><span class="dt">Bot</span><span class="kw">::</span><span class="dt">Types</span><span class="kw">::</span><span class="dt">User</span><span class="at">.new</span>(<span class="wa">id: </span><span class="dv">0</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      <span class="wa">chat: </span><span class="dt">Telegram</span><span class="kw">::</span><span class="dt">Bot</span><span class="kw">::</span><span class="dt">Types</span><span class="kw">::</span><span class="dt">Chat</span><span class="at">.new</span>(<span class="wa">id: </span><span class="dv">0</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="wa">text: </span>text</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    ))</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@conversation</span><span class="at">.text.join</span>(<span class="st">&quot;\n&quot;</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> main_loop(message)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@conversation</span><span class="at">.user</span>(message<span class="at">.text</span>) <span class="cf">unless</span> message<span class="at">.text</span> <span class="kw">==</span> <span class="cn">START</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="dv">super</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="at">private</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> decide(chat, dialog, result, text)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="cf">if</span> result <span class="kw">==</span> <span class="wa">:end</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="dv">super</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> <span class="fu">print</span>(_chat, message)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@conversation</span><span class="at">.bot</span>(message)</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Conversation object, which is another helper for testing a dialog is a pretty simple ruby class. It records everything that user said, bot replied to the user or any service call to the Bitbucket API which was made by a bot.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">class</span> <span class="dt">Conversation</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="cn">BOT</span> <span class="kw">=</span> <span class="st">&quot;BOT&quot;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="cn">USER</span> <span class="kw">=</span> <span class="st">&quot;USR&quot;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cn">SERVICE</span> <span class="kw">=</span> <span class="st">&quot;SRV&quot;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="ot">attr_reader</span> <span class="wa">:text</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> initialize</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@text</span> <span class="kw">=</span> <span class="kw">[]</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> bot(message)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    add(<span class="cn">BOT</span>, <span class="kw">[</span>message<span class="kw">[</span><span class="wa">:text</span><span class="kw">]</span>, answers(message<span class="kw">[</span><span class="wa">:answers</span><span class="kw">]</span>), link(message<span class="kw">[</span><span class="wa">:link</span><span class="kw">]</span>)<span class="kw">]</span><span class="at">.compact.join</span>(<span class="st">&quot; &quot;</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> user(message)</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    add(<span class="cn">USER</span>, message)</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> service(trace)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    add(<span class="cn">SERVICE</span>, trace)</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">private</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> answers(answers)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">unless</span> answers</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;KBD: </span><span class="sc">#{</span>answers<span class="at">.join</span>(<span class="vs">', '</span>)<span class="sc">}</span><span class="st">&quot;</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> link(link)</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">unless</span> link</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;LNK: </span><span class="sc">#{</span>link<span class="sc">}</span><span class="st">&quot;</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> add(actor, message)</span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@text</span> <span class="kw">&lt;&lt;</span> <span class="kw">[</span>actor, message<span class="kw">]</span><span class="at">.join</span>(<span class="st">&quot;: &quot;</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Having all that, it is now possible to test a dialog by simulating conversation between user and a bot. By providing list of user’s answers, we <code>expect</code> a full dialog to look like it should. By injecting a dummy implementation of the Bitbucket service to the dialog as a dependency, it is even possible to unsure, that certain service calls were made with proper arguments.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">RSpec</span><span class="at">.describe</span> <span class="dt">Dialogs</span><span class="kw">::</span><span class="dt">CreateProject</span> <span class="cf">do</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  let(<span class="wa">:dialog</span>) <span class="kw">{</span> <span class="fu">proc</span> <span class="kw">{</span> described_class<span class="at">.new</span>(<span class="dt">DummyBitbucketFactory</span><span class="at">.new</span>(bitbucket), termination)<span class="at">.call</span> <span class="kw">}</span> <span class="kw">}</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  let(<span class="wa">:project</span>) <span class="kw">{</span> <span class="dt">ProjectInfo</span><span class="at">.new</span>(<span class="st">&quot;TEST&quot;</span>, <span class="wa">name: </span><span class="st">&quot;Test Project&quot;</span>, <span class="wa">description: </span><span class="st">&quot;Test Project description&quot;</span>, <span class="wa">type: </span><span class="st">&quot;normal&quot;</span>) <span class="kw">}</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  context <span class="st">&quot;when project does not exist&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    let(<span class="wa">:bitbucket</span>) <span class="kw">{</span> <span class="dt">DummyBitbucket</span><span class="at">.new</span>(conversation, <span class="dv">nil</span>, <span class="dv">nil</span>) <span class="kw">}</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    it <span class="st">&quot;user does not want to create project&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>      expect(runtime<span class="at">.chat</span>(payload <span class="kw">=</span> <span class="kw">[</span>project<span class="at">.key</span>, no<span class="kw">]</span>))<span class="at">.to</span> chat_match(<span class="kw">&lt;&lt;~</span><span class="cf">TEXT</span><span class="do">)</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: What is Bitbucket PROJECT key?</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: There is no such project.</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Do you want to create it? KBD: </span><span class="sc">#{</span>yes<span class="sc">}</span><span class="do">, </span><span class="sc">#{</span>no<span class="sc">}</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Ok then.</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="do">      TEXT</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="do">    it &quot;user wants to create a project&quot; do</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="do">      expect(runtime.chat(payload = [project.key, yes, project.name, project.description, yes])).to chat_match(&lt;&lt;~TEXT)</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: What is Bitbucket PROJECT key?</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: There is no such project.</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Do you want to create it? KBD: </span><span class="sc">#{</span>yes<span class="sc">}</span><span class="do">, </span><span class="sc">#{</span>no<span class="sc">}</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Specify project name (human readable):</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Specify project description:</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: We are about to create project with name '</span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span><span class="do">', key '</span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span><span class="do">', description '</span><span class="sc">#{</span>project<span class="at">.description</span><span class="sc">}</span><span class="do">' KBD: </span><span class="sc">#{</span>yes<span class="sc">}</span><span class="do">, </span><span class="sc">#{</span>no<span class="sc">}</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="do">        SRV: create_project(</span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span><span class="do">, </span><span class="sc">#{</span>project<span class="at">.description</span><span class="sc">}</span><span class="do">)</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Name: </span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Type: </span><span class="sc">#{</span>project<span class="at">.type</span><span class="sc">}</span></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Description: </span><span class="sc">#{</span>project<span class="at">.description</span><span class="sc">}</span></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Project created! LNK: </span><span class="sc">#{</span>bitbucket<span class="at">.projects_link</span>(<span class="dt">Services</span><span class="kw">::</span><span class="dt">Bitbucket</span><span class="kw">::</span><span class="cn">BROWSER_PREFIX</span>)<span class="sc">}</span><span class="do">/</span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="do">      TEXT</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="do">  end</span></span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="do">  context &quot;when project does exist&quot; do</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="do">    let(:bitbucket) { DummyBitbucket.new(conversation, project, nil) }</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="do">    it &quot;shows project details&quot; do</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="do">      expect(runtime.chat(payload = [project.key])).to chat_match(&lt;&lt;~TEXT)</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: What is Bitbucket PROJECT key?</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Ok, </span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span><span class="do"> project already exist.</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Name: </span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Type: </span><span class="sc">#{</span>project<span class="at">.type</span><span class="sc">}</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Description: </span><span class="sc">#{</span>project<span class="at">.description</span><span class="sc">}</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="do">      TEXT</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="do">    context &quot;when does not have a description&quot; do</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="do">      before { project[:description] = nil }</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="do">      it &quot;shows project details with no description&quot; do</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="do">        expect(runtime.chat(payload = [project.key])).to chat_match(&lt;&lt;~TEXT)</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: What is Bitbucket PROJECT key?</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="do">          USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
+<span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: Ok, </span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span><span class="do"> project already exist.</span></span>
+<span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: Name: </span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span></span>
+<span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: Type: </span><span class="sc">#{</span>project<span class="at">.type</span><span class="sc">}</span></span>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="do">        TEXT</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="do">      end</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="do">  end</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="do">end</span></span></code></pre></div>
+<p>Unlike classic approach with integration testing, this one does not require any network communication with external world and is executed extremely fast:</p>
+<pre class="console"><code>$ rspec
+.......................................
+
+Finished in 0.08125 seconds (files took 0.45979 seconds to load)
+39 examples, 0 failures</code></pre>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>

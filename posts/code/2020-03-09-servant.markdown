@@ -1,0 +1,164 @@
+---
+title: Type-safe API for server endpoints and clients
+tags: russian, haskell, servant
+---
+
+<img src="/images/servant/logo.jpg" class="center" />
+
+Итак - подошло время очередной технической статьи. На этот раз речь пойдет про API-over-HTTP. Вроде банальнейшая вещь, каждый так "сто раз делал" и чего вообще можно было на эту тему необычного придумать... Действительно, практически в любом backend-е есть слой "контроллеров", который отвечает за то, чтобы функции приложения были доступны извне по протоколу `http`. Кто-то использует `json`, кто-то `xml`, но общий знаменатель всегда - `http`.
+
+`REST API` - давно стал стандартом де-факто. Все привыкли к модели ресурсов-существительных и стандартных глаголов-действий `CRUDL`. В code review я сам часто советую заменить action-ы `up` и `down` ресурса `vote` на два отдельных контроллера `upvote` и `downvote` с методом `create`, для соответствия принципам `REST`.
+
+Но не `REST`-ом единым, как говорится, есть еще `GraphQL`, и много чего другого. Для очень маленьких приложений с одним-двумя endpoint-ами следовать заветам `REST` не так уж и необходимо. Сегодня мы как раз поговорим о подходе к API, который исповедует библиотека `Servant` из мира языка программирования `Haskell`, которую я использовал при написании бота [Group Manager](https://itransition.workplace.com/chat/t/105678357661487).
+
+## API как тип
+
+Библиотека `Servant` требует описать все ваше API в виде типа. Одного, весьма развесистого и длинного, но все-же типа (как `String` или `List Integer`). Рассмотрим пример из практики. Endpoint, реагирующий на оповещения от Facebook-а можно описать как:
+
+```haskell
+type MessageAPI = ReqBody '[JSON] Messages :> Post '[JSON] (NonEmpty SendTextMessageResponse)
+```
+
+Этот тип, состоит из двух частей, разделенных комбинатором `:>` (читать стоит как... как стрелку, например). Даже не зная всей специфики синтаксиса, можно догадаться, что речь идет о `POST` запросе, который в body принимает сообщение типа `Messages` в виде `json`-а и возвращает непустой список `SendTextMessageResponse`-ов, так же в виде `json`-а.
+
+API редко состоит только из одного endpoint-а. Наш случай - не исключение, Facebook требует, чтобы у принимающей нотификации стороны был еще один метод, для [верификации endpoint-а](https://developers.facebook.com/docs/graph-api/webhooks/getting-started/#verification-requests), добавим его.
+
+```haskell
+type WebHookAPI =
+       ReqBody '[JSON] Messages :> Post '[JSON] (NonEmpty SendTextMessageResponse)
+  :<|> RequiredParam "hub.verify_token" Text :> RequiredParam "hub.challenge" Text :> Get '[PlainText] Text
+```
+
+При помощи комбинатора `:<|>` (это не emoji, это аналог операции "альтернатива" `<|>` из [предыдущей статьи](https://itransition.workplace.com/groups/143641062970056/permalink/484712628862896/)) к первому запросу добавился еще один: он реагирует на `GET` запрос, требует наличия двух текстовых параметров и отвечает plain текстом, без всякого `json`-а. Лишь только посмотрев на тип можно сразу понять протокол взаимодействия приложения с окружающим миром, не обращаясь к документации, не рыща по исходникам в поисках аннотаций над контроллерами и их методами.
+
+Так же как и части типа объединяются между собой комбинатором `:<|>`, так и реализации этих endpoint-ов можно объединить в одно целое.
+
+```haskell
+webhookMessage :: Messages -> Handler (NonEmpty SendTextMessageResponse)
+webhookMessage = ... -- implementation omitted
+
+webhookVerify :: Text -> Text -> Handler Text
+webhookVerify = ... -- implementation omitted
+
+entireAPI = webhookVerify :<|> webhookMessage
+```
+
+При этом их типы тоже объединятся. Не будем утруждать себя и спросим у `REPL`-а (в комплируемых языках `REPL` – не редкость):
+
+```haskell
+> :t entireAPI
+< entireAPI :: Messages -> Handler (NonEmpty SendTextMessageResponse) :<|> Text -> Text -> Handler Text
+```
+
+## Возможности
+
+Компилятор не даст собрать систему, в которой программист "забыл" обработать какой-то параметр или пытается ответить текстом на запрос, в контракте ответа которого требуется список. Библиотека `Servant` берет на себя много рутинной работы по ответу на запросы, которые "не обрабатываются", то есть не описаны (не предусмотрены) в типе. Так же `Servant` занимается операциями `encode`/`decode` данных в/из `json` или `xml` форматы в соответствии с заявленным в типе и обработкой ошибок, связанных с этим.
+
+Но все же, пока ничего экстраординарного, ну описан контракт в виде типа, что с того... Наверное дело в том, что можно удобно будет описывать повторяющиеся части API? Написали один раз параметризованный тип:
+
+```haskell
+--   - GET /<name>
+--   - GET /<name>/id
+--   - POST /<name>
+type CreateReadList (name :: Symbol) a = name :>
+ (                            Get  '[JSON] [a]
+ :<|> Capture "id" Integer :> Get  '[JSON] a
+ :<|> ReqBody '[JSON] a    :> Post '[JSON] NoContent
+ )
+```
+
+И используем его для нескольких типов сущностей:
+
+```haskell
+type API = FactoringAPI
+     :<|> CreateReadList "users" User
+     :<|> CreateReadList "products" Product
+```
+
+Если захотим в ответ на `POST` запрос для создания сущности начать что-то возвращать (например id созданной записи), то изменение сделанное в одном месте (вместо `NoContent` напишем `Integer`) отразится сразу и на `user`-ах и на `product`-ах, причем компилятор нам точно скажет где именно в коде начало возникать несовпадение типов, чтобы мы точно не забыли вернуть `Integer` из обработчика запроса.
+
+Но эта кроличья нора несколько глубже... Так как тип известен на этапе компиляции, а в Haskell есть интроспекция типов (тоже на этапе компиляции), то можно информацию из типа использовать для... генерации кода!
+
+Объявляемый тип API представляет собой контракт обмена сообщениями. Но сообщения же можно не только принимать, но еще и отправлять! Бот [Group Manager](https://itransition.workplace.com/chat/t/105678357661487) тоже вынужден это делать для общения с пользователем. Facebook не обращает внимания на то, что вы ему шлете в ответ на нотификацию о сообщении от пользователя, ему главное чтобы HTTP код был 200. Для того, чтобы пользователю написать – нужно воспользоваться специальным [Facebook Messaging API](https://developers.facebook.com/docs/messenger-platform/reference/send-api/), то есть послать несколько сообщений Facebook-у по HTTP. А что если описать и этот протокол взаимодействия в виде типа?
+
+```haskell
+type RequiredParam = QueryParam' '[Strict, Required]
+type AccessTokenParam = RequiredParam "access_token" Text
+
+type FBMessengerSendAPI =
+       "me" :> "messages" :> ReqBody '[JSON] SendTextMessageRequest :> AccessTokenParam :> Post '[JSON] SendTextMessageResponse
+  :<|> "me" :> "messages" :> ReqBody '[JSON] ServiceMessageRequest :> AccessTokenParam :> Post '[JSON] ()
+  :<|> Capture "user_id" Text :> RequiredParam "fields" Text :> AccessTokenParam :> Get '[JSON] UserInfo
+```
+
+Первый и второй API вызовы выглядят похожими. С точки зрения Facebook это, вообще говоря, один и тот же `GET` endpoint на URL-е `"/me/messages"`, который принимает `json` в body, но с точки зрения нас, как потребителя этой API, вызовы разные, с разным назначением и даже возвращаемым типом (в случае служебных сообщений нам "не важно" что Facebook на него ответил).
+
+Прелесть в том, что код для методов доступа к такому API может быть автоматически сгенерирован, нужно только немного помочь компилятору, написав "заглушки" методов с сигнатурами типов:
+
+```haskell
+sendTextMessage :: SendTextMessageRequest -> Token -> ClientM SendTextMessageResponse
+sendServiceMessage :: ServiceMessageRequest -> Token -> ClientM SendTextMessageResponse
+getUserInfo :: Text -> Text -> Token -> ClientM UserInfo
+
+sendTextMessage :<|> sendServiceMessage :<|> getUserInfo = client (Proxy :: Proxy FBMessengerSendAPI)
+```
+
+Пользоваться методами можно предоставив "направление" `BaseUrl Https "graph.facebook.com" 443 "/v6.0"`:
+
+```haskell
+runClientM (getUserInfo "123" "email" (Token "access_token")) $ with graphAPIBaseUrl >>= \case
+  Left error     -> -- Do something with error
+  Right userInfo -> -- userInfo from Facebook, has type UserInfo
+```
+
+Пропадает необходимость работы с низкоуровневыми HTTP библиотеками, нет нужды вручную заниматься чтением `json`-а из ответа сервера, даже строить URL-ы самому не надо (обратите внимание, метод `getUserInfo` ничего об URL-е "не знает").
+
+Подход, среди прочего, позволяет:
+- на основании информации из типа сгенерировать код на [JavaScript](https://hackage.haskell.org/package/servant-js) (или на другом [языке](https://hackage.haskell.org/package/servant-foreign)) для доступа к такой API-шке;
+- создать [Swagger](https://hackage.haskell.org/package/servant-swagger-1.1.8/docs/Servant-Swagger.html) описание API-шки из ее типа либо наоборот, сгенерировать тип на основе Swagger описания;
+- в несколько строк создать [mock](https://hackage.haskell.org/package/servant-mock) версию API-шки, которая бы возвращала случайные данные, но в строгом в соответствии с ожидаемым форматом;
+- сгенерировать [документацию](https://hackage.haskell.org/package/servant-docs) в markdown формате с описанием и примерами использования;
+- написать [тест](https://hackage.haskell.org/package/servant-quickcheck-0.0.8.0/docs/Servant-QuickCheck.html), который будет "долбить" все наши endpoint-ы запросами со случайными данными проверяя предикаты `not500 <%> notLongerThan 1000000` (для целей нагрузочного тестирования) или `onlyJsonObjects` (чтобы отловить "ошибки дизайна" API вида `Post '[JSON] ()`).
+
+И это не теоретические "возможности", для всего есть рабочие библиотеки. Более того, начали появляться [реализации](https://www.47deg.com/blog/introducing-mu-haskell-0-1/) той же идеи, но вместо `HTTP REST` использующие `gRPC` (говорят сейчас так модно в мире микро-сервисных архитектур).
+
+## Refactoring
+
+"Сломать" работающий сервис в процессе рефакторинга становится крайне проблематично. К примеру, решили мы избавиться от дублирования в описании типа `FBMessengerSendAPI`. В нем несколько раз повторяется часть, моделирующая префикс URL-а "/me/messages", да и описывать в каждом из endpoint-ов факт того, что "надо бы token передать" утомительно.
+
+Прямо как в алгебраическом уравнении, "выносим за скобки" `AccessTokenParam`, а затем и префикс `"me" :> "messages"`. В результате token будет применяться ко всем endpoint-ам, а префикс, только к первым двум (в соответствии со свойством [дистрибутивности](https://ru.wikipedia.org/wiki/%D0%94%D0%B8%D1%81%D1%82%D1%80%D0%B8%D0%B1%D1%83%D1%82%D0%B8%D0%B2%D0%BD%D0%BE%D1%81%D1%82%D1%8C)).
+
+```haskell
+-- Initial version
+type FBMessengerSendAPI =
+       "me" :> "messages" :> ReqBody '[JSON] SendTextMessageRequest :> AccessTokenParam :> Post '[JSON] SendTextMessageResponse
+  :<|> "me" :> "messages" :> ReqBody '[JSON] ServiceMessageRequest :> AccessTokenParam :> Post '[JSON] ()
+  :<|> Capture "user_id" Text :> RequiredParam "fields" Text :> AccessTokenParam :> Get '[JSON] UserInfo
+
+-- Step 1 - extracting AccessTokenParam
+type FBMessengerSendAPI =
+ AccessTokenParam :> (
+       "me" :> "messages" :> ReqBody '[JSON] SendTextMessageRequest :> Post '[JSON] SendTextMessageResponse
+  :<|> "me" :> "messages" :> ReqBody '[JSON] ServiceMessageRequest  :> Post '[JSON] SendTextMessageResponse
+  :<|> Capture "user_id" Text :> RequiredParam "fields" Text :> Get '[JSON] GetUserInfoMessageResponse)
+
+-- Step 2 - extracting "me" :> "messages"
+type FBMessengerSendAPI =
+ AccessTokenParam :> (
+    "me" :> "messages" :> (
+         ReqBody '[JSON] SendTextMessageRequest :> Post '[JSON] SendTextMessageResponse
+    :<|> ReqBody '[JSON] ServiceMessageRequest  :> Post '[JSON] SendTextMessageResponse)
+  :<|> Capture "user_id" Text :> RequiredParam "fields" Text :> Get '[JSON] GetUserInfoMessageResponse)
+```
+
+Соответственно, сигнатуры методов доступа к данным, тоже должны измениться. Раньше token был последним параметром, а станет первым:
+
+```haskell
+sendTextMessage :: Token -> SendTextMessageRequest -> ClientM SendTextMessageResponse
+sendServiceMessage :: Token -> ServiceMessageRequest -> ClientM SendTextMessageResponse
+getUserInfo :: Token -> Text -> Text -> ClientM UserInfo
+
+sendTextMessage :<|> sendServiceMessage :<|> getUserInfo = client (Proxy :: Proxy (Flat FBMessengerSendAPI))
+```
+
+А так как они изменились, то компилятор будет ругаться на все их использования в коде, не позволяя нам нечаянно "забыть" поменять порядок в одном из мест. Строгая и мощная система типов не всегда "стоит на пути", чаще она защищает от ошибок и предотвращает потенциальные баги ;)

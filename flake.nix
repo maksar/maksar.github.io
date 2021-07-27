@@ -15,7 +15,29 @@
       let
         haskellPackages = pkgs.haskellPackages.override {
           overrides = self: super: rec {
-            JuicyPixels-extra = super.JuicyPixels-extra.overrideDerivation (drv: { patchPhase = "sed -i 's/scaleBilinear_spec /scaleBilinear_spec/g' Codec/Picture/Extra.hs"; });
+            JuicyPixels-extra = self.callHackageDirect
+              {
+                pkg = "JuicyPixels-extra";
+                ver = "0.5.2";
+                sha256 = "sha256-NoMF4US7mqbHRtVAqssvFjHMr2iXBR8DFrMgKhRHY9w=";
+              }
+              { };
+            hakyll-shortcut-links = haskell.lib.doJailbreak (haskell.lib.unmarkBroken (self.callHackageDirect
+              {
+                pkg = "hakyll-shortcut-links";
+                ver = "0.1.0.1";
+                sha256 = "sha256-AW77lw0WlpVh3aXrsbQHW2g+Iuqvjf1xKPA/+Ds8XzU=";
+
+              }
+              { }));
+            shortcut-links = haskell.lib.dontCheck (haskell.lib.unmarkBroken (self.callHackageDirect
+              {
+                pkg = "shortcut-links";
+                ver = "0.5.1.1";
+                sha256 = "sha256-d5sHE744bjK69e7QvWafew8wHqYQwS9QR7bSYdSBGlU=";
+
+              }
+              { }));
           };
         };
 
@@ -62,9 +84,7 @@
             cabal-install
             haskellPackages.stan
           ])
-        ).envFunc { }).overrideAttrs (f:
-          {
-            inherit (self.checks.${system}.pre-commit-check) shellHook;
-          });
+        ).envFunc { }).overrideAttrs
+          (f: { inherit (self.checks.${system}.pre-commit-check) shellHook; });
       });
 }

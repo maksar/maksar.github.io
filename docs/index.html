@@ -1,72 +1,172 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>My Hakyll Blog - Home</title>
-        <link rel="stylesheet" href="./css/default.css" />
-        <link rel="stylesheet" href="./css/pygments.css" />
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300" rel="stylesheet">
-    </head>
-    <body>
-        <header>
-            <div class="logo">
-                <a href="./">My Hakyll Blog</a>
-            </div>
-            <nav>
-                <a href="./">Home</a>
-                <a href="./about.html">About</a>
-                <a href="./contact.html">Contact</a>
-            </nav>
-        </header>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - </title>
+  <link rel="stylesheet" href="./css/default.css" />
 
-        <main role="main">
-            <h1>Home</h1>
-            <h2>Welcome</h2>
+  <script type="text/javascript" src="./vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="./vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="./vendor/fresco/css/fresco.css" />
 
-<img src="./images/haskell-logo.png" style="float: right; margin: 10px;" />
+  <link rel="stylesheet" href="./vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="./vendor/highlight/highlight.min.js"></script>
+  <script src="./vendor/highlight/languages/haskell.min.js"></script>
+  <script src="./vendor/highlight/languages/ruby.min.js"></script>
+  <script src="./vendor/highlight/languages/shell.min.js"></script>
+  <script src="./vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="./vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
 
-<p>Welcome to my blog!</p>
+<body>
+  <header>
+    <div class="logo">
+      <a href="./">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="./languages/english.html">english</a> &amp;<a href="./languages/russian.html">russian</a>
+      @<a href="./categories/code.html">code</a> @<a href="./categories/projects.html">projects</a>
+      <a href="./about.html">About</a>
+    </nav>
+  </header>
 
-<p>I've reproduced a list of recent posts here for your reading pleasure:</p>
+  <main role="main">
+    <h1></h1>
+    <img src="./images/logo.jpg" class="center" />
 
-<h2>Posts</h2>
 <ul>
-    
-        <li>
-            <a href="./posts/2021-03-17-gitman.html">Gitman</a> - March 17, 2021
-        </li>
-    
-        <li>
-            <a href="./posts/2015-12-07-tu-quoque.html">Tu Quoque</a> - December  7, 2015
-        </li>
-    
-        <li>
-            <a href="./posts/2015-11-28-carpe-diem.html">ENV parsing</a> - November 28, 2015
-        </li>
-    
-        <li>
-            <a href="./posts/2015-10-07-rosa-rosa-rosam.html">Extensible effects</a> - October  7, 2015
-        </li>
-    
-        <li>
-            <a href="./posts/2015-08-12-spqr.html">S.P.Q.R.</a> - August 12, 2015
-        </li>
-    
+  
+      <li style="margin-bottom: 30px;">
+        July 27, 2021 &amp;<a href="./languages/english.html">english</a> @<a href="./categories/code.html">code</a> #<a href="./tags/kotlin.html">kotlin</a> #<a href="./tags/konfig.html">konfig</a>
+        <br /><a href="./posts/code/2021-07-27-konfig.html">Parsing environment variables with in kotlin with konfig</a>
+        <br />
+        <p>There is a wonderful kotlin library for reading configuration from various sources (environment variables, files, etc.) – <a href="https://github.com/npryce/konfig">konfig</a>. It allows to define your application configuration in a declarative way and even perform some data transformations along the way.</p>
+
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        June 11, 2021 &amp;<a href="./languages/english.html">english</a> @<a href="./categories/projects.html">projects</a> #<a href="./tags/haskell.html">haskell</a> #<a href="./tags/aeson.html">aeson</a> #<a href="./tags/servant.html">servant</a>
+        <br /><a href="./posts/projects/2021-06-11-coorish.html">People membership validation in JIRA fields against Active Directory</a>
+        <br />
+        <p>Current version of JIRA inside Itransition does not allow to validate “whether a person belongs to a certain group” for multi-people fields, only for single-user fields. <a href="https://github.com/maksar/Coorish">Coorish</a> – is a small utility to determine ineligible people being specified in jira tickets.</p>
+
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        March 17, 2021  @<a href="./categories/projects.html">projects</a> #<a href="./tags/english.html">english</a> #<a href="./tags/ruby.html">ruby</a> #<a href="./tags/telegram.html">telegram</a> #<a href="./tags/fibers.html">fibers</a> #<a href="./tags/rspec.html">rspec</a>
+        <br /><a href="./posts/projects/2021-03-17-gitman.html">Telegram bot for managing Bitbucket repositories</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        March 13, 2021  @<a href="./categories/projects.html">projects</a> #<a href="./tags/english.html">english</a> #<a href="./tags/kotlin.html">kotlin</a> #<a href="./tags/JIRA.html">JIRA</a>
+        <br /><a href="./posts/projects/2021-03-13-personer.html">JIRA bot to automatically update fields values</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        March  9, 2021  @<a href="./categories/projects.html">projects</a> #<a href="./tags/russian.html">russian</a> #<a href="./tags/Office%20365.html">Office 365</a> #<a href="./tags/kotlin.html">kotlin</a>
+        <br /><a href="./posts/projects/2021-03-09-milestones.html">Power Automate for low-code services</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        February  4, 2021  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a> #<a href="./tags/haskell.html">haskell</a> #<a href="./tags/polysemy.html">polysemy</a>
+        <br /><a href="./posts/code/2021-02-04-effect-systems.html">FP effects systems vs OOP interfaces</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        January 20, 2021  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a>
+        <br /><a href="./posts/code/2021-01-20-developers-complaints.html">Developers' complaints</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        December  4, 2020  @<a href="./categories/projects.html">projects</a> #<a href="./tags/english.html">english</a> #<a href="./tags/NIX.html">NIX</a> #<a href="./tags/nixops.html">nixops</a>
+        <br /><a href="./posts/projects/2020-12-04-nitrax.html">Nixops deployment of all the bots and services</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        May 15, 2020  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a>
+        <br /><a href="./posts/code/2020-05-15-passwords.html">About passwords</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        May 14, 2020  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a>
+        <br /><a href="./posts/code/2020-05-14-pull-requests.html">About pull requests</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        May 11, 2020  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a>
+        <br /><a href="./posts/code/2020-05-11-size-matters.html">Size does matter</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        March 23, 2020  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a> #<a href="./tags/haskell.html">haskell</a> #<a href="./tags/lens.html">lens</a> #<a href="./tags/polysemy.html">polysemy</a> #<a href="./tags/QuickCheck.html">QuickCheck</a>
+        <br /><a href="./posts/code/2020-03-23-env-parsing.html">Parsing environment variables with reverse tests</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        March  9, 2020  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a> #<a href="./tags/haskell.html">haskell</a> #<a href="./tags/servant.html">servant</a>
+        <br /><a href="./posts/code/2020-03-09-servant.html">Type-safe API for server endpoints and clients</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        February 27, 2020 &amp;<a href="./languages/russian.html">russian</a> @<a href="./categories/code.html">code</a> #<a href="./tags/haskell.html">haskell</a>
+        <br /><a href="./posts/code/2020-02-27-aeson-parsing.html">Parsing different JSON payloads into a single data structure</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        February  7, 2020  @<a href="./categories/projects.html">projects</a> #<a href="./tags/english.html">english</a> #<a href="./tags/AD.html">AD</a> #<a href="./tags/LDAP.html">LDAP</a> #<a href="./tags/haskell.html">haskell</a> #<a href="./tags/polysemy.html">polysemy</a> #<a href="./tags/aeson.html">aeson</a> #<a href="./tags/servant.html">servant</a>
+        <br /><a href="./posts/projects/2020-02-07-ldap-bot.html">Workplace bot for managing Actve Directory groups</a>
+        <br />
+        
+      </li>
+  
+      <li style="margin-bottom: 30px;">
+        October 29, 2019  @<a href="./categories/code.html">code</a> #<a href="./tags/russian.html">russian</a> #<a href="./tags/AD.html">AD</a> #<a href="./tags/LDAP.html">LDAP</a>
+        <br /><a href="./posts/code/2019-10-29-ldap.html">LDAP tips and tricks</a>
+        <br />
+        <p>Я бы хотел продолжить цикл технических статей на Workplace рассказом о том, с какими трудностями можно столкнуться при работе с Active Directory по LDAP протоколу. Полноценной статьей такой рассказ назвать сложно, скорее – сборник рецептов. Стоит заранее оговориться – никаких упоминаний о Windows и PowerShell в статье нет, это тема очень обширна и заслуживает отдельной публикации (а может и нескольких).</p>
+
+      </li>
+  
 </ul>
 
+Topics: #<a href="./tags/AD.html">AD</a> #<a href="./tags/JIRA.html">JIRA</a> #<a href="./tags/LDAP.html">LDAP</a> #<a href="./tags/NIX.html">NIX</a> #<a href="./tags/Office%20365.html">Office 365</a> #<a href="./tags/QuickCheck.html">QuickCheck</a> #<a href="./tags/aeson.html">aeson</a> #<a href="./tags/english.html">english</a> #<a href="./tags/fibers.html">fibers</a> #<a href="./tags/haskell.html">haskell</a> #<a href="./tags/konfig.html">konfig</a> #<a href="./tags/kotlin.html">kotlin</a> #<a href="./tags/lens.html">lens</a> #<a href="./tags/nixops.html">nixops</a> #<a href="./tags/polysemy.html">polysemy</a> #<a href="./tags/rspec.html">rspec</a> #<a href="./tags/ruby.html">ruby</a> #<a href="./tags/russian.html">russian</a> #<a href="./tags/servant.html">servant</a> #<a href="./tags/telegram.html">telegram</a>
 
-<h2>By tag</h2>
-<a style="font-size: 50%" href="./tags/QuickCheck.html">QuickCheck</a> <a style="font-size: 50%" href="./tags/english.html">english</a> <a style="font-size: 50%" href="./tags/fibers.html">fibers</a> <a style="font-size: 125%" href="./tags/haskell.html">haskell</a> <a style="font-size: 50%" href="./tags/lens.html">lens</a> <a style="font-size: 125%" href="./tags/polysemy.html">polysemy</a> <a style="font-size: 50%" href="./tags/rspec.html">rspec</a> <a style="font-size: 50%" href="./tags/ruby.html">ruby</a> <a style="font-size: 125%" href="./tags/russian.html">russian</a> <a style="font-size: 50%" href="./tags/telegram.html">telegram</a>
-        </main>
+<hr />
+<a type="application/rss+xml" href="./rss.xml">RSS Feed</a>
+  </main>
 
-        <footer>
-            Site proudly generated by
-            <a href="http://jaspervdj.be/hakyll">Hakyll</a>
-        </footer>
-    </body>
+  <footer>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
 </html>

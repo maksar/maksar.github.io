@@ -1,0 +1,304 @@
+---
+title: Telegram bot for managing Bitbucket repositories
+tags: english, ruby, telegram, fibers, rspec
+---
+
+Gitman is a Telegram chat bot. It helps to manage source code repositories in Itransition Bitbucket server. Intead of creating repositories manually, our HelpDesk operators are using this bot. It sets up all merge hooks, commit message checks, default reviwers policy, other things which is tidiuos to do by hands.
+
+Here are some examples of *how it looks*:
+
+<a href="/images/gitman/1.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/gitman/1.jpg"/></a>
+<a href="/images/gitman/2.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/gitman/2.jpg"/></a>
+<a href="/images/gitman/3.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/gitman/3.jpg"/></a>
+<a href="/images/gitman/4.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/gitman/4.jpg"/></a>
+
+There are number of technical decisions, which makes this piece of software interesting to mention as a 'ruby pearl':
+
+* usage of ruby Fibers feature
+* usage of pattern matching feature
+* non standard approach on integration testing
+
+It also features a [trick](https://github.com/maksar/gitman/blob/master/flake.nix#L46-L49) (one of the first things I did with nix) with making some environment variables visible for a nix shell in order for the bundler (ruby build tool) to be able to build gems (ruby libraries) with native extensions. It even has a [check phase](https://github.com/maksar/gitman/blob/master/flake.nix#L68) enabled ;)
+
+Under the hood it uses my fork of [bundix](https://github.com/nix-community/bundix/pull/75/files) (allows to nixify ruby dependencies) because the official version is forgotten by maintainers and no longer supports modern bundler.
+
+Being a [telegram](https://telegram.org) bot, gitman need to maintain a conversation with a user. Bot is not a stateless command processor, but rather a context-aware conversion member. In order to execute a particular command, it can ask additional question from the user and react to user's responses.
+
+Doing stateful operations is not an easy task in ruby. Majority of the frameworks only support stateless requests processing, when each new request doesn't share any information with a previous one. Having a *conversation*, would require some kind of storage, `session` object maybe to store current state of a dialog. That complicates the code, forcing developer to save/restore conversation state of each request.
+
+Gitman uses ruby Fibers feature to seamlessly suspend and continue code execution flow whenever user posts his/her response in a chat. Code of such dialog can be expressed as a single continuous method, which makes it easy to every aspect of the particular dialog.
+
+Lets review an example – dialog to create a project inside Itransition's Bitbucket server:
+
+```ruby
+def project
+  project = request("What is Bitbucket PROJECT key?")
+  if (info = bitbucket.project_info)
+    reply("Ok, #{project} project already exist.")
+    print_info(info)
+    @create_repository.call(project)
+  else
+    reply("There is no such project.")
+    ask("Do you want to create it?", &method(:create))
+  end
+end
+
+def create
+  name = request("Specify project name (human readable):")
+  description = request("Specify project description:")
+  ask("We are about to create project with name '#{name}', description '#{description}'") do
+    print_info(bitbucket.create_project(name, description))
+    answer("Project created!", link: bitbucket.project_link(Services::Bitbucket::BROWSER_PREFIX))
+  end
+end
+```
+
+Code indeed reads like a conversation, without any callbacks or nasty `and_then` statements – just a plain old ruby method. Lets review how it is possible for this code to work continuously in a context of several HTTP roundtrips to Telegram API. Base primitives of the dialog are:
+
+* `ask` to ask some question from the user in chat and expect a binary answer – yes or no
+* `request` to request some additional text information from the user
+* `reply` to post an information statement to the chat, which does not require user's answer
+* `answer` a method to end the dialog (name is not ideal), when bot resets itself to the default state with no on-going conversation
+
+```ruby
+def ask(question, negative = -> { answer("Ok then.") })
+  case request(question, answers: [[POSITIVE, NEGATIVE]])
+  in POSITIVE then yield
+  else negative.call
+  end
+end
+
+def option(question, &block)
+  ask(question, -> {}, &block)
+end
+
+def request(question, params = {})
+  Fiber.yield(:question, params.merge(text: question))
+end
+
+def reply(statement, params = {})
+  Fiber.yield(:statement, params.merge(text: statement))
+end
+
+def answer(answer, params = {})
+  request(answer, params)
+  Fiber.yield(:end)
+end
+```
+
+Bot runs forever in a main loop expecting a message from a user. `@dialogs` hash is a mapping from chat ID to the dialog object instance with suspended Fiber thread. Whenever message appears, main loop fetches an on-going dialog from a `@gialogs` hash and tries to continue it.
+
+```ruby
+Telegram::Bot::Client.run(ENV.fetch("GITMAN_TELEGRAM_TOKEN")) do |bot|
+  puts "Gitman on duty!"
+  bot.listen(&Runtime.new(
+    bot, Dialogs::Default.new(
+           "/create" => proc { Dialogs::CreateProject.new.call },
+           "/close" => proc { Dialogs::CloseProject.new.call },
+           "/reopen" => proc { Dialogs::ReopenProject.new.call }
+         )
+  ).method(:main_loop))
+end
+
+def main_loop(message)
+  return self unless known_user?(message)
+
+  @dialogs[message.chat.id] = listen(message.chat.id, message.text, @dialogs[message.chat.id])
+  self
+end
+```
+
+Continuation happens inside `listen` method, which `resume`s a a Fiber inside a dialog, passing a text from a user in it. Dialog has control on what to do next by returning value. Case statement pattern patches on that value
+
+* if a value `is_a` Fiber – runtime recursively calls `listen`, allowing a dialog code to execute next statement
+* if a value is a payload – runtime decides what to do next (also `print`ing a message to a chat using Telegram's API)
+  * in case of a question – runtime just continue to wait for an user's answer, returning a dialog, which will be stored in `@dialogs` until next request comes in
+  * in case of a statement – recursive `listen` call is needed, because dialog may contain several consequent `reply` calls, which all needs to be handled
+  * `:end` forces dialog to *become* a default one
+
+```ruby
+def listen(chat, text, dialog)
+  return reset(chat, "Ok, then.") if text == "/cancel"
+
+  case (result = dialog.resume(text))
+  in Fiber then listen(chat, text, result)
+  in [:question | :statement, payload]
+    print(chat, payload)
+    decide(chat, dialog, result, text)
+  else decide(chat, dialog, result, text)
+  end
+rescue StandardError => e
+  reset(chat, "Something bad happens: #{e}\n#{e.message}\n#{e.backtrace}")
+end
+
+def decide(chat, dialog, result, text)
+  case result
+  in [:question, *] then dialog
+  in [:statement, *] then listen(chat, text, dialog)
+  in :end then listen(chat, text, @dialogs.default(nil))
+  in command then print(chat, text: "Unknown internal command: #{command}")
+  end
+end
+```
+
+That great, but `how we can test that`, you may ask?.. Well, there is a rabbit in a hat for that – one more runtime! Main loop in that dummy runtime does not maintain different dialogs, but rather replays a list of messages from `answers` input array, injecting them to the conversation.
+
+```ruby
+def chat(answers)
+  ([START] + answers).each do |text|
+    main_loop(Telegram::Bot::Types::Message.new(
+      from: Telegram::Bot::Types::User.new(id: 0),
+      chat: Telegram::Bot::Types::Chat.new(id: 0),
+      text: text
+    ))
+  end
+  @conversation.text.join("\n")
+end
+
+def main_loop(message)
+  @conversation.user(message.text) unless message.text == START
+  super
+end
+
+private
+
+def decide(chat, dialog, result, text)
+  return if result == :end
+
+  super
+end
+
+def print(_chat, message)
+  @conversation.bot(message)
+end
+```
+
+Conversation object, which is another helper for testing a dialog is a pretty simple ruby class. It records everything that user said, bot replied to the user or any service call to the Bitbucket API which was made by a bot.
+
+```ruby
+class Conversation
+  BOT = "BOT"
+  USER = "USR"
+  SERVICE = "SRV"
+
+  attr_reader :text
+
+  def initialize
+    @text = []
+  end
+
+  def bot(message)
+    add(BOT, [message[:text], answers(message[:answers]), link(message[:link])].compact.join(" "))
+  end
+
+  def user(message)
+    add(USER, message)
+  end
+
+  def service(trace)
+    add(SERVICE, trace)
+  end
+
+  private
+
+  def answers(answers)
+    return unless answers
+
+    "KBD: #{answers.join(', ')}"
+  end
+
+  def link(link)
+    return unless link
+
+    "LNK: #{link}"
+  end
+
+  def add(actor, message)
+    @text << [actor, message].join(": ")
+  end
+end
+```
+
+Having all that, it is now possible to test a dialog by simulating conversation between user and a bot. By providing list of user's answers, we `expect` a full dialog to look like it should. By injecting a dummy implementation of the Bitbucket service to the dialog as a dependency, it is even possible to unsure, that certain service calls were made with proper arguments.
+
+```ruby
+RSpec.describe Dialogs::CreateProject do
+  let(:dialog) { proc { described_class.new(DummyBitbucketFactory.new(bitbucket), termination).call } }
+  let(:project) { ProjectInfo.new("TEST", name: "Test Project", description: "Test Project description", type: "normal") }
+
+  context "when project does not exist" do
+    let(:bitbucket) { DummyBitbucket.new(conversation, nil, nil) }
+
+    it "user does not want to create project" do
+      expect(runtime.chat(payload = [project.key, no])).to chat_match(<<~TEXT)
+        BOT: What is Bitbucket PROJECT key?
+        USR: #{payload.shift}
+        BOT: There is no such project.
+        BOT: Do you want to create it? KBD: #{yes}, #{no}
+        USR: #{payload.shift}
+        BOT: Ok then.
+      TEXT
+    end
+
+    it "user wants to create a project" do
+      expect(runtime.chat(payload = [project.key, yes, project.name, project.description, yes])).to chat_match(<<~TEXT)
+        BOT: What is Bitbucket PROJECT key?
+        USR: #{payload.shift}
+        BOT: There is no such project.
+        BOT: Do you want to create it? KBD: #{yes}, #{no}
+        USR: #{payload.shift}
+        BOT: Specify project name (human readable):
+        USR: #{payload.shift}
+        BOT: Specify project description:
+        USR: #{payload.shift}
+        BOT: We are about to create project with name '#{project.name}', key '#{project.key}', description '#{project.description}' KBD: #{yes}, #{no}
+        USR: #{payload.shift}
+        SRV: create_project(#{project.name}, #{project.description})
+        BOT: Name: #{project.name}
+        BOT: Type: #{project.type}
+        BOT: Description: #{project.description}
+        BOT: Project created! LNK: #{bitbucket.projects_link(Services::Bitbucket::BROWSER_PREFIX)}/#{project.key}
+      TEXT
+    end
+  end
+
+  context "when project does exist" do
+    let(:bitbucket) { DummyBitbucket.new(conversation, project, nil) }
+
+    it "shows project details" do
+      expect(runtime.chat(payload = [project.key])).to chat_match(<<~TEXT)
+        BOT: What is Bitbucket PROJECT key?
+        USR: #{payload.shift}
+        BOT: Ok, #{project.key} project already exist.
+        BOT: Name: #{project.name}
+        BOT: Type: #{project.type}
+        BOT: Description: #{project.description}
+      TEXT
+    end
+
+    context "when does not have a description" do
+      before { project[:description] = nil }
+
+      it "shows project details with no description" do
+        expect(runtime.chat(payload = [project.key])).to chat_match(<<~TEXT)
+          BOT: What is Bitbucket PROJECT key?
+          USR: #{payload.shift}
+          BOT: Ok, #{project.key} project already exist.
+          BOT: Name: #{project.name}
+          BOT: Type: #{project.type}
+        TEXT
+      end
+    end
+  end
+end
+```
+
+Unlike classic approach with integration testing, this one does not require any network communication with external world and is executed extremely fast:
+
+```console
+$ rspec
+.......................................
+
+Finished in 0.08125 seconds (files took 0.45979 seconds to load)
+39 examples, 0 failures
+```

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - JIRA bot to automatically update fields values</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>JIRA bot to automatically update fields values</h1>
+    <article>
+  <section class="header">
+    March 13, 2021  @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/english.html">english</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/JIRA.html">JIRA</a>
+  </section>
+  <section>
+    <p>Personer is a small Kotlin bot, which is started by systemd timer (thanks nixos) and performs a read-update cycle over our project cards (custom JIRA issues). It features modern Kotlin’s Flow framework</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@FlowPreview</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>suspend <span class="kw">fun</span> <span class="fu">projectCards</span><span class="op">(</span><span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt;<span class="op">)</span> <span class="op">=</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    search<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span>total<span class="op">.</span>let <span class="op">{</span> total <span class="op">-&gt;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        rangeUntil<span class="op">(</span><span class="dv">0</span><span class="op">,</span> total<span class="op">,</span> env<span class="op">[</span>PERSONER_PAGE_SIZE<span class="op">]).</span>asFlow<span class="op">()</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>concurrentFlatMap <span class="op">{</span> start <span class="op">-&gt;</span> search<span class="op">(</span>start<span class="op">,</span> env<span class="op">[</span>PERSONER_PAGE_SIZE<span class="op">],</span> fields<span class="op">).</span>issues <span class="op">}</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">.</span>toList<span class="op">()</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<p>which allows concurrently <code>flatMap</code>-ing a flow (fancy name of the lazy stream) with retrying abilities on errors.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="at">@FlowPreview</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="op">&lt;</span><span class="dt">T</span>, <span class="dt">R</span><span class="op">&gt;</span> <span class="fu">Flow</span><span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;.</span><span class="fu">concurrentFlatMap</span><span class="op">(</span><span class="va">transform</span><span class="op">:</span> <span class="dt">suspend</span> (<span class="va">T</span><span class="op">)</span> -&gt; <span class="fu">Iterable</span><span class="op">&lt;</span><span class="dt">R</span><span class="op">&gt;</span>) <span class="op">=</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    flatMapMerge <span class="op">{</span> value <span class="op">-&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        flow <span class="op">{</span> emitAll<span class="op">(</span>transform<span class="op">(</span>value<span class="op">).</span>asFlow<span class="op">())</span> <span class="op">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}.</span>retryOnTimeouts<span class="op">()</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;</span> <span class="fu">Flow</span><span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;.</span><span class="fu">retryOnTimeouts</span><span class="op">()</span> <span class="op">=</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">this</span><span class="op">.</span>flowOn<span class="op">(</span>Dispatchers<span class="op">.</span>IO<span class="op">)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">.</span>retry <span class="op">{</span> cause <span class="op">-&gt;</span> generateSequence<span class="op">(</span>cause<span class="op">,</span> Throwable<span class="op">::</span>cause<span class="op">).</span>any <span class="op">{</span> it <span class="kw">is</span> SocketTimeoutException <span class="op">}</span> <span class="op">}</span></span></code></pre></div>
+<p>Tons of boilerplate code above that – is just the consequence of having to inject a <a href="https://github.com/maksar/personer/blob/master/src/main/kotlin/com/itransition/personer/Jira.kt#L114">custom parser</a> inside the library, which doesn’t allow that natively.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>

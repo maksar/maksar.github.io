@@ -1,0 +1,169 @@
+---
+title: People membership validation in JIRA fields against Active Directory
+tags: haskell, aeson, servant,
+language: english
+---
+
+Current version of JIRA inside Itransition does not allow to validate "whether a person belongs to a certain group" for multi-people fields, only for single-user fields. [Coorish](@gh(maksar)) – is a small utility to determine ineligible people being specified in jira tickets.
+
+<!--more-->
+
+<a href="/images/coorish/1.png" class="center fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/coorish/1.png"/></a>
+
+## History
+
+Project card – is a custom JIRA ticket, containing a bunch of fields about the project (I do work in an outsource company, so...) – technologies used, people involved, plans and troubles, etc. Since migration plans are far away, I decided to write a small utility to ensure that there are no "misuses" – only people from `Project.Management.All` AD group are specified in "Project Manager" fields in project cards.
+
+## Internals
+
+So it is a small terminal application, which "talks" to JIRA asking about project cards, "talks" to AD via LDAP to get members of the groups and spills the results to the terminal.
+
+```haskell
+main :: IO ()
+main = do
+  Config {..} <- readConfig @Config
+  ldapConfig <- readConfig @Ldap.LdapConfig
+  jiraConfig <- readConfig @Jira.JiraConfig
+
+  activeDirectoryPeople <- Ldap.groupMembers ldapGroups ldapConfig
+  projectCards <- Jira.projectCards jiraField jiraConfig
+
+  forM_ projectCards $ \card -> do
+    let people = Jira.people card
+    when (null people) $ pure ()
+
+    let (validPeople, invalidPeople) = partition (\person -> Jira.displayName person `elem` activeDirectoryPeople) people
+
+    unless (null invalidPeople) $ do
+      putTextLn $
+        "Card '" <> Jira.projectName card <> "' (" <> Jira.key card <> ") "
+          <> "has some people in '"
+          <> jiraField
+          <> "' field not from '"
+          <> mconcat (intersperse "; " ldapGroups)
+          <> "' AD group: '"
+          <> mconcat (intersperse "; " (map Jira.displayName invalidPeople))
+          <> "'"
+```
+
+I used the [same](/posts/projects/2020-02-07-ldap-bot.html) ldap-client library for LDAP communication, but this time utilized text-ldap for parsing DNs from ldap into proper data structures instead of treating results like strings. Envy library with some sprinkles of template-haskell magic allowed me to read configuration properties from environment variables. Servant-client again proved to be very handy to "talk" to the external HTTP API. Template haskell was [used](@gh(maksar):coorish/commit/d961d01763ad66c113abf9551315b5f1b5a4f2dd#diff-31b2976c7d81ff33a9d0115c0b39c980023862d7bad0cef4e20fda15fa2bb863R91-R97) for one more thing – embedding configuration values into `FromJSON` instances – I didn't know how to parametrize them in an elegant way.
+
+```haskell
+data Config = Config
+   { jiraField :: Text,
+     ldapGroups :: [Text]
+   }
+   deriving (Generic, Show)
+
+configValue :: Lift t => (Config -> t) -> Q Exp
+ configValue f = do
+   groups <- runIO (f <$> readConfig @Config)
+   [e|groups|]
+
+instance FromJSON ProjectCard where
+   parseJSON = withObject "card" $ \card -> do
+     key <- card .: "key"
+     fields <- card .: "fields"
+     projectName <- fields .: "summary"
+     peopleMaybe <- fields .:? $(configValue jiraField) <|> fmap (replicate 1) <$> fields .:? $(configValue jiraField)
+     pure $ ProjectCard key projectName $ fromMaybe [] peopleMaybe
+```
+
+Well, now I [know](@gh(maksar):coorish/blob/35fbc99a57c57fae5a8232f9105ed81e6f61e06d/app/Jira.hs#L88-L94), the trick is to make `FromJSON` instance for a function).
+
+```haskell
+instance FromJSON (Text -> ProjectCard) where
+  parseJSON = withObject "card" $ \card -> do
+    key <- card .: "key"
+    fields <- card .: "fields"
+    projectName <- fields .: "summary"
+    allPossiblePeople <- M.fromList <$> mapM parser (HM.toList fields)
+    pure $ \feild -> ProjectCard key projectName $ fromMaybe [] $ join $ lookup feild allPossiblePeople
+
+parser :: FromJSON a => (Text, Value) -> Parser (Text, Maybe [a])
+parser (x, field) = (x,) <$> (parseJSON field <|> fmap (replicate 1) <$> parseJSON field) <|> pure (x, Nothing)
+```
+
+That (and NIX [flakes](@gh(maksar):coorish/blob/10c6a3be99ace3fc363613c85caadd256704531a/flake.nix#L23-L46) of course) allowed me to create several binaries for each JIRA field to test against (instead of configuring it with terminal flags or environment variables). Being tired of typing `T.pack` and `T.unpack`, I decided to give a [relude](@gh(kowainik)) a try – a custom prelude, which is quite nice to use (but I haven't yet tried [rio](@hackage) or [universum](@gh(serokell))).
+
+I am also experimenting with generating a haskell data structure (with template-haskell) with fields, which would correspond to a JIRA project card on compile time.
+
+```haskell
+createConstant :: Q [Dec]
+createConstant = do
+  cardTypeName <- newName "ProjectCard"
+  cardConsName <- newName "ProjectCard"
+  declare cardTypeName cardConsName =<< mapM process =<< runIO fields
+  where
+    process :: JiraField -> Q VarBangType
+    process jf = do
+      jName <- newName $ T.unpack $ T.replace " " "" $ T.toLower $ jiraFieldName jf
+      jType <- fromJust <$> lookupTypeName (T.unpack $ T.replace "Value" "" $ T.replace "Multiple " "" $ T.replace "Single " "" $ T.pack $ show $ jiraFieldType jf)
+      pure (jName, Bang NoSourceUnpackedness NoSourceStrictness, AppT ListT (ConT jType))
+
+    declare :: Name -> Name -> [VarBangType] -> Q [Dec]
+    declare cardTypeName cardConsName z = do
+      pure [DataD [] cardTypeName [] Nothing [RecC cardConsName z] [DerivClause Nothing [ConT ''Show, ConT ''Generic, ConT ''FromJSON]]]
+
+data FieldTypePlurality = IssueKey
+                        | Single FieldTypeKind
+                        | Multiple FieldTypeKind
+                        | UnknownField deriving
+                        (Generic, FromJSON, Show, Eq)
+
+data FieldTypeKind = UserValue
+                   | GroupValue
+                   | StringValue
+                   | DateValue
+                   | DateTimeValue
+                   | OptionValue
+                   | NumberValue
+                   | AutocompleteValue
+                   deriving (Generic, FromJSON, Show, Eq)
+
+data JiraField = JiraField
+  { jiraFieldId :: Text
+  , jiraFieldName :: Text
+  , jiraFieldType :: FieldTypePlurality
+  }
+  deriving (Generic, Show)
+
+instance FromJSON JiraField where
+  parseJSON = withObject "field" $ \field -> do
+    id <- field .: "id"
+    name <- field .: "name"
+    config <-
+      if id == "issuekey"
+        then pure IssueKey
+        else parseSchema =<< field .:? "schema"
+    pure $ JiraField id name config
+   where
+    parseSchema :: Maybe Object -> Parser FieldTypePlurality
+    parseSchema Nothing = pure UnknownField
+    parseSchema (Just schema) = parseType schema =<< schema .: "type"
+
+    parseType :: Object -> Text -> Parser FieldTypePlurality
+    parseType _ "user" = pure $ Single UserValue
+    parseType _ "number" = pure $ Single NumberValue
+    parseType _ "date" = pure $ Single DateValue
+    parseType _ "datetime" = pure $ Single DateTimeValue
+    parseType _ "option" = pure $ Single OptionValue
+    parseType _ "string" = pure $ Single StringValue
+    parseType schema "array" = parseArray <$> schema .: "items"
+    parseType schema "any" = parseCustom <$> schema .: "custom"
+    parseType _ _ = pure UnknownField
+
+    parseArray :: Text -> FieldTypePlurality
+    parseArray "user" = Multiple UserValue
+    parseArray "group" = Multiple GroupValue
+    parseArray "option" = Multiple OptionValue
+    parseArray "string" = Multiple StringValue
+    parseArray _ = UnknownField
+
+    parseCustom :: Text -> FieldTypePlurality
+    parseCustom "com.itransition.jira.plugin.customfields.jira-custom-fields:singlecomplete" = Single AutocompleteValue
+    parseCustom "com.itransition.jira.plugin.customfields.jira-custom-fields:typeaheadfield" = Multiple AutocompleteValue
+    parseCustom _ = UnknownField
+```
+
+That would allow to express programs "around" project cards in "their" language and not hardcode field names or IDs into NIX build configs. But the experiment is far from end...

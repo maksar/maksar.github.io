@@ -4,12 +4,15 @@ version:       0.1.0.0
 build-type:    Simple
 
 executable blog
-  main-is:            Site.hs
+  main-is:            Main.hs
   build-depends:
       base
+    , blaze-html
+    , containers
     , hakyll
     , hakyll-images
-    , skylighting
+    , hakyll-sass
+    , hakyll-shortcut-links
 
   ghc-options:        -threaded
   default-extensions: OverloadedStrings

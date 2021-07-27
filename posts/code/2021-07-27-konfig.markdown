@@ -1,0 +1,63 @@
+---
+title: Parsing environment variables with in kotlin with konfig
+tags: kotlin, konfig
+language: english
+---
+
+There is a wonderful kotlin library for reading configuration from various sources (environment variables, files, etc.) – [konfig](@gh(npryce)). It allows to define your application configuration in a declarative way and even perform some data transformations along the way.
+
+<!--more-->
+
+<img src="/previews/konfig/logo.png" class="center"/>
+
+Konfig was used in [milestones](/posts/projects/2021-03-09-milestones.html) project to read some values from a predefined `.env` file and, if absent, from environment variables.
+
+```kotlin
+val MILESTONES_JIRA_URL by stringType
+val MILESTONES_JIRA_USERNAME by stringType
+val MILESTONES_JIRA_PASSWORD by stringType
+val MILESTONES_JIRA_PROJECT by stringType
+val MILESTONES_PAGE_SIZE by intType
+```
+
+Fallback order can be explicitly specified by `overriding` combinator.
+
+```kotlin
+val env = EnvironmentVariables() overriding ConfigurationProperties.fromOptionalFile(File(".env"))
+```
+
+Usage is pretty straightforward too.
+
+```kotlin
+internal val jiraClient = AsynchronousJiraRestClientFactory().createWithBasicHttpAuthentication(
+  URI(env[MILESTONES_JIRA_URL]), env[MILESTONES_JIRA_USERNAME], env[MILESTONES_JIRA_PASSWORD]
+)
+```
+
+But today, there was a slight requirements change and I decided to factor out explicitly hardcoded mapping (finally) to become actual configuration. So I did transition from this:
+
+```kotlin
+fun team(c: String) = "Team $c"
+
+val teamHeads = mapOf(
+  team("Salesforce") to "a.person",
+  team("Internal Automation") to "a.human"
+  ...
+)
+```
+
+To the nested definition of "how to parse a value". Configuration values itself are just comma separated string `MILESTONES_DEPARTMENTS_MAPPING="Salesforce:a.person,Internal Automation:a.human"`. So, inner layer gets converted into `Pair`s after splitting by `":"`. Outer layer (after splitting by comma) converts inner list of `Pair`s to a `Map`.
+
+```kotlin
+val MILESTONES_DEPARTMENTS_MAPPING by
+  listType(
+    listType(
+      stringType,
+      ":".toRegex()
+    ).wrappedAs { Pair("Team ${it.first()}", it.last()) },
+    ",".toRegex()
+  ).wrappedAs { it.toMap() }
+```
+
+At the time of usage, `env[MILESTONES_DEPARTMENTS_MAPPING]` value is already a `Map<String, String>`. So there is no need to worry about conversions, mapping or any other transformation of the input configuration string, neat! I very much like such declarative approach, it reminds me [optparse-applicative](@hackage) library from [Haskell](/tags/haskell.html) ecosystem.
+

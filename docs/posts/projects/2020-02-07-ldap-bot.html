@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Workplace bot for managing Actve Directory groups</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Workplace bot for managing Actve Directory groups</h1>
+    <article>
+  <section class="header">
+    February  7, 2020  @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/english.html">english</a> #<a href="../../tags/AD.html">AD</a> #<a href="../../tags/LDAP.html">LDAP</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a> #<a href="../../tags/aeson.html">aeson</a> #<a href="../../tags/servant.html">servant</a>
+  </section>
+  <section>
+    <p>Here is a facebook bot (we use facebook’s Workplace product as an intranet collaboration point) to manage AD groups.</p>
+<p><a href="../../images/ldap-bot/1.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/1.png" /></a> <a href="../../images/ldap-bot/2.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/2.png" /></a> <a href="../../images/ldap-bot/3.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/3.png" /></a> <a href="../../images/ldap-bot/4.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/4.png" /></a></p>
+<h2 id="history">History</h2>
+<p>Since our organization migrated to hybrid schema (AD “on land” and Azure AD “in cloud”), it is no longer possible for employees connected to the on-premises server to manage the AD groups. While our IT department is figuring out a way to provide management abilities to the employees, I decided to create a simple way to add/remove people into AD groups (our access policies depend on group membership).</p>
+<p>It started as a typical pet project, but I wanted to try new things along the way. First implementation was very straightforward (no ReaderT pattern, explicit passing of configuration values). When I felt the urge to write some tests, it became clear that full integration tests is not an option – neither facebook doesn’t like to be bombarded with messages, nor LDAP server. So I introduced a <a href="https://github.com/lexi-lambda/freer-simple">freer-simple</a> effects system, which was later replaced with <a href="https://github.com/polysemy-research/polysemy">polysemy</a>. It makes it possible to swap out some effects with mocks and write well-organized unit tests (I’m not saying they look pretty, they have to mock a lot of things after all).</p>
+<p>At that time, the project was dockerized. I even achieved some remarkable results with statically compiling it with musl, UPC-ing the result and packing everything into scratch-based docker image (more on that in attachments). But deployment was a little bit complicated, since I had to either build docker images on a target host or use companies (which was also created and configured by me) docker registry. I started to explore options and got a second chance to look at NIX and <a href="https://github.com/NixOS/nixops">nixops</a> (currently I cannot imagine how I lived without it). So I NIX-ified the bot and even switched to the <a href="https://github.com/input-output-hk/haskell.nix">haskell.nix</a> alternative haskell nix infrastructure.</p>
+<p>Along with that, following my built-in craving for minimalism, I decided to try out bare cabal instead of stack, which wasn’t the greatest experience (since stack is much-more user friendly and solved a lot of existing problems for you). But finally, with help of nix flakes, the project can be built the same way on darwin and linux systems.</p>
+<p>Continuing to use the bot myself, I felt repeating pain of opening a browser and navigating to the facebook chat each time I have to add or remove someone from the group or even see who is the group manager (using <a href="https://linux.die.net/man/1/ldapsearch">ldapsearch</a> linux utility is not so pleasant, it’s output is quite cumbersome). So I decided to add a terminal interface to the bot. Same functions, but accessed from the terminal. Having nix in place, deployment configuration has changed only slightly, but I am free of browser pain now.</p>
+<h2 id="internals">Internals</h2>
+<p>I used <a href="https://hackage.haskell.org/package/servant-client">servant-client</a> to “<a href="https://github.com/maksar/ldap-bot/blob/master/src/Client/API.hs#L40-L44">talk</a>” to facebook via it’s graph API (do not confuse with graphQL) and <a href="https://hackage.haskell.org/package/servant-server">servant-server</a> to publish <a href="https://github.com/maksar/ldap-bot/blob/master/src/Server/API.hs#L27-L29">two endpoints</a> facebook will hit whenever a new message arrives to the bot. All communication is JSON-based backed by <a href="https://hackage.haskell.org/package/aeson">aeson</a> library. Instead of blindly mapping incoming messages to the data structures with the same shape, I decided to write a custom <a href="https://github.com/maksar/ldap-bot/blob/master/src/Server/Model.hs#L32">FromJSON</a> instance to flatten the payload (facebook’s message format is a bit crazy). LDAP communication is done with the help of <a href="https://hackage.haskell.org/package/ldap-client">ldap-client</a> library, which is a high-level binding from corresponding C library. Lenses are used to create <a href="https://github.com/maksar/ldap-bot/blob/master/src/Env.hs#L79">isomorphisms</a> between parsed and raw configuration values (for testing environment configuration in a generic way). Polysemy is a star of the show which allows it to separate the domain language from its interpretation, inject logging in the middle of the effects stack, write mock versions of <a href="https://github.com/maksar/ldap-bot/blob/master/test/Client/FacebookSpec.hs#L105">facebook</a>, <a href="https://github.com/maksar/ldap-bot/blob/master/test/Server/LDAPSpec.hs#L68">LDAP</a> and some internal <a href="https://github.com/maksar/ldap-bot/blob/master/test/Server/RegistrySpec.hs#L58">effects</a>. Code gets built by nix and deployed via nixops as a systemd service. First implementation of tests used validity and gen-validity libraries from <a href="https://cs-syd.eu">Tom Sydney Kerckhove</a> (super nice Haskeller, met him on the conference), but then switched to <a href="https://hackage.haskell.org/package/QuickCheck">QuickCheck</a> and <a href="https://hackage.haskell.org/package/hspec">hspec</a>, since I don’t have a lot of data types to generate Validity (Arbitrary in QuichCheck terms) instances for.</p>
+<p>Along the way of implementing and supporting that bot I wrote a number of articles about it (also Haskell and FP in general). Unfortunately, the articles are in russian and have no version: my auditory was all russian speaking employees, so there was no point in doing so. I still think it would be beneficial to include them into the story: you can still squint on it and try to see the idea or maybe you do have a friend or colleague, who can understand it ;)</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>
