@@ -38,24 +38,23 @@
     <h1>Parsing different JSON payloads into a single data structure</h1>
     <article>
   <section class="header">
-    February 27, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a>
+    February 27, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/aeson.html">aeson</a>
   </section>
   <section>
-    <p><img src="../../images/aeson-parsing/logo.jpg" class="center" /></p>
-<p>Что-то давно не видно технических статей, спешу исправиться. В связи с задержкой, “градус гиковости” будет временно значительно повышен.</p>
-<p>В публикации на прошлой неделе я <a href="../../posts/projects/2020-02-07-ldap-bot.html">рассказал</a> про новый бот для Workplace, который помогает управлять проектными (и не только) группами не прибегая к помощи <code>HelpDesk</code>.</p>
-<p>Он написан на языке программирования <code>Haskell</code>, что для нашей компании выбор не совсем типичный (хотя с RFX-ами на эту тему к нам обращались). Знаниями надо делиться, так что запланировал несколько статей по мотивам написания этого бота. Статьи будут раскрывать некоторые интересные аспекты реализации, которые, на первый взгляд, могут показаться странными или неочевидными, но все же позволяют по новому взглянуть на типовые задачи, возникающие при разработке ПО.</p>
+    <p>Что-то давно не видно технических статей, спешу исправиться. В связи с задержкой, “градус гиковости” будет временно значительно повышен. В публикации на прошлой неделе я <a href="../../posts/projects/2020-02-07-ldap-bot.html">рассказал</a> про новый бот для Workplace, который помогает управлять проектными (и не только) группами не прибегая к помощи <code>HelpDesk</code>. Он написан на языке программирования <code>Haskell</code>, что для нашей компании выбор не совсем типичный (хотя с RFX-ами на эту тему к нам обращались). Знаниями надо делиться, так что запланировал несколько статей по мотивам написания этого бота. Статьи будут раскрывать некоторые интересные аспекты реализации, которые, на первый взгляд, могут показаться странными или неочевидными, но все же позволяют по новому взглянуть на типовые задачи, возникающие при разработке ПО.</p>
+<!--more-->
+<p><img src="../../previews/aeson-parsing/logo.jpg" class="center" /></p>
 <h2 id="почему-haskell">Почему <code>Haskell</code>?</h2>
 <p>Меня всегда привлекал этот язык программирования своей строгостью, лаконичностью и близостью к математике. Однако, написать на нем что-то более-менее крупное – шанса все не представлялось. Да, были небольшие pet-проекты, курсы по решению алгоритмических задач, но до “полноценного” production использования дело не доходило.</p>
 <p>Но недавно я в очередной раз посетил конференцию по функциональному программированию - <a href="https://fby.dev">F(by)</a> и твердо решил – в этот раз (пока мотивация от докладов не прошла) – надо обязательно это сделать! Задача возникла совершенно естественным способом, из рутины. В настоящее время, многих менеджеров (а в последствии и всех остальных сотрудников) перевели на использование облачных учетных записей <code>Microsoft Office</code>. У них пропала возможность самостоятельно редактировать состав проектных групп.</p>
 <p>Дело в том, что синхронизация между наземным хранилищем и “облаком” может быть настроена только однонаправленная (“земля-воздух” кхе-хе). Так как <code>Outlook</code> у менеджеров уже облачный, то изменения, которые они пытаются с его помощью сделать, не могут попасть в наш <code>Active Directory</code>. Предлагаемый <code>MIDS</code> путь - создавать запросы в <code>HelpDesk</code> - меня категорически не устраивал. Вот и пришла идея этот процесс автоматизировать.</p>
 <p>План статей пока выходит примерно такой:</p>
 <ul>
-<li>Parsing different JSON payloads into a single data structure</li>
-<li>Type-safe API for server endpoints and clients</li>
-<li>Parsing environment variables with reverse tests</li>
-<li>First-class Effects with pure testing</li>
-<li>Static linking and Dockerize application</li>
+<li><a href="../../posts/code/2020-02-27-aeson-parsing.html">Parsing different JSON payloads into a single data structure</a></li>
+<li><a href="../../posts/code/2020-03-09-servant.html">Type-safe API for server endpoints and clients</a></li>
+<li><a href="../../posts/code/2020-03-23-env-parsing.html">Parsing environment variables with reverse tests</a></li>
+<li><a href="../../posts/code/2021-02-04-effect-systems.html">First-class Effects with pure testing</a></li>
+<li><a href="../../posts/code/2020-05-11-size-matters.html">Static linking and Dockerize application</a></li>
 </ul>
 <h2 id="parsing-different-json-payloads-into-a-single-data-structure">Parsing different JSON payloads into a single data structure</h2>
 <p>Чтобы не затягивать - начнем с первой темы ;)</p>
@@ -139,6 +138,7 @@
   </main>
 
   <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
     Site generated by
     <a href="http://jaspervdj.be/hakyll">Hakyll</a>
   </footer>

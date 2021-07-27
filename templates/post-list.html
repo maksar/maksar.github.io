@@ -1,7 +1,10 @@
 <ul>
-    $for(posts)$
-        <li>
-            $date$ <a href="$url$">$title$</a>
-        </li>
-    $endfor$
+  $for(posts)$
+    <li style="margin-bottom: 30px;">
+      $date$ $language$ $category$ $tags$
+      <br/><a href="$url$">$title$</a>
+      <br/>
+      $summary$
+    </li>
+  $endfor$
 </ul>

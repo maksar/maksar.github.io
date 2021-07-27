@@ -38,10 +38,11 @@
     <h1>FP effects systems vs OOP interfaces</h1>
     <article>
   <section class="header">
-    February  4, 2021  @<a href="../../categories/code.html">code</a> #<a href="../../tags/russian.html">russian</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a>
+    February  4, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a>
   </section>
   <section>
-    <p>С большим опозданием, продолжаю цикл статей про <a href="https://itransition.workplace.com/chat/t/105678357661487">WP бота</a>. Ссылки на предыдущие части: <a href="https://itransition.workplace.com/groups/143641062970056/permalink/484712628862896/">1</a>, <a href="https://itransition.workplace.com/groups/143641062970056/permalink/486660242001468/">2</a> <a href="https://itransition.workplace.com/groups/143641062970056/permalink/491875731479919/">3</a> и <a href="https://itransition.workplace.com/groups/1394518670594144/permalink/3170796096299717/">4</a>. Сегодня, впрочем как обычно, речь пойдет про очедную функциональную дичь ;).</p>
+    <p>С большим опозданием, продолжаю цикл статей про <a href="../../posts/projects/2020-02-07-ldap-bot.html">Workplace бота</a>. Ссылки на предыдущие части: <a href="../../posts/code/2020-02-27-aeson-parsing.html">1</a>, <a href="../../posts/code/2020-03-09-servant.html">2</a>, <a href="../../posts/code/2020-03-23-env-parsing.html">3</a> и <a href="../../posts/code/2020-05-11-size-matters.html">4</a>. Сегодня, впрочем как обычно, речь пойдет про очедную функциональную дичь ;).</p>
+<!--more-->
 <p>Столпом ООП является инкапсуляция (каждый раз тянет по английски это слово с i начать), которая про “сокрытие реализации”. Даже самому начинающему программисту известно, что достигается инкапсуляция в mainstream языках программирования при помощи interface-ов. Я постараюсь показать совершенно иной способ инкапсуляции – экзистенциальные эффекты.</p>
 <p>Что за абстракция такая – “эффект” и для чего нужна? Для понимания, давайте рассмотрим примитивную функцию для сложения двух чисел:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">add</span>(a<span class="op">:</span> Int<span class="op">,</span> b<span class="op">:</span> Int)<span class="op">:</span> Int {</span>
@@ -141,18 +142,15 @@
 <p>Или время заморозить, как в мультике:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fronzen ::</span> <span class="dt">Member</span> <span class="dt">TimeEffect</span> eff <span class="ot">=&gt;</span> <span class="dt">Time</span> <span class="ot">-&gt;</span> <span class="dt">Effect</span> eff a <span class="ot">-&gt;</span> <span class="dt">Effect</span> (eff <span class="op">:</span> <span class="dt">Trace</span>) a</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fronzen instant <span class="ot">=</span> intercept <span class="op">$</span> <span class="fu">const</span> <span class="op">$</span> <span class="fu">pure</span> instant</span></code></pre></div>
-<p>Кстати, а вы заметили в примерах множество полей с навешанными на них Autowired аннотациями или может быть десятки аргументов в конструкторах классов? Прелесть в том, что они оказываются не нужны – роль DI framework-а играет простая <a href="https://git.itransition.com/projects/IA/repos/ldap-bot/browse/src/Server/Hook.hs#32">композиция функций</a>. Чуть не забыл про <a href>тесты</a> упомянуть – благодаря тому, что все тестовые интерпретаторы не работают с <code>IO</code> – <a href="https://asciinema.org/a/389000">выполняются</a> они довольно быстро:</p>
-<pre class="console"><code>Running 1 test suites...
-Test suite ldap-bot-test: RUNNING...
-
-Finished in 0.0266 seconds
-66 examples, 0 failures</code></pre>
+<p>Кстати, а вы заметили в примерах множество полей с навешанными на них <code>Autowired</code> аннотациями или может быть десятки аргументов в конструкторах классов? Прелесть в том, что они оказываются не нужны – роль DI framework-а играет простая <a href="https://github.com/maksar/ldap-bot/blob/master/src/Server/Hook.hs#L33">композиция функций</a>. Чуть не забыл про тесты упомянуть – благодаря тому, что все тестовые интерпретаторы не работают с <code>IO</code> – <a href="https://asciinema.org/a/389000">выполняются</a> они довольно быстро:</p>
+<p><a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center" /></a></p>
   </section>
 </article>
 
   </main>
 
   <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
     Site generated by
     <a href="http://jaspervdj.be/hakyll">Hakyll</a>
   </footer>

@@ -7,7 +7,7 @@ tags: russian, AD, LDAP
 
 <!--more-->
 
-<img src="/images/ldap/logo.jpg" class="center" />
+<img src="/previews/ldap/logo.jpg" class="center" />
 
 # Дата и время
 Первое, что бросается в глаза – это незнакомый формат даты-времени. Даже не формат, а форматы – их несколько. Бывают записи вида `whenChanged: 20191028073233.0Z` с очевидным форматом, но есть еще и записи вида `pwdLastSet: 132119732272806390` о сути которых лучше меня расскажет [страница](https://www.epochconverter.com/ldap). Приходится писать свои parser/emitter-ы для этих форматов, так как в поставку библиотек он редко входят. Дата и время – очень обширная тема, приглашаю послушать Kovsh Dmitry на предстоящем [Itransition Development Meetup #10](https://itransition.workplace.com/events/537058783541251/).
@@ -172,7 +172,7 @@ RUN cd nginx-1.17.3 && ./configure  --user=nginx \
 
 Множество систем поддерживает интеграцию с AD в качестве источника пользователей. Вот рецепт (содержимое необходимо поместить в `teamcity_server/datadir/config/ldap-config.properties` файл) того, как это можно сделать в TeamCity, чтобы члены проектной команды могли логиниться под доменными учетными записями. Доступ будет автоматически пропадать при покидании проекта. Все что для этого понадобится – служебная учетная запись (для доступа к самому AD).
 
-```.properties
+```properties
 java.naming.provider.url=ldap://dc1.itransition.corp:389
 java.naming.security.principal=CN=vector,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp
 java.naming.security.credentials=PASSWORD_WAS_HERE

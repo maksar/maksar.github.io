@@ -1,15 +1,20 @@
 ---
 title: Size does matter
-tags: russian
+tags: haskell, ruby, kotlin, docker
+language: russian
 ---
 
-<img src="/images/size-matters/logo.jpg" class="center" />
+Возможно я в этом не одинок, но меня сильно разочаровывают размеры современных приложений. Сейчас считается нормой создавать сайты, скачивающие десятки мегабайт при первой загрузке, иметь приложения для телефонов размером в несколько сотен мегабайт, базовые образы `docker` контейнеров занимают гигабайты... Ситуация парадоксальная – "дешевле" не заботиться о размере, так как усилия, потраченные в этом направлении будут стоить компании-разработчику дороже.
 
-Возможно я в этом не одинок, но меня сильно разочаровывают размеры современных приложений. Сейчас считается нормой создавать сайты, скачивающие десятки мегабайт при первой загрузке, иметь приложения для телефонов размером в несколько сотен мегабайт, базовые образы `docker` контейнеров занимают гигабайты... Ситуация парадоксальная – "дешевле" не заботиться о размере, так как усилия, потраченные в этом направлении будут стоить компании-разработчику дороже. Возможно это действительно так, проверить достаточно сложно. А может быть все как раз наоборот, просто не представляется возможным точно подсчитать сколько на **самом деле** средств тратится на трафик и "ожидания" с "простоями". А уж как большой размер скачиваемых артефактов влияет на customer и/или developer satisfaction и говорить нечего. "Современный подход" во мне пробуждает неоднозначные чувства и заставляет, в меру сил, *бороться* с ситуацией.
+<!--more-->
+
+<img src="/previews/size-matters/logo.jpg" class="center" />
+
+Возможно это действительно так, проверить достаточно сложно. А может быть все как раз наоборот, просто не представляется возможным точно подсчитать сколько на **самом деле** средств тратится на трафик и "ожидания" с "простоями". А уж как большой размер скачиваемых артефактов влияет на customer и/или developer satisfaction и говорить нечего. "Современный подход" во мне пробуждает неоднозначные чувства и заставляет, в меру сил, *бороться* с ситуацией.
 
 ## Минутка истории
 
-Компилируемые в бинарный код языки существовали еще до [начала времен](https://ru.wikipedia.org/wiki/Unix-время). В эпоху контейнеризации преимущества "бинарников" раскрылись с новой, неожиданной стороны. Для чего вообще нужна контейнеризация? Изоляция, воспроизводимость, удобство развертывания и безопасность. Программа, представляющая собой один единственный исполняемый файл – что может быть удобнее для развертывания? Изоляцию, в какой-то мере, может предоставить операционная система. А воспроизводимость (с точки зрения сборки) и вовсе решается без использования контейнеров. Что с безопасностью? Необходимо отметить, тут есть "проблемы". Возможно вы не застали времена [CGI](https://ru.wikipedia.org/wiki/CGI) скриптов, но в начале развития интернета, серверные приложения были обычными бинарниками, которые запускались web серверами через CGI интерфейс. И если в такой программе была ошибка/уязвимость – атакующий мог получить доступ ко всему серверу – ведь бинарник исполнялся, как правило, от пользователя под которым работал web сервер. А с учетом того, что сервера раньше виртуальными были редко – на одном и том же хосте располагались данные (почта, файлы и т.д.) многих пользователей – компрометации подвергалось все.
+Компилируемые в бинарный код языки существовали еще до [начала времен](@w:Unix-время). В эпоху контейнеризации преимущества "бинарников" раскрылись с новой, неожиданной стороны. Для чего вообще нужна контейнеризация? Изоляция, воспроизводимость, удобство развертывания и безопасность. Программа, представляющая собой один единственный исполняемый файл – что может быть удобнее для развертывания? Изоляцию, в какой-то мере, может предоставить операционная система. А воспроизводимость (с точки зрения сборки) и вовсе решается без использования контейнеров. Что с безопасностью? Необходимо отметить, тут есть "проблемы". Возможно вы не застали времена [CGI](@w) скриптов, но в начале развития интернета, серверные приложения были обычными бинарниками, которые запускались web серверами через CGI интерфейс. И если в такой программе была ошибка/уязвимость – атакующий мог получить доступ ко всему серверу – ведь бинарник исполнялся, как правило, от пользователя под которым работал web сервер. А с учетом того, что сервера раньше виртуальными были редко – на одном и том же хосте располагались данные (почта, файлы и т.д.) многих пользователей – компрометации подвергалось все.
 
 Сейчас CGI используется крайне редко, все чаще программы сами предоставляют `http` интерфейс для взаимодействия с собой, а web сервер выступает в роли `proxy`. Да и компилируемые в бинарный код языки для web используются все реже. Засилье виртуальных машин да интерпретаторов. Почему это не очень хорошо с точки зрения безопасности? Исполняемый файл можно назначить "точкой входа" `docker` контейнера, убрав из файловой системы все лишнее (кроме необходимых для работы приложения библиотек). В этом случае, даже если злоумышленник и обнаружит [shell injection](https://www.exploit-db.com/docs/english/42593-command-injection---shell-injection.pdf) в программе, ничего страшного не случится – никакого командного интерпретатора внутри контейнера нет, "внедрять" вредоносный код попросту некуда.
 
@@ -74,7 +79,7 @@ ENV RUBYOPT -W:no-deprecated -W:no-experimental
 CMD ["bundle", "exec", "ruby", "server.rb"]
 ```
 
-Итоговый размер образа – **61 мегабайт**. Уверен, можно было бы еще десяток сбросить при помощи утилиты [dive](https://github.com/wagoodman/dive) (крайне рекомендую к использованию), удалив неиспользуемые части стандартной библиотеки языка и зависимостей `ruby` программы. Но вот эту часть, уже можно считать экономически нецелесообразной...
+Итоговый размер образа – **61 мегабайт**. Уверен, можно было бы еще десяток сбросить при помощи утилиты [dive](@gh(wagoodman):dive) (крайне рекомендую к использованию), удалив неиспользуемые части стандартной библиотеки языка и зависимостей `ruby` программы. Но вот эту часть, уже можно считать экономически нецелесообразной...
 
 Если бы мы ставили перед собой цель максимально уменьшить размер приложения, то, скорее всего, воспользовались бы [alpine linux](https://alpinelinux.org) образом, который славится малым начальным размером а так же схлопнули бы все слои `docker` образа в один (чтобы избавиться от удаленных файлов в нижних слоях). В этом случае, размер получившего образа мог быть даже меньше, однако преимуществ безопасности мы бы не достигли.
 
@@ -84,7 +89,7 @@ CMD ["bundle", "exec", "ruby", "server.rb"]
 
 Буквально на днях познакомился с [GraalVM](https://www.graalvm.org) и он меня покорил. Одной из функций `GraalVM` является сборка `native` бинарников из `jar` файлов. Да, именно так: вы можете взять свое приложение, собрать его в обычный `fat jar` (с зависимостями), а затем "скомпилировать" в исполняемый бинарь.
 
-У меня есть маленькая поделка для "причесывания" названий ресурсных и проектных карт. Дело в том. что в процессе создания, иногда в начале или в конце `title`-а оставляют пробелы, что мешает потом эффективно работать с такими картами. Очень давно я написал программу, чтобы автоматизировать процесс `trim`-а. Целью было, конечно, не это, а исследование возможностей библиотеки `("com.github.rcarz", "jira-client", "master")` для доступа к `JIRA` через *приятный* `DSL`.
+У меня есть маленькая [поделка](/posts/projects/2020-11-06-trimmer.html) для "причесывания" названий ресурсных и проектных карт. Дело в том. что в процессе создания, иногда в начале или в конце `title`-а оставляют пробелы, что мешает потом эффективно работать с такими картами. Очень давно я написал программу, чтобы автоматизировать процесс `trim`-а. Целью было, конечно, не это, а исследование возможностей библиотеки `("com.github.rcarz", "jira-client", "master")` для доступа к `JIRA` через *приятный* `DSL`.
 
 ```kotlin
 const val RESOURCE_CARDS = "RESCARD"
@@ -126,19 +131,23 @@ fun main(args: Array<String>) {
 Для построения `JQL` запроса (не строкой, а при помощи `DSL`) к `JIRA` я использовал библиотеки самого `Atlassian`-а (библиотека для тестов необходима для инициализации `core`, в тестовом режиме, в противном случае `core` остается очень недоволен тем, что запущен вне контекста `JIRA`):
 
 ```kotlin
-  implementation("com.atlassian.jira", "jira-core", "8.8.1")
-  implementation("com.atlassian.jira", "jira-tests", "8.8.1")
+implementation("com.atlassian.jira", "jira-core", "8.8.1")
+implementation("com.atlassian.jira", "jira-tests", "8.8.1")
 ```
 
 Собрав `fat jar` с этими и еще некоторыми прямыми (сам `kotlin`, библиотека для работы с переменными окружения, etc.) и косвенными зависимостями (только представьте сколько зависимостей за собой "тянет" `jira-core`) получаем `trimmer-1.0-all.jar` размером в **112 мегабайт** – такова цена за `code-reuse`. Настало время для `GraalVM` – попробуем преобразовать `jar` файл в обычный исполняемый файл, в надежде избавиться от главной зависимости – виртуальной `java` машины.
 
-```bash
-native-image -cp ./build/libs/trimmer-1.0-all.jar -H:Name=trimer-exe -H:Class=TrimmerKt -H:+ReportUnsupportedElementsAtRuntime --allow-incomplete-classpath
+```console
+$ native-image -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               -H:+ReportUnsupportedElementsAtRuntime
+               --allow-incomplete-classpath
 ```
 
 Попытка "в лоб" заканчивается неудачей, логи полны сообщений вида:
 
-```log
+```console
 Error: Classes that should be initialized at run time got initialized during image building:
 org.apache.log4j.spi.LoggingEvent was unintentionally initialized at build time.
 org.apache.http.HttpEntity was unintentionally initialized at build time.
@@ -148,8 +157,14 @@ Error: Image build request failed with exit status 1
 
 Не отчаиваемся и просим `GraalVM` пытаться инициализировать это все на этапе сборки образа:
 
-```bash
-native-image --no-server --enable-https --allow-incomplete-classpath -cp ./build/libs/trimmer-1.0-all.jar -H:Name=trimer-exe -H:Class=TrimmerKt --initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging
+```console
+$ native-image --no-server
+               --enable-https
+               --allow-incomplete-classpath
+               -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               --initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging
 ```
 
 Успех, на выходе имеем `trimer-exe` файл, размером всего в **6.5 мегабайт**. Упакуем его дополнительно замечательной утилитой [upx](https://upx.github.io), которая знакома всем еще со времен `DOS` и недостатка места на диске. Результат изумителен – **1.8 мегабайт**! Да только вот нас немного обманули... `GraalVM`, по умолчанию, строит образы, которые хоть и являются исполняемыми, но они не в состоянии работать без установленной на компьютере `java` виртуальной машины. При попытке построить "настоящий" независимый образ (опция `--no-fallback`), сталкиваемся с рядом сложностей.
@@ -168,7 +183,13 @@ log4j.appender.console.File=target/unit-tests.log
 За одно отключим еще один `logging framework` – `slf4j`. Для этого добавим в начало `main` ~~грязный хак~~строку:
 
 ```kotlin
-LoggerFactory::class.java.getDeclaredField("INITIALIZATION_STATE").also { it.isAccessible = true }.set(LoggerFactory::class, LoggerFactory::class.java.getDeclaredField("NOP_FALLBACK_INITIALIZATION").also { it.isAccessible = true }.get(LoggerFactory::class))
+LoggerFactory::class.java.getDeclaredField("INITIALIZATION_STATE")
+  .also { it.isAccessible = true }
+  .set(
+    LoggerFactory::class, LoggerFactory::class.java.getDeclaredField("NOP_FALLBACK_INITIALIZATION")
+      .also { it.isAccessible = true }
+      .get(LoggerFactory::class)
+    )
 ```
 
 Она заставит `slf4j` пропустить инициализацию и не заниматься `reflection`-ом во время старта приложения. А статическую инициализацию одного из наших полей, сделаем отложенной (чтобы "трюк" из `main` успел выполниться вовремя):
@@ -179,7 +200,7 @@ val jira = lazy { JiraClient(dotenv["JIRA_URL"], BasicCredentials(dotenv["JIRA_U
 
 Кстати, именно из-за статической инициализации приложения на `java` так медленно стартуют, а при старте иногда можно видеть в консоли строки:
 
-```log
+```console
 log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.PoolingClientConnectionManager).
 log4j:WARN Please initialize the log4j system properly.
 log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
@@ -187,13 +208,21 @@ log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more in
 
 `GraalVM` как раз и славится тем, что позволяет сократить время запуска приложений, так как вся статическая инициализация происходит на этапе "сборки", в готовый исполняемый файл, вместе со встраиваемой виртуальной машиной, попадают "замороженные" версии классов, с уже выполненным шагом статической инициализации.
 
-```bash
-native-image --no-fallback --allow-incomplete-classpath --enable-https --no-server -cp ./build/libs/trimmer-1.0-all.jar -H:Name=trimer-exe -H:Class=TrimmerKt --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec -Dlog4j.defaultInitOverride=true
+```console
+$ native-image --no-fallback
+               --allow-incomplete-classpath
+               --enable-https
+               --no-server
+               -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
+               -Dlog4j.defaultInitOverride=true
 ```
 
 Следующая беда "вылазит" уже не на этапе сборки, а после запуска собранного приложения:
 
-```log
+```console
 Exception in thread "main" java.lang.NoClassDefFoundError: java.lang.Class
   at net.sf.json.AbstractJSON.class$(AbstractJSON.java:53)
   ...
@@ -216,22 +245,31 @@ Exception in thread "main" java.lang.NoClassDefFoundError: java.lang.Class
 
 Заставим `GraalVM` обратить на него внимание:
 
-```bash
-native-image --no-fallback --allow-incomplete-classpath --enable-https --no-server -cp ./build/libs/trimmer-1.0-all.jar -H:Name=trimer-exe -H:Class=TrimmerKt --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec -Dlog4j.defaultInitOverride=true -H:ReflectionConfigurationFiles=./config.json
+```console
+$ native-image --no-fallback
+               --allow-incomplete-classpath
+               --enable-https
+               --no-server
+               -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
+               -Dlog4j.defaultInitOverride=true
+               -H:ReflectionConfigurationFiles=./config.json
 ```
 
 В итоге, собранная программа работает как положено. Итоговый размер – **28 мегабайт**, а будучи упакованным при помощи `upx` – **7.1 мегабайт**. Не удивительно, ведь `GraalVM` пришлось включить в исполняемый файл `Substrate VM` виртуальную машину для того, чтобы бинарный файл стал независим от системного `JRE`. Обещания, которые давал `GraalVM` он выполнил – один исполняемый файл, независимость от системного `JRE`. К слову, время старта приложения значительно сократилось – разница заметна даже невооруженным взглядом:
 
-```bash
-➜ time java -jar build/libs/trimmer-1.0-all.jar --dry-run
+```console
+$ time java -jar build/libs/trimmer-1.0-all.jar --dry-run
 0.30s user 0.05s system 181% cpu 0.195 total
-➜ time ./trimer-exe --dry-run
+$ time ./trimer-exe --dry-run
 0.00s user 0.00s system 70% cpu 0.010 total
 ```
 
 ## Haskell
 
-Напоследок, попробуем получить преимущества от статической линковки программы на `Haskell`, бота [Group Manager](https://itransition.workplace.com/Group-Manager-105678357661487). Сборка программ на `Haskell` внутри `docker`-а происходит примерно так же как и на `golang`. В первом `stage`-е устанавливаются все необходимые зависимости, собирается бинарный исполняемый файл. Затем он из этого `stage`-а копируется в "чистовой" контейнер, не содержащий компилятора и других `development` зависимостей.
+Напоследок, попробуем получить преимущества от статической линковки программы на `Haskell`, бота [Group Manager](/posts/projects/2020-02-07-ldap-bot.html). Сборка программ на `Haskell` внутри `docker`-а происходит примерно так же как и на `golang`. В первом `stage`-е устанавливаются все необходимые зависимости, собирается бинарный исполняемый файл. Затем он из этого `stage`-а копируется в "чистовой" контейнер, не содержащий компилятора и других `development` зависимостей.
 
 Самая первая версия бота так и собиралась, итоговый бинарный файл имел размер **26 мегабайт**, а `docker` образ (на основе того же `distroless`) – **46 мегабайт**.
 
