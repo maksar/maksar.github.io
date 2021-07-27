@@ -1,5 +1,5 @@
 ---
-title: Parsing environment variables with in kotlin with konfig
+title: Parsing environment variables in kotlin with konfig
 tags: kotlin, konfig
 language: english
 ---
