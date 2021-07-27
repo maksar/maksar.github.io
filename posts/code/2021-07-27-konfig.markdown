@@ -13,11 +13,11 @@ There is a wonderful kotlin library for reading configuration from various sourc
 Konfig was used in [milestones](/posts/projects/2021-03-09-milestones.html) project to read some values from a predefined `.env` file and, if absent, from environment variables.
 
 ```kotlin
-val MILESTONES_JIRA_URL by stringType
+val MILESTONES_JIRA_URL      by stringType
 val MILESTONES_JIRA_USERNAME by stringType
 val MILESTONES_JIRA_PASSWORD by stringType
-val MILESTONES_JIRA_PROJECT by stringType
-val MILESTONES_PAGE_SIZE by intType
+val MILESTONES_JIRA_PROJECT  by stringType
+val MILESTONES_PAGE_SIZE     by intType
 ```
 
 Fallback order can be explicitly specified by `overriding` combinator.
@@ -29,8 +29,10 @@ val env = EnvironmentVariables() overriding ConfigurationProperties.fromOptional
 Usage is pretty straightforward too.
 
 ```kotlin
-internal val jiraClient = AsynchronousJiraRestClientFactory().createWithBasicHttpAuthentication(
-  URI(env[MILESTONES_JIRA_URL]), env[MILESTONES_JIRA_USERNAME], env[MILESTONES_JIRA_PASSWORD]
+val jiraClient = AsynchronousJiraRestClientFactory().createWithBasicHttpAuthentication(
+  URI(env[MILESTONES_JIRA_URL]),
+  env[MILESTONES_JIRA_USERNAME],
+  env[MILESTONES_JIRA_PASSWORD]
 )
 ```
 

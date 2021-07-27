@@ -65,6 +65,13 @@
                 entry = "${cabal-fmt}/bin/cabal-fmt --inplace";
                 files = "\\.cabal$";
               };
+              blog = {
+                enable = true;
+                name = "blog";
+                entry = "${cabal-install}/bin/cabal run blog rebuild";
+                files = "^.*$";
+                pass_filenames = false;
+              };
             };
           };
         };
