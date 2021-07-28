@@ -1,6 +1,7 @@
 ---
 title: LDAP tips and tricks
-tags: russian, AD, LDAP
+tags: ldap
+language: russian
 ---
 
 Я бы хотел продолжить цикл технических статей на Workplace рассказом о том, с какими трудностями можно столкнуться при работе с Active Directory по LDAP протоколу. Полноценной статьей такой рассказ назвать сложно, скорее – сборник рецептов. Стоит заранее оговориться – никаких упоминаний о Windows и PowerShell в статье нет, это тема очень обширна и заслуживает отдельной публикации (а может и нескольких).
@@ -9,13 +10,11 @@ tags: russian, AD, LDAP
 
 <img src="/previews/ldap/logo.jpg" class="center" />
 
-# Дата и время
+## Дата и время
+
 Первое, что бросается в глаза – это незнакомый формат даты-времени. Даже не формат, а форматы – их несколько. Бывают записи вида `whenChanged: 20191028073233.0Z` с очевидным форматом, но есть еще и записи вида `pwdLastSet: 132119732272806390` о сути которых лучше меня расскажет [страница](https://www.epochconverter.com/ldap). Приходится писать свои parser/emitter-ы для этих форматов, так как в поставку библиотек он редко входят. Дата и время – очень обширная тема, приглашаю послушать Kovsh Dmitry на предстоящем [Itransition Development Meetup #10](https://itransition.workplace.com/events/537058783541251/).
 
-
-
-
-# We need to go deeper
+## We need to go deeper
 Как правило, объекты в AD (группы, отделы, пользователи) имеют древовидную структуру, напоминающую (или повторяющую) иерархию реальных организаций. Наша – не исключение ([закон Конвея](https://ru.wikipedia.org/wiki/Закон_Конвея), как-никак). Классические утилиты для работы с AD и, тем более, API – позволяют осуществлять поиск только на один уровень вглубь. Рассмотрим на примере – существует группа RFX Digest Readers, в состав которой входят как пользовательские учетные записи, так и другие группы
 
 ```console
@@ -29,7 +28,7 @@ member: CN=Chernikov, Yury,OU=Active,OU=Users
 Наивное решение для поиска всех людей в этой группе – такое:
 
 ```console
-ldapsearch -h dc1.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp" displayName
+ldapsearch -h ldap.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp" displayName
 ```
 
 Однако результат предсказуем – нашлись только два человека:
@@ -42,16 +41,16 @@ member: CN=Chernikov, Yury,OU=Active,OU=Users
 Для того, чтобы найти всех, необходимо прибегнуть к "особой Microsoft магии" – специальным [префиксам](https://docs.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax). Например префикс :1.2.840.113556.1.4.1941: (значение именно такое, по ~~иторическим причинам~~ легенде такое значение соответствовало ключу `LDAP_MATCHING_RULE_IN_CHAIN` в header файлах) позволяет "искать вглубь". Такой поиск вернет все необходимые записи.
 
 ```console
-ldapsearch -Q -h dc1.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp" displayName | grep displayName: | wc -l
+ldapsearch -Q -h ldap.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp" displayName | grep displayName: | wc -l
 
 => 113
 ```
 
-# Синхронизация
+## Синхронизация
 
 Если изменение только-только произошло – не спешите стремглав выполнять поиск по AD, в друг там несколько серверов с репликацией и они еще не синхронизировались... О способах и времени синхронизации отдельных серверов в AD ходят легенды. Мой совет – работайте на запись всегда только с одним, конкретным сервером, если возможно. Совет вредный, но рабочий. Буду раз услышать в комментариях совет полезный, но пока так ;)
 
-# TLS соединение
+## TLS соединение
 
 "Общаться" с AD лучше по защищенному соединению. LDAP поддерживает как несколько режимов аутентификации – kerberos, simple, так и несколько способов шифровать соединение – TLS, START_TLS. Я использую kerberos для работы через консольную утилиту ldapsearch, так как это очень удобно – единожды получив "тикет" (через kinit) можно не утруждаться вводом логина/пароля при каждом поиске. Поддержка kerberos традиционно сильна в Java мире (где NTLM не очень популярен), так что я этот метод так же использую в своих Kotlin приложениях. Simple аутентификация пригодится там, где нет возможности пользоваться развесистыми библиотеками – например в ruby. Но стоит себя дополнительно обезопасить, применив TLS шифрование:
 
@@ -80,7 +79,7 @@ def group_members(name, base = PROJECT_GROUPS_DN)
 end
 ```
 
-# Постраничный доступ
+## Постраничный доступ
 
 При получении большого количества результатов – ldapsearch по умолчанию выдает только первую 1000 штук. Заставить его "выдать всех" можно используя аргумент `-E pr=2147483647/noprompt`. Он заставит ldapsearch установить очень большой размер "страницы" и не спрашивать "продлевать будете?" при достижении ее границы. При работе из кода (Java, Kotlin), удобно пользоваться createStreamFromIterator из StreamUtils, он позволяет преобразовывать последовательность вызовов next() итератора в удобный для работы поток:
 
@@ -125,7 +124,7 @@ fun <T> loadIssues(fields: String, query: String, mapper: (Issue) -> T): List<T>
     }
 ```
 
-# Примеры запросов
+## Примеры запросов
 
 Запросы в AD могут быть весьма сложными, так сказать write-only. Приведу, один такой пример.
 
@@ -142,12 +141,12 @@ fun <T> loadIssues(fields: String, query: String, mapper: (Issue) -> T): List<T>
 (msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)))
 ```
 
-На человеческом языке запрос звучит достаточно просто: все HelpDesk Operator-ы, а так же члены групп IT и VECTOR.Development. Из этой безобидности запрос превращается в "ужас на крыльях ночи" благодаря:
+На человеческом языке запрос звучит достаточно просто: все HelpDesk Operator-ы, а так же члены групп `IT` и `VECTOR.Development`. Из этой безобидности запрос превращается в "ужас на крыльях ночи" благодаря:
 - обсуждаемому выше магическому префиксу для поиска "в глубину"
 - наличию не только членов группы (memberOf), но и ее владельцев (managedObjects)
-- кроме очевидного способа найти владельцев группы, существует еще и Exchange-way управлять составом групп, так что приходится учитывать поле msExchCoManagedObjectsBL
+- кроме очевидного способа найти владельцев группы, существует еще и Exchange-way управлять составом групп, так что приходится учитывать поле `msExchCoManagedObjectsBL`
 
-Предыдущий запрос используется в конфигурационном файле nginx для контроля доступа к страницам при помощи https://github.com/kvspb/nginx-auth-ldap.git плагина. Такое решение может оказаться эффективнее, чем встраивать аутентификацию внутрь защищаемой системы. Если вам это необходимо – скорее всего придется собрать модуль самостоятельно
+Предыдущий запрос используется в конфигурационном файле `nginx` для контроля доступа к страницам при помощи [nginx-auth-ldap](@gh(kvspb)) плагина. Такое решение может оказаться эффективнее, чем встраивать аутентификацию внутрь защищаемой системы. Если вам это необходимо – скорее всего придется собрать модуль самостоятельно
 
 ```docker
 RUN git clone https://github.com/kvspb/nginx-auth-ldap.git && wget -qO- http://nginx.org/download/nginx-1.17.3.tar.gz | tar -xvzf -
@@ -168,12 +167,12 @@ RUN cd nginx-1.17.3 && ./configure  --user=nginx \
                                     --with-debug && make && make install && rm -rf /nginx-1.17.3 && rm -rf /nginx-auth-ldap
 ```
 
-# Аутентификация в TeamCity
+## Аутентификация в TeamCity
 
 Множество систем поддерживает интеграцию с AD в качестве источника пользователей. Вот рецепт (содержимое необходимо поместить в `teamcity_server/datadir/config/ldap-config.properties` файл) того, как это можно сделать в TeamCity, чтобы члены проектной команды могли логиниться под доменными учетными записями. Доступ будет автоматически пропадать при покидании проекта. Все что для этого понадобится – служебная учетная запись (для доступа к самому AD).
 
 ```properties
-java.naming.provider.url=ldap://dc1.itransition.corp:389
+java.naming.provider.url=ldap://ldap.itransition.corp:389
 java.naming.security.principal=CN=vector,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp
 java.naming.security.credentials=PASSWORD_WAS_HERE
 
@@ -191,43 +190,43 @@ teamcity.options.createUsers=true
 teamcity.options.deleteUsers=true
 ```
 
-Подробный рассказ о TeamCity и то, как его правильно готовить от Panfilenok Aleksandr  вас ждет на предстоящем [Itransition Development Meetup #10](https://itransition.workplace.com/events/537058783541251/).
+Подробный рассказ о TeamCity и то, как его правильно готовить от Panfilenok Aleksandr вас ждет на предстоящем [Itransition Development Meetup #10](https://itransition.workplace.com/events/537058783541251/).
 
-# Утилиты командной строки
+## Утилиты командной строки
 
 Используя ldapseach можно легко (для тех кто любит терминал) строить полезные запросы к AD. Например – список людей, в интересующей вас комнате:
 
 ```console
-ldapsearch -Q -h dc1.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))" | grep displayName:
+ldapsearch -Q -h ldap.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))" | grep displayName:
 
 =>
 displayName: Shestakov, Aleksandr
-displayName: Rimorev, Andrey
+displayName: Pupkin, Andrey
 ```
 
 Список проектных групп вашего проекта (результат зависит от консистентности названия групп):
 
 ```console
-ldapsearch -o ldif-wrap=no -Q -h dc1.itransition.corp -b "OU=Groups,OU=Itransition,DC=itransition,DC=corp" "name=IRIS*" dn | grep CN=
+ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b "OU=Groups,OU=Itransition,DC=itransition,DC=corp" "name=ILLIS*" dn | grep CN=
 
 =>
-dn: CN=IRIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.IRIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=IRIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.ILLIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
 ```
 
 Список переговорных на Кульман 1 с окнами:
 
 ```console
-ldapsearch -Q -h dc1.itransition.corp -b "OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))" dn | grep CN= | cut -d , -f 1
+ldapsearch -Q -h ldap.itransition.corp -b "OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))" dn | grep CN= | cut -d , -f 1
 
 =>
 dn: CN=Room K1-101
@@ -241,7 +240,7 @@ dn: CN=Room K1-421
 Или без окон:
 
 ```console
-ldapsearch -Q -h dc1.itransition.corp -b "OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))" dn | grep CN= | cut -d , -f 1
+ldapsearch -Q -h ldap.itransition.corp -b "OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))" dn | grep CN= | cut -d , -f 1
 
 =>
 dn: CN=Room K1-112
@@ -260,7 +259,7 @@ dn: CN=Room K1-419
 Список _однофамильцев_ рабочих станций:
 
 ```console
-ldapsearch -o ldif-wrap=no -Q -h dc1.itransition.corp -b "OU=Workstations,OU=Itransition,DC=itransition,DC=corp" "(&(name=shestakova*)(!(name=shestakova-a)))" managedBy
+ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b "OU=Workstations,OU=Itransition,DC=itransition,DC=corp" "(&(name=shestakova*)(!(name=shestakova-a)))" managedBy
 
 =>
 # extended LDIF
@@ -271,9 +270,9 @@ ldapsearch -o ldif-wrap=no -Q -h dc1.itransition.corp -b "OU=Workstations,OU=Itr
 # requesting: managedBy
 #
 
-# SHESTAKOVAV2, Workstations, Itransition, itransition.corp
-dn: CN=SHESTAKOVAV2,OU=Workstations,OU=Itransition,DC=itransition,DC=corp
-managedBy: CN=Shestakova\, Vitalina2,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp
+# SHESTAKOVAV, Workstations, Itransition, itransition.corp
+dn: CN=SHESTAKOVAV,OU=Workstations,OU=Itransition,DC=itransition,DC=corp
+managedBy: CN=Shestakova\, Vitalina,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp
 
 # search result
 search: 5
@@ -283,7 +282,7 @@ result: 0 Success
 # numEntries: 1
 ```
 
-# Занимательные флаги
+## Занимательные флаги
 
 При работе с утилитой командной строки ldapsearch необходимо быть внимательным – она любит делать text-wrap, перенося окончания длинных CN на следующую строку. Для того, чтобы этого избежать – удобно пользоваться опцией `-o ldif-wrap=no`.
 

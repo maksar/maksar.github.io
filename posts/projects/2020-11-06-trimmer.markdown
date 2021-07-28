@@ -54,3 +54,19 @@ suspend fun projectCards(fields: Set<String>) =
 ```
 
 Since it is unlikely that number of search results will change during parallel fetching process – the solution can be considered as "robust enough".
+
+If your project isn't ready for modern `Flow` framework in Kotlin, you can implement the same idea using `CompletableFuture`s. Retries are very possible too with [Failsafe](@gh(failsafe-lib):failsafe) library.
+
+```kotlin
+fun <T> loadIssues(fields: String, query: String, mapper: (Issue) -> T): List<T> =
+  jiraClient.searchIssues(query, fields, 1).total.let { total ->
+    val chunkSize = max(1, total / JIRA_CHUNK_COUNT)
+    IntStream.iterate(0) { it + chunkSize }.limit((total / chunkSize) + 1L).toList().map { start ->
+      DatabaseContext.supplyAsync {
+        Failsafe.with(RetryPolicy<List<T>>().handle(RestException::class.java).withMaxRetries(3)).get { ->
+          jiraClient.searchIssues(query, fields, chunkSize, start).issues.map(mapper)
+        }
+      }
+    }.map { it.get() }.flatten()
+  }
+```
