@@ -1,9 +1,12 @@
 ---
 title: Telegram bot for managing Bitbucket repositories
-tags: english, ruby, telegram, fibers, rspec
+tags: ruby, fibers, rspec
+language: english
 ---
 
-Gitman is a Telegram chat bot. It helps to manage source code repositories in Itransition Bitbucket server. Intead of creating repositories manually, our HelpDesk operators are using this bot. It sets up all merge hooks, commit message checks, default reviwers policy, other things which is tidiuos to do by hands.
+Gitman is a Telegram chat bot. It helps to manage source code repositories in Itransition Bitbucket server. Instead of creating repositories manually, our HelpDesk operators are using this bot. It sets up all merge hooks, commit message checks, default reviewers policy, other things which is tedious to do by hands.
+
+<!--more-->
 
 Here are some examples of *how it looks*:
 
@@ -18,9 +21,9 @@ There are number of technical decisions, which makes this piece of software inte
 * usage of pattern matching feature
 * non standard approach on integration testing
 
-It also features a [trick](https://github.com/maksar/gitman/blob/master/flake.nix#L46-L49) (one of the first things I did with nix) with making some environment variables visible for a nix shell in order for the bundler (ruby build tool) to be able to build gems (ruby libraries) with native extensions. It even has a [check phase](https://github.com/maksar/gitman/blob/master/flake.nix#L68) enabled ;)
+It also features a [trick](@gh(maksar):gitman/blob/master/flake.nix#L46-L49) (one of the first things I did with nix) with making some environment variables visible for a nix shell in order for the bundler (ruby build tool) to be able to build gems (ruby libraries) with native extensions. It even has a [check phase](@gh(maksar):gitman/blob/master/flake.nix#L68) enabled ;)
 
-Under the hood it uses my fork of [bundix](https://github.com/nix-community/bundix/pull/75/files) (allows to nixify ruby dependencies) because the official version is forgotten by maintainers and no longer supports modern bundler.
+Under the hood it uses my fork of [bundix](@gh(nix-community):bundix/pull/75/files) (allows to nixify ruby dependencies) because the official version is forgotten by maintainers and no longer supports modern bundler.
 
 Being a [telegram](https://telegram.org) bot, gitman need to maintain a conversation with a user. Bot is not a stateless command processor, but rather a context-aware conversion member. In order to execute a particular command, it can ask additional question from the user and react to user's responses.
 

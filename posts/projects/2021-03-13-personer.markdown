@@ -1,31 +1,71 @@
 ---
-title: JIRA bot to automatically update fields values
-tags: english, kotlin, JIRA
+title: JIRA bot to automatically update field values
+tags: kotlin, konfig
+language: english
 ---
 
-Personer is a small Kotlin bot, which is started by systemd timer (thanks nixos) and performs a read-update cycle over our project cards (custom JIRA issues). It features modern Kotlin's Flow framework
+[Personer](@gh(maksar)) is a small bot written in Kotlin, which is started by `systemd` timer (thanks `nixos`) and performs a read-update cycle over our project cards (custom JIRA issues). It features modern Kotlin's Flow framework.
+
+<!--more-->
 
 ```kotlin
 @FlowPreview
 suspend fun projectCards(fields: Set<String>) =
-    search(0, 1).total.let { total ->
-        rangeUntil(0, total, env[PERSONER_PAGE_SIZE]).asFlow()
-            .concurrentFlatMap { start -> search(start, env[PERSONER_PAGE_SIZE], fields).issues }
-            .toList()
-    }
+  search(0, 1).total.let { total ->
+    rangeUntil(0, total, env[PERSONER_PAGE_SIZE]).asFlow()
+      .concurrentFlatMap { start -> search(start, env[PERSONER_PAGE_SIZE], fields).issues }
+      .toList()
+  }
 ```
-which allows concurrently `flatMap`-ing a flow (fancy name of the lazy stream) with retrying abilities on errors.
+
+Which allows concurrently `flatMap`-ing a flow (fancy name of the lazy stream) with retry abilities on errors.
 
 ```kotlin
 @FlowPreview
 fun <T, R> Flow<T>.concurrentFlatMap(transform: suspend (T) -> Iterable<R>) =
-    flatMapMerge { value ->
-        flow { emitAll(transform(value).asFlow()) }
-    }.retryOnTimeouts()
+  flatMapMerge { value ->
+    flow { emitAll(transform(value).asFlow()) }
+  }.retryOnTimeouts()
 
 fun <T> Flow<T>.retryOnTimeouts() =
-    this.flowOn(Dispatchers.IO)
-        .retry { cause -> generateSequence(cause, Throwable::cause).any { it is SocketTimeoutException } }
+  this.flowOn(Dispatchers.IO)
+    .retry { cause -> generateSequence(cause, Throwable::cause).any { it is SocketTimeoutException } }
 ```
 
-Tons of boilerplate code above that – is just the consequence of having to inject a [custom parser](https://github.com/maksar/personer/blob/master/src/main/kotlin/com/itransition/personer/Jira.kt#L114) inside the library, which doesn't allow that natively.
+Tons of boilerplate code [above that](@gh(maksar):personer/blob/master/src/main/kotlin/com/itransition/personer/Jira.kt#L63-L112) – is just the consequence of having to inject a [custom parser](@gh(maksar):personer/blob/master/src/main/kotlin/com/itransition/personer/Jira.kt#L114) inside the library, which doesn't allow that natively.
+
+The logic itself is straightforward:
+
+```kotlin
+enum class Region(vararg val names: String) {
+  USA("United States"),
+  UK("Ireland", "United Kingdom"),
+  CIS("Belarus", "Russian Federation", "Kazakhstan", "Ukraine"),
+  EU(
+    "Austria", "Belgium", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany",
+    "Gibraltar", "Greece", "Hungary", "Italy", "Latvia", "Luxembourg", "Montenegro", "Netherlands", "Norway",
+    "Poland", "Portugal", "Slovak Republic", "Spain", "Sweden", "Switzerland"
+  ),
+  None {
+    override fun id(): String = "-1"
+  };
+
+  open fun id(): String = possibleValues.first { it.value == name }.id.toString()
+
+  companion object {
+    fun fromRegion(region: String): Region = values().firstOrNull { it.names.contains(region) } ?: None
+  }
+}
+```
+
+However in the most recent version countries are not hardcoded anymore, but loaded from environment variables with help of [konfig](@gh(npryce)).
+
+```kotlin
+val PERSONER_COUNTRIES_CONFIG by
+  listType(
+    listType(
+      stringType,
+      ":".toRegex()
+    ).wrappedAs { mapping -> mapping.last().split(",").map { Pair(it, Region.valueOf(mapping.first())) } },
+    ";".toRegex()).wrappedAs { it.flatten().toMap() }
+```

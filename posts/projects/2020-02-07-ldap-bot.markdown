@@ -1,9 +1,12 @@
 ---
-title: Workplace bot for managing Actve Directory groups
-tags: english, AD, LDAP, haskell, polysemy, aeson, servant
+title: Workplace bot for managing Active Directory groups
+tags: haskell, polysemy, aeson, servant
+language: english
 ---
 
 Here is a facebook bot (we use facebook's Workplace product as an intranet collaboration point) to manage AD groups.
+
+<!--more-->
 
 <a href="/images/ldap-bot/1.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/1.png"/></a>
 <a href="/images/ldap-bot/2.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/2.png"/></a>
@@ -14,16 +17,164 @@ Here is a facebook bot (we use facebook's Workplace product as an intranet colla
 
 Since our organization migrated to hybrid schema (AD "on land" and Azure AD "in cloud"), it is no longer possible for employees connected to the on-premises server to manage the AD groups. While our IT department is figuring out a way to provide management abilities to the employees, I decided to create a simple way to add/remove people into AD groups (our access policies depend on group membership).
 
-It started as a typical pet project, but I wanted to try new things along the way. First implementation was very straightforward (no ReaderT pattern, explicit passing of configuration values). When I felt the urge to write some tests, it became clear that full integration tests is not an option – neither facebook doesn't like to be bombarded with messages, nor LDAP server. So I introduced a [freer-simple](https://github.com/lexi-lambda/freer-simple) effects system, which was later replaced with [polysemy](https://github.com/polysemy-research/polysemy). It makes it possible to swap out some effects with mocks and write well-organized unit tests (I'm not saying they look pretty, they have to mock a lot of things after all).
+It started as a typical pet project, but I wanted to try new things along the way. First implementation was very straightforward (no ReaderT pattern, explicit passing of configuration values). When I felt the urge to write some tests, it became clear that full integration tests is not an option – neither facebook doesn't like to be bombarded with messages, nor LDAP server. So I introduced a [freer-simple](@gh(lexi-lambda):freer-simple) effects system, which was later replaced with [polysemy](@gh(polysemy-research):polysemy). It makes it possible to swap out some effects with mocks and write well-organized unit tests (I'm not saying they look pretty, they have to mock a lot of things after all).
 
-At that time, the project was dockerized. I even achieved some remarkable results with statically compiling it with musl, UPC-ing the result and packing everything into scratch-based docker image (more on that in attachments). But deployment was a little bit complicated, since I had to either build docker images on a target host or use companies (which was also created and configured by me) docker registry. I started to explore options and got a second chance to look at NIX and [nixops](https://github.com/NixOS/nixops) (currently I cannot imagine how I lived without it). So I NIX-ified the bot and even switched to the [haskell.nix](https://github.com/input-output-hk/haskell.nix) alternative haskell nix infrastructure.
+At that time, the project was dockerized. I even achieved some remarkable results with statically compiling it with `musl`, UPC-ing the result and packing everything into scratch-based docker image (more on that in attachments). But deployment was a little bit complicated, since I had to either build docker images on a target host or use companies (which was also created and configured by me) docker registry. I started to explore options and got a second chance to look at NIX and [nixops](@gh(NixOS):nixops) (currently I cannot imagine how I lived without it). So I NIX-ified the bot and even switched to the [haskell.nix](@gh(input-output-hk):haskell.nix) alternative haskell nix infrastructure.
 
-Along with that, following my built-in craving for minimalism, I decided to try out bare cabal instead of stack, which wasn't the greatest experience (since stack is much-more user friendly and solved a lot of existing problems for you). But finally, with help of nix flakes, the project can be built the same way on darwin and linux systems.
+```nix
+outputs = { self, flake-utils, haskell-nix }:
+  flake-utils.lib.eachSystem (builtins.attrNames haskell-nix.legacyPackages)
+    (system:
+      with haskell-nix.legacyPackages.${system};
+      let
+        compiler-nix-name = "ghc8104";
+        project = pkgs.haskell-nix.cabalProject {
+          inherit compiler-nix-name;
+          src = pkgs.haskell-nix.haskellLib.cleanGit {
+            name = "sources";
+            src = ./.;
+          };
+          index-state = "2021-03-10T00:00:00Z";
+          plan-sha256 = "1rsd9xcvkgmjx68zgnfz3rdfg5f3yfn7b7j7k7aqyicnxfdjs21k";
+          materialized = ./materialized/ldap-bot;
+        };
+      in
+      rec {
+        defaultApp = {
+          type = "app";
+          program = "${defaultPackage}/bin/ldap-bot-facebook";
+        };
+
+        packages = {
+          facebook = project.ldap-bot.components.exes.ldap-bot-facebook;
+          console = project.ldap-bot.components.exes.ldap-bot-console;
+        };
+
+        defaultPackage = packages.facebook;
+
+        devShell = project.shellFor {
+          tools = {
+            ormolu = "latest";
+            hlint = "latest";
+            cabal = "latest";
+            haskell-language-server = "latest";
+            hoogle = "latest";
+            hspec-discover = "latest";
+          };
+        };
+      }
+    );
+```
+
+Along with that, following my built-in craving for minimalism, I decided to try out bare cabal instead of stack, which wasn't the greatest experience (since stack is much-more user friendly and solved a lot of existing problems for you). But finally, with help of nix flakes, the project can be built the same way on `darwin` and `linux` systems.
 
 Continuing to use the bot myself, I felt repeating pain of opening a browser and navigating to the facebook chat each time I have to add or remove someone from the group or even see who is the group manager (using [ldapsearch](https://linux.die.net/man/1/ldapsearch) linux utility is not so pleasant, it's output is quite cumbersome). So I decided to add a terminal interface to the bot. Same functions, but accessed from the terminal. Having nix in place, deployment configuration has changed only slightly, but I am free of browser pain now.
 
 ## Internals
 
-I used [servant-client](https://hackage.haskell.org/package/servant-client) to "[talk](https://github.com/maksar/ldap-bot/blob/master/src/Client/API.hs#L40-L44)" to facebook via it's graph API (do not confuse with graphQL) and [servant-server](https://hackage.haskell.org/package/servant-server) to publish [two endpoints](https://github.com/maksar/ldap-bot/blob/master/src/Server/API.hs#L27-L29) facebook will hit whenever a new message arrives to the bot. All communication is JSON-based backed by [aeson](https://hackage.haskell.org/package/aeson) library. Instead of blindly mapping incoming messages to the data structures with the same shape, I decided to write a custom [FromJSON](https://github.com/maksar/ldap-bot/blob/master/src/Server/Model.hs#L32) instance to flatten the payload (facebook's message format is a bit crazy). LDAP communication is done with the help of [ldap-client](https://hackage.haskell.org/package/ldap-client) library, which is a high-level binding from corresponding C library. Lenses are used to create [isomorphisms](https://github.com/maksar/ldap-bot/blob/master/src/Env.hs#L79) between parsed and raw configuration values (for testing environment configuration in a generic way). Polysemy is a star of the show which allows it to separate the domain language from its interpretation, inject logging in the middle of the effects stack, write mock versions of [facebook](https://github.com/maksar/ldap-bot/blob/master/test/Client/FacebookSpec.hs#L105), [LDAP](https://github.com/maksar/ldap-bot/blob/master/test/Server/LDAPSpec.hs#L68) and some internal [effects](https://github.com/maksar/ldap-bot/blob/master/test/Server/RegistrySpec.hs#L58). Code gets built by nix and deployed via nixops as a systemd service. First implementation of tests used validity and gen-validity libraries from [Tom Sydney Kerckhove](https://cs-syd.eu) (super nice Haskeller, met him on the conference), but then switched to [QuickCheck](https://hackage.haskell.org/package/QuickCheck) and [hspec](https://hackage.haskell.org/package/hspec), since I don't have a lot of data types to generate Validity (Arbitrary in QuichCheck terms) instances for.
+I used [servant-client](@hackage) to "[talk](@gh(maksar):ldap-bot/blob/master/src/Client/API.hs#L40-L44)" to facebook via it's graph API (do not confuse with GraphQL).
 
-Along the way of implementing and supporting that bot I wrote a number of articles about it (also Haskell and FP in general). Unfortunately, the articles are in russian and have no version: my auditory was all russian speaking employees, so there was no point in doing so. I still think it would be beneficial to include them into the story: you can still squint on it and try to see the idea or maybe you do have a friend or colleague, who can understand it ;)
+```haskell
+type FBMessengerSendAPI =
+  "me" :> "messages" :> ReqBody '[JSON] SendTextMessageRequest :> AccessTokenParam :> Post '[JSON] SendTextMessageResponse
+    :<|> "me" :> "messages" :> ReqBody '[JSON] ServiceMessageRequest :> AccessTokenParam :> Post '[JSON] SendTextMessageResponse
+    :<|> "me" :> "messages" :> ReqBody '[JSON] HelpMessageRequest :> AccessTokenParam :> Post '[JSON] SendTextMessageResponse
+    :<|> Capture "user_id" Text :> RequiredParam "fields" Text :> AccessTokenParam :> Get '[JSON] GetUserInfoMessageResponse
+```
+
+[servant-server](https://hackage.haskell.org/package/servant-server) is used to publish [two endpoints](@gh(maksar):ldap-bot/blob/master/src/Server/API.hs#L27-L29) facebook will hit whenever a new message arrives to the bot. All communication is JSON-based backed by [aeson](@hackage) library.
+
+```haskell
+type WebHookAPI =
+  RequiredParam "hub.verify_token" Text :> RequiredParam "hub.challenge" Text :> Get '[PlainText] Text
+    :<|> ReqBody '[JSON] Messages :> Post '[JSON] (NonEmpty (Either Text SendTextMessageResponse))
+```
+
+Instead of blindly mapping incoming messages to the data structures with the same shape, I decided to write a custom [FromJSON](@gh(maksar):ldap-bot/blob/master/src/Server/Model.hs#L32) instance to flatten the payload (facebook's message format is a bit crazy).
+
+```haskell
+instance FromJSON Messages where
+  parseJSON = withObject "root object" $ \root ->
+    root .: "entry" >>= fmap (Messages . fromList . toList . join)
+      . withArray "entries array" ( mapM $ withObject "entry object" $ \entry ->
+          entry .: "messaging" >>= withArray"messaging array"
+            ( mapM $
+                withObject "message object" $ \message ->
+                  Message
+                    <$> (message .: "sender" >>= (.: "id"))
+                    <*> (  (message .: "message" >>= (.: "text"))
+                       <|> (message .: "postback" >>= (.: "payload"))
+                        )
+            )
+        )
+```
+
+LDAP communication is done with the help of [ldap-client](@hackage) library, which is a high-level binding from corresponding C library. Lenses are used to create [isomorphisms](@gh(maksar):ldap-bot/blob/master/src/Env.hs#L79) between parsed and raw configuration values (for testing environment configuration in a generic way).
+
+```haskell
+settings :: Functor f => [(Text, (Text -> f Text) -> Config -> f Config)]
+settings =
+  [ ("LDAP_BOT_LDAP_HOST", ldapHost),
+    ("LDAP_BOT_LDAP_PORT", ldapPort . isoRead . packed),
+    ("LDAP_BOT_PORT", port . isoRead . packed),
+    ("LDAP_BOT_VERIFY_TOKEN", verifyToken),
+    ("LDAP_BOT_PAGE_TOKEN", pageToken),
+    ("LDAP_BOT_USERNAME", user),
+    ("LDAP_BOT_PASSWORD", password),
+    ("LDAP_BOT_USERS_CONTAINER", activeUsersContainer . isoDn),
+    ("LDAP_BOT_USERS_ORGUNITS", activeUsersOrgunits . isoNonEmpty . splitted),
+    ("LDAP_BOT_GROUPS_CONTAINER", projectGroupsContainer . isoDn),
+    ("LDAP_BOT_GROUPS_ORGUNITS", projectGroupsOrgunits . isoNonEmpty . splitted),
+    ("LDAP_BOT_TERMINAL_USERNAME", terminalUsername)
+  ]
+  where
+    isoRead :: (Read a, Show a) => Iso' a String
+    isoRead = iso show read
+    isoDn = iso (\(Dn dn) -> dn) Dn
+    isoNonEmpty = iso toList fromList
+    splitted = iso (intercalate ",") (splitOn ",")
+```
+
+[polysemy](@hackage) is a star of the show which allows it to separate the domain language from its interpretation, inject logging in the middle of the effects stack, write mock versions of [facebook](@gh(maksar):ldap-bot/blob/master/test/Client/FacebookSpec.hs#L105), [LDAP](@gh(maksar):ldap-bot/blob/master/test/Server/LDAPSpec.hs#L68) and some internal [effects](@gh(maksar):ldap-bot/blob/master/test/Server/RegistrySpec.hs#L58).
+
+```haskell
+fakeFacebook :: (Member (Error Text) r) => GroupModificationHandler -> InterpreterFor FacebookEffect r
+fakeFacebook handler = interpret $ \case
+  ModifyGroup _ _ -> handler
+  SendText (SendTextMessageRequest (Base account) (SendTextMessage _)) -> return $ SendTextMessageResponse account
+  GetInfo _ -> return $ GetUserInfoMessageResponse "account_email@example.com"
+  ServiceMessage (ServiceMessageRequest (Base account) _) -> return $ SendTextMessageResponse account
+  SendHelp (HelpMessageRequest recipient_id) -> return $ SendTextMessageResponse recipient_id
+
+fakeLdap :: (Member (Writer [Text]) r, Member (Reader Config) r) => [(Text, [SearchEntry])] -> [(Text, [SearchEntry])] -> Sem (LdapEffect : r) a -> Sem r a
+fakeLdap users groups = interpret $ \case
+  SearchLdap (Dn base) _mod searchFilter attributes -> do
+    Config {_activeUsersContainer, _projectGroupsContainer} <- ask
+    tell [pack $ "Searching in " ++ unpack base ++ " with filter " ++ showFilter searchFilter ++ " and attributes (" ++ unpack (showAttributes attributes) ++ ")"]
+    let container = fromJust $ lookup (Dn base) [(_activeUsersContainer, users), (_projectGroupsContainer, groups)]
+    return $ fromMaybe [] $ lookup (extractFilter searchFilter) container
+  ModifyLdap (Dn base) [operation] -> do
+    tell [pack $ "Modifying in " ++ unpack base ++ " with operation " ++ showOperation operation]
+    return ()
+
+successCommandRegistry :: CommandAction -> GroupKnowledge -> GroupKnowledge -> FakeInterpreter
+successCommandRegistry commandAction requesterGroupKnowledge accountGroupKnowledge = \case
+  GetGroupInformation (Append (Value requester) (Value account) (Value group)) -> getInfo requester account group
+  GetGroupInformation (Remove (Value requester) (Value account) (Value group)) -> getInfo requester account group
+  ModifyRegistry (Confirmed (Append (Value (SearchEntry (Dn requester) [])) (Value (SearchEntry (Dn account) [])) (Value (SearchEntry (Dn group) [])))) -> modifyRegistry "appending" requester account group
+  ModifyRegistry (Confirmed (Remove (Value (SearchEntry (Dn requester) [])) (Value (SearchEntry (Dn account) [])) (Value (SearchEntry (Dn group) [])))) -> modifyRegistry "removing" requester account group
+  where
+    getInfo :: Members '[Writer [Text]] r => Text -> Text -> Text -> Sem r (GroupKnowledge, GroupKnowledge, EnrichedCommand)
+    getInfo requester account group = do
+      tell [unwords ["Getting information about", group, "and", account, "requested by", requester]]
+      return (requesterGroupKnowledge, accountGroupKnowledge, commandAction (Value $ SearchEntry (Dn requester) []) (Value $ SearchEntry (Dn account) []) (Value $ SearchEntry (Dn group) []))
+
+    modifyRegistry :: Members '[Writer [Text]] r => Text -> Text -> Text -> Text -> Sem r Text
+    modifyRegistry action requester account group = do
+      tell [unwords ["Modifying", group, "by", action, account, "requested by", requester]]
+      return "OK"
+```
+
+Code gets built by nix and deployed via `nixops` as a `systemd` service. First implementation of tests used [validity](@hackage) and [genvalidity](@hackage) libraries from [Tom Sydney Kerckhove](https://cs-syd.eu) (super nice Haskeller, met him on the [conference](https://cs-syd.eu/posts/2020-02-27-talk-writing-a-text-editor-in-haskell-with-brick)), but then switched to [QuickCheck](@hackage) and [hspec](@hackage), since I don't have a lot of data types to generate `Validity` (`Arbitrary` in `QuichCheck`'s terms) instances for.
+
+Along the way of implementing and supporting that bot I wrote a number of [articles](/posts/code/2020-02-27-aeson-parsing.html) about it (also Haskell and FP in general). Unfortunately, the articles are in russian and have no version: my auditory was all russian speaking employees, so there was no point in doing so. I still think it would be beneficial to include them into the story: you can still squint on it and try to see the idea or maybe you do have a friend or colleague, who can understand it ;)

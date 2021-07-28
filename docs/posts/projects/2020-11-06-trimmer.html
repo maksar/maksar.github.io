@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - 2020-11-06-trimmer</title>
+  <title>Shestakov Alex Blog - JIRA bot to trim whitespaces from field values</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -35,13 +35,52 @@
   </header>
 
   <main role="main">
-    <h1>2020-11-06-trimmer</h1>
+    <h1>JIRA bot to trim whitespaces from field values</h1>
     <article>
   <section class="header">
-    November  6, 2020  @<a href="../../categories/projects.html">projects</a> 
+    November  6, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a>
   </section>
   <section>
-    
+    <p><a href="https://github.com/maksar/Trimmer">Trimmer</a> is a small bot, which iterates over JIRA issues and trims whitespaces fields values. Without that, human mistakes on copy-paste operations can make automated JIRA statistics collections harder.</p>
+<!--more-->
+<p>I’d like to demonstrate two different approaches to handle “paging” problem in Atlassian REST APIs. Atlassian REST endpoints usually allows to perform search queries with <code>perPage</code> and <code>start</code> parameters. Common solution to this problem (implemented in this <a href="https://github.com/maksar/trimmer">trimmer</a>) is to iterate sequentially, increasing <code>start</code> parameter along the way. Code below demonstrates the idea.</p>
+<p>Sequential iteration can be easily abstracted away from the main code by introducing a custom <code>iterator</code> instance, which <code>yield</code>s search results page-by-page.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IssuesIterator<span class="op">(</span><span class="kw">private</span> <span class="kw">val</span> <span class="va">jql</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">private</span> <span class="kw">val</span> <span class="va">perPage</span><span class="op">:</span> <span class="dt">Int</span><span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">private</span> <span class="kw">val</span> <span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt;<span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">private</span> <span class="kw">val</span> <span class="va">client</span><span class="op">:</span> <span class="dt">SearchRestClient</span><span class="op">)</span> <span class="op">:</span> <span class="dt">Sequence</span><span class="op">&lt;</span><span class="dt">Issue</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">override</span> <span class="kw">fun</span> <span class="fu">iterator</span><span class="op">():</span> <span class="dt">Iterator</span><span class="op">&lt;</span><span class="dt">Issue</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> iterator <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">var</span> <span class="va">currentIndex</span> <span class="op">=</span> <span class="op">-</span>perPage</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">do</span> <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                currentIndex <span class="op">+=</span> perPage</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                print<span class="op">(</span><span class="st">&quot;.&quot;</span><span class="op">)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                <span class="kw">val</span> <span class="va">currentResult</span> <span class="op">=</span> fetch<span class="op">(</span>currentIndex<span class="op">)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                yieldAll<span class="op">(</span>currentResult<span class="op">.</span>issues<span class="op">)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">while</span> <span class="op">(</span>currentIndex <span class="op">+</span> perPage <span class="op">&lt;</span> currentResult<span class="op">.</span>total<span class="op">)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">fun</span> <span class="fu">fetch</span><span class="op">(</span><span class="va">start</span><span class="op">:</span> <span class="dt">Int</span><span class="op">):</span> <span class="dt">SearchResult</span> <span class="op">{</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> client<span class="op">.</span>searchJql<span class="op">(</span>jql<span class="op">,</span> perPage<span class="op">,</span> start<span class="op">,</span> fields<span class="op">).</span><span class="kw">get</span><span class="op">()</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>However, this approach makes it impossible to execute search requests in parallel. In order to overcome such limitation, I am using the following trick:</p>
+<ul>
+<li>Execute first dummy search request with <code>pageSize</code> equal to <code>1</code> and <code>start</code> equal to <code>0</code>. Result will give us access to the <code>total</code> parameter in a search response.</li>
+<li>Read <code>total</code> value from search response and create a range of integers from <code>0</code> to <code>total</code> with <code>step</code> equal to desired page size.</li>
+<li>Schedule background jobs (using <code>Flow</code> or any other concurrent library) to perform search requests with already known <code>pageSize</code> and <code>start</code> parameters.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="kw">fun</span> <span class="fu">search</span><span class="op">(</span><span class="va">start</span><span class="op">:</span> <span class="dt">Int</span><span class="op">,</span> <span class="va">per</span><span class="op">:</span> <span class="dt">Int</span><span class="op">,</span> <span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt; <span class="op">=</span> setOf<span class="op">()):</span> <span class="dt">SearchResult</span> <span class="op">=</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  jiraClient<span class="op">.</span>searchClient<span class="op">.</span>searchJql<span class="op">(</span><span class="st">&quot;project = </span><span class="ss">${</span>env<span class="op">[</span>PERSONER_JIRA_PROJECT<span class="op">]</span><span class="ss">}</span><span class="st">&quot;</span><span class="op">,</span> per<span class="op">,</span> start<span class="op">,</span> MINIMUM_SET_OF_FIELDS<span class="op">.</span>plus<span class="op">(</span>fields<span class="op">)).</span><span class="kw">get</span><span class="op">()</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>suspend <span class="kw">fun</span> <span class="fu">projectCards</span><span class="op">(</span><span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt;<span class="op">)</span> <span class="op">=</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  search<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span>total<span class="op">.</span>let <span class="op">{</span> total <span class="op">-&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    rangeUntil<span class="op">(</span><span class="dv">0</span><span class="op">,</span> total<span class="op">,</span> env<span class="op">[</span>PERSONER_PAGE_SIZE<span class="op">]).</span>asFlow<span class="op">()</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span>concurrentFlatMap <span class="op">{</span> start <span class="op">-&gt;</span> search<span class="op">(</span>start<span class="op">,</span> env<span class="op">[</span>PERSONER_PAGE_SIZE<span class="op">],</span> fields<span class="op">).</span>issues <span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span>toList<span class="op">()</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<p>Since it is unlikely that number of search results will change during parallel fetching process – the solution can be considered as “robust enough”.</p>
   </section>
 </article>
 

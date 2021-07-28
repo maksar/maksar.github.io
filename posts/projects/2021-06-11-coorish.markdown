@@ -1,10 +1,10 @@
 ---
 title: People membership validation in JIRA fields against Active Directory
-tags: haskell, aeson, servant,
+tags: haskell, aeson, servant
 language: english
 ---
 
-Current version of JIRA inside Itransition does not allow to validate "whether a person belongs to a certain group" for multi-people fields, only for single-user fields. [Coorish](@gh(maksar)) – is a small utility to determine ineligible people being specified in jira tickets.
+Current version of JIRA inside Itransition does not allow to validate "whether a person belongs to a certain group" for multi-people fields, only for single-user fields. [Coorish](@gh(maksar)) – is a small utility to determine ineligible people being specified in JIRA tickets.
 
 <!--more-->
 

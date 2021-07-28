@@ -1,6 +1,78 @@
 ---
 title: Nixops deployment of all the bots and services
-tags: english, NIX, nixops
+tags: nix, nixops
+language: english
 ---
 
-Nitrax (NIX + ITRAnsition, I suck at naming) is my [nixops configuration](https://github.com/maksar/nitrax/blob/master/fleet.nix) to deploy bots and helpers. With this [service](https://github.com/maksar/nitrax/blob/master/modules/certiplace.nix) I struggled the most, because of the way unixODBC drivers are working on MacOS and Linux. That is a python bot, which connects to MSSQL database (what a pain to use) to fetch data about recently earned certifications in a company, renders it in a picture and uploads to the intranet. Despite the fact python is well supported by nix2poetry, some tricks (disabling LTO) were needed to build mathplotlib library.
+[Nitrax](@gh(maksar)) (NIX + ITRAnsition, I suck at naming) is my [nixops configuration](@gh(maksar):nitrax/blob/master/fleet.nix) to deploy bots and services.
+
+<!--more-->
+
+<img src="/previews/nitrax/logo.png" class="center" />
+
+It is composed of several `nix` files, each responsible for a single service or bot.
+
+```nix
+{
+  network = {
+    description = "Itransition NIXOS fleet";
+    enableRollback = true;
+    nixpkgs = (import <nixos-21.05-small> { system = "x86_64-linux"; });
+  };
+
+  "decepticons" = { config, pkgs, ... }: {
+    rootfs = "btrfs";
+    imports = [
+      ./hardware/efi.nix
+      ./os
+      ./modules/trimmer.nix
+      ./modules/gitman.nix
+      ./modules/nine11.nix
+      ./modules/ldap-bot.nix
+      ./modules/instagram.nix
+      ./modules/digest.nix
+      ./modules/fukuisima.nix
+      ./modules/milestones.nix
+      ./modules/personer.nix
+      ./modules/certiplace.nix
+      ./modules/coorish.nix
+    ];
+
+    networking.hostName = "decepticons";
+    deployment.targetHost = "decepticons.itransition.corp";
+  };
+}
+```
+
+With this [service](@gh(maksar):nitrax/blob/master/modules/certiplace.nix) I struggled the most, because of the way `unixODBC` drivers are working on `MacOS` and `Linux`.
+
+```nix
+{ pkgs, ... }:
+let
+  certiplace = (builtins.getFlake "git+ssh://git@git.itransition.com:7999/workplace/certificates.git").defaultPackage.${pkgs.system};
+  driver = pkgs.unixODBCDrivers.msodbcsql17;
+in
+{
+  environment.systemPackages = [ certiplace driver ];
+
+  deployment.keys.certiplace-env = {
+    text = (builtins.readFile ~/projects/certiplace/.env.production) + "\nCERTIPLACE_EMS_DATABASE_DRIVER=${driver}/${driver.driver}";
+  };
+  systemd.services.certiplace = {
+    after = [ "certiplace-env-key.service" ];
+    wants = [ "certiplace-env-key.service" ];
+    script = ''
+      source <(sed -E 's/([A-Z_0-9]+)=(.*)/export \1=\2/g' /run/keys/certiplace-env)
+      exec ${certiplace}/bin/certiplace
+    '';
+  };
+  systemd.timers.certiplace = {
+    timerConfig = {
+      OnCalendar="*-*-01 12:15:00";
+    };
+    wantedBy = [ "timers.target" ];
+  };
+}
+```
+
+That is a `python` bot, which connects to `MSSQL` database (what a pain to use) to fetch data about recently earned certifications in a company, renders it in a picture and uploads to the intranet. Despite the fact `python` is well supported by [poetry2nix](@gh(nix-community)), some tricks (disabling LTO) were needed to build [mathplotlib](@gh(matplotlib):matplotlib) library.

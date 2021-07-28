@@ -40,10 +40,6 @@ main = hakyllWith config $ do
     route $ setExtension "css"
     compile (fmap compressCss <$> sassCompiler)
 
-  match "fonts/*.woff" $ do
-    route idRoute
-    compile copyFileCompiler
-
   match "vendor/**" $ do
     route idRoute
     compile copyFileCompiler

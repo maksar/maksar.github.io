@@ -1,0 +1,56 @@
+---
+title: JIRA bot to trim whitespaces from field values
+tags: kotlin
+language: english
+---
+
+[Trimmer](@gh(maksar)) is a small bot, which iterates over JIRA issues and trims whitespaces fields values. Without that, human mistakes on copy-paste operations can make automated JIRA statistics collections harder.
+
+<!--more-->
+
+I'd like to demonstrate two different approaches to handle "paging" problem in Atlassian REST APIs. Atlassian REST endpoints usually allows to perform search queries with `perPage` and `start` parameters. Common solution to this problem (implemented in this [trimmer](@gh(maksar))) is to iterate sequentially, increasing `start` parameter along the way. Code below demonstrates the idea.
+
+Sequential iteration can be easily abstracted away from the main code by introducing a custom `iterator` instance, which `yield`s search results page-by-page.
+
+```kotlin
+class IssuesIterator(private val jql: String,
+                     private val perPage: Int,
+                     private val fields: Set<String>,
+                     private val client: SearchRestClient) : Sequence<Issue> {
+    override fun iterator(): Iterator<Issue> {
+        return iterator {
+            var currentIndex = -perPage
+            do {
+                currentIndex += perPage
+                print(".")
+                val currentResult = fetch(currentIndex)
+                yieldAll(currentResult.issues)
+            } while (currentIndex + perPage < currentResult.total)
+        }
+    }
+
+    private fun fetch(start: Int): SearchResult {
+        return client.searchJql(jql, perPage, start, fields).get()
+    }
+}
+```
+
+However, this approach makes it impossible to execute search requests in parallel. In order to overcome such limitation, I am using the following trick:
+
+* Execute first dummy search request with `pageSize` equal to `1` and `start` equal to `0`. Result will give us access to the `total` parameter in a search response.
+* Read `total` value from search response and create a range of integers from `0` to `total` with `step` equal to desired page size.
+* Schedule background jobs (using `Flow` or any other concurrent library) to perform search requests with already known `pageSize` and `start` parameters.
+
+```kotlin
+private fun search(start: Int, per: Int, fields: Set<String> = setOf()): SearchResult =
+  jiraClient.searchClient.searchJql("project = ${env[PERSONER_JIRA_PROJECT]}", per, start, MINIMUM_SET_OF_FIELDS.plus(fields)).get()
+
+suspend fun projectCards(fields: Set<String>) =
+  search(0, 1).total.let { total ->
+    rangeUntil(0, total, env[PERSONER_PAGE_SIZE]).asFlow()
+      .concurrentFlatMap { start -> search(start, env[PERSONER_PAGE_SIZE], fields).issues }
+      .toList()
+  }
+```
+
+Since it is unlikely that number of search results will change during parallel fetching process – the solution can be considered as "robust enough".
