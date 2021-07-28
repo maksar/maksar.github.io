@@ -1,0 +1,22 @@
+---
+title: Regularity
+language: english
+---
+
+## I love regular expressions...
+
+```bash
+function change_file() {
+  local row
+  local temp_row
+  for row in $(grep -E "\"\\$\{[^{]*}\"" < ${1}); do
+    temp_row=$(echo ${row} \
+    | sed -e 's/\"\${//; s/}\"//;
+        s/\"/\\\"/g; s/\$/\\\$/g; s/[|]/\\|\$/g;
+        s/\[/\\\[/g; s/\]/\\\]/g; s/\&/\\\&/g')
+    row=$(echo ${row} \
+     | sed -e 's/\"/\\\"/g; s/\$/\\\$/g; s/\[/\\\[/g; s/\]/\\\]/g')
+    sed -i "s/${row}/${temp_row}/1" ${1}
+  done
+}
+```

@@ -1,0 +1,18 @@
+---
+title: Repetition is a key
+language: english
+---
+
+## Size is indeed important
+
+```java
+int ySize = dao.getIssuesSizeByKey('Y');
+int zSize = dao.getIssuesSizeByKey('Z');
+int xSize = ySize+zSize;
+int vSize = dao.getIssuesSizeByKey('V');
+int pSize = dao.getIssuesSizeByKey('P');
+int g = dao.getIssuesSizeByKey('G');
+int h = dao.getIssuesSizeByKey('H');
+int d = dao.getIssuesSizeByKey('D');
+return String.format(messageFormat, xSize,ySize,zSize,vSize,pSize,g,h,d);
+```

@@ -1,0 +1,16 @@
+---
+title: You shell not pass
+language: english
+---
+
+## She sells seashells on the seashore
+
+```php
+const PROJECT_NAME = "name-of-the-project";
+public function getPath()
+{
+    $path = shell_exec('find / -name '.self::PROJECT_NAME);
+    $path = str_replace(PHP_EOL, '', $path);
+    return $path;
+}
+```

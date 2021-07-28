@@ -1,0 +1,15 @@
+---
+title: Chanel number 5
+language: english
+---
+
+## Where is 5?
+
+```php
+COUNT_NUMBER_ZERO = 0 # Value to be used in checks
+COUNT_NUMBER_ONE = 1 # Value to be used in checks
+COUNT_NUMBER_TWO = 2 # Value to be used in checks
+COUNT_NUMBER_THREE = 3 # Value to be used in checks
+COUNT_NUMBER_FOUR = 4 # Value to be used in checks
+COUNT_NUMBER_SIX = 6 # Value to be used in checks
+```

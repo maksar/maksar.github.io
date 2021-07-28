@@ -1,0 +1,106 @@
+---
+title: Few examples of reading cookie values
+language: english
+---
+
+There are several examples of "how to read cookies". Which one do you like the most?
+
+## Classical
+
+```javascript
+function GetCookieValue(cookieName) {
+    var cookies = document.cookie.split(';');
+    for (var i = 0; i < cookies.length; i++) {
+        var cookie = cookies[i];
+        while (cookie.charAt(0) === ' ')
+            cookie = cookie.substring(1, cookie.length);
+        if (cookie.indexOf(cookieName) === 0) {
+            return cookie.substring(cookieName.length + 1, cookie.length);
+        }
+    }
+    return null;
+}
+```
+
+## I see it this way
+
+```javascript
+function getCookie(name) {
+    var cookies = document.cookie.split('; ');
+    for(i=0, n=cookies.length; i<n; i++) {
+        if(cookies[i].indexOf(name) != -1) {
+            var target = cookies[i].split('=');
+        }
+    }
+    if(target) {
+        return target[1];
+    }else{
+        return '';
+    }
+}
+
+```
+
+## My faviourite regular expressions
+
+```javascript
+function getCookie(name) {
+    var matches = document.cookie.match(new RegExp(
+        "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+    ));
+    return matches ? decodeURIComponent(matches[1]) : undefined
+}
+```
+
+## Key uncertainty
+
+```javascript
+function getCookie(key) {
+    var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+    return keyValue ? keyValue[2] : null;
+}
+```
+
+## Lollipop
+
+```javascript
+function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length == 2) return parts.pop().split(";").shift();
+}
+```
+
+## Impermanence
+
+```javascript
+function getCookie(name) {
+     var cname = name + "=";
+    var dc = document.cookie;
+    if ( dc.length > 0 ) {
+       begin = dc.indexOf(cname);
+       if ( begin != -1 ) {
+             begin += cname.length;
+          end = dc.indexOf(";",begin);
+          if (end == -1) end = dc.length;
+          return unescape(dc.substring(begin, end) );
+       }
+    }
+}
+```
+
+## Hopelessness
+
+```javascript
+function GetCookie(name)
+{
+    var cookies=document.cookie.split(';');
+    for(var i=0;i<cookies.length;i++)
+    {
+        var parts=cookies[i].split('=');
+        if(name==parts[0].replace(/\s/g,''))
+            return unescape(parts[1])
+    }
+    //return undefined..
+}
+```

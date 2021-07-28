@@ -1,0 +1,21 @@
+---
+title: No comments
+language: english
+---
+
+```php
+return sprintf('
+    INSERT INTO %s (%s, %s, %s, %s, %s, %s, %s)
+    SELECT %s.%s, %s.%s,  \'%s\', \'%s\', \'%s\', NOW(), 0
+    FROM %s
+    INNER JOIN %s on %s.%s = %s.%s
+    INNER JOIN %s on %s.%s = %s.%s
+    INNER JOIN %s on %s.%s = %s.%s
+    INNER JOIN %s on %s.%s = %s.%s
+    LEFT JOIN  %s
+        on %s.%s = %s.%s
+        and %s.%s = %s.%s
+        and %s.%s = \'%s\'
+    WHERE %s.%s IS NULL
+', ...)
+```

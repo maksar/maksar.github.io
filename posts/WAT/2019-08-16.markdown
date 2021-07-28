@@ -1,0 +1,18 @@
+---
+title: Infiltration
+language: english
+---
+
+## Pure counterexample
+
+```javascript
+function countInArray(array, item) {
+  var count = 0;
+  array.filter(function (value) {
+    if (value.valueOf() === item.valueOf()) {
+      count++
+    }
+  });
+  return count;
+}
+```

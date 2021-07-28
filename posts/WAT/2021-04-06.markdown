@@ -1,0 +1,6 @@
+---
+title: Refactoring
+language: english
+---
+
+<a href="/images/wat/refactoring.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/refactoring.jpg"/></a>

@@ -1,0 +1,11 @@
+---
+title: Tempus fugit
+language: english
+---
+
+## Memento mori
+
+```java
+private string DateTimeConvertToSafeString(DateTime datetime)
+            => datetime.ToString().Replace('/', '-').Replace(':', '.');
+```

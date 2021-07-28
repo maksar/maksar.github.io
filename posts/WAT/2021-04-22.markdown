@@ -1,0 +1,13 @@
+---
+title: TODOs
+language: english
+---
+
+## Famous last words
+
+```php
+// todo: improve
+setcookie('twitter_access_token', null, time(), '', '', true, true);
+setcookie('twitter_oauth_token', null, time(), '', '', true, true);
+setcookie('twitter_oauth_token_secret', null, time(), '', '', true, true);
+```

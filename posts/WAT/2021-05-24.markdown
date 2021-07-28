@@ -1,0 +1,13 @@
+---
+title: Enums
+language: english
+---
+
+## HI there
+
+```java
+public enum LO {
+    L,
+    O
+}
+```

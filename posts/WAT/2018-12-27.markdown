@@ -1,0 +1,11 @@
+---
+title: Code comments
+language: english
+---
+
+## Comments are reflection of the genius
+
+```javascript
+var wb = { SheetNames: [], Sheets: {} }, // workbook
+    ws; // worksheet
+```

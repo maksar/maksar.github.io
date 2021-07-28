@@ -1,8 +1,5 @@
-{-# LANGUAGE StandaloneDeriving #-}
-
 module Main where
 
-import Control.Monad (mplus)
 import Data.Char
 import Data.List
 import Data.Maybe
@@ -21,8 +18,6 @@ config =
   defaultConfiguration
     { destinationDirectory = "docs"
     }
-
-deriving instance Eq a => Eq (Item a)
 
 main :: IO ()
 main = hakyllWith config $ do
@@ -54,6 +49,7 @@ main = hakyllWith config $ do
   tags <- buildTags "posts/**" (fromCapture "tags/*.html")
   categories <- buildCategories "posts/**" (fromCapture "categories/*.html")
   languages <- buildLanguages "posts/**" (fromCapture "languages/*.html")
+  empty <- buildTags "" (const "")
 
   match "about.markdown" $ do
     route $ setExtension "html"
@@ -63,17 +59,17 @@ main = hakyllWith config $ do
         >>= relativizeUrls
 
   tagsRules tags $ \tag pat -> do
-    let title = "Articles tagged " <> tag
+    let title = "Articles tagged #" <> tag
     route idRoute
     compile $ do
       posts <- recentFirst =<< loadAll pat
       let ctx =
             constField "title" title
-              <> listField "posts" (postCtxWithTags tags categories languages) (return posts)
+              <> listField "posts" (postCtxWithTags empty categories languages) (return posts)
               <> postCtxWithTags tags categories languages
 
       makeItem ""
-        >>= loadAndApplyTemplate "templates/tag.html" ctx
+        >>= loadAndApplyTemplate "templates/tags/default.html" ctx
         >>= loadAndApplyTemplate "templates/default.html" ctx
         >>= relativizeUrls
 
@@ -82,13 +78,14 @@ main = hakyllWith config $ do
     route idRoute
     compile $ do
       posts <- recentFirst =<< loadAll pat
+
       let ctx =
             constField "title" title
-              <> listField "posts" (postCtxWithTags tags categories languages) (return posts)
+              <> listField "posts" (postCtxWithTags tags empty languages) (return posts)
               <> postCtxWithTags tags categories languages
 
       makeItem ""
-        >>= loadAndApplyTemplate "templates/tag.html" ctx
+        >>= loadAndApplyTemplate (fromFilePath ("templates/categories/" <> tag <> ".html")) ctx
         >>= loadAndApplyTemplate "templates/default.html" ctx
         >>= relativizeUrls
 
@@ -99,11 +96,11 @@ main = hakyllWith config $ do
       posts <- recentFirst =<< loadAll pat
       let ctx =
             constField "title" title
-              <> listField "posts" (postCtxWithTags tags categories languages) (return posts)
+              <> listField "posts" (postCtxWithTags tags categories empty) (return posts)
               <> postCtxWithTags tags categories languages
 
       makeItem ""
-        >>= loadAndApplyTemplate "templates/tag.html" ctx
+        >>= loadAndApplyTemplate (fromFilePath ("templates/languages/" <> tag <> ".html")) ctx
         >>= loadAndApplyTemplate "templates/default.html" ctx
         >>= relativizeUrls
 
@@ -133,7 +130,7 @@ main = hakyllWith config $ do
         >>= loadAndApplyTemplate "templates/default.html" indexCtx
         >>= relativizeUrls
 
-  match "templates/*" $ compile templateBodyCompiler
+  match "templates/**" $ compile templateBodyCompiler
 
 capitalize :: String -> String
 capitalize tag = toUpper (head tag) : tail tag

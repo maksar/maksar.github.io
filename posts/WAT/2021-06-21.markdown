@@ -1,0 +1,72 @@
+---
+title: Week formatting
+language: english
+---
+
+## Is it Friday yet?
+
+```javascript
+export const daysOfTheWeekNames = {
+    monday: 'Monday',
+    tuesday: 'Tuesday',
+    wednesday: 'Wednesday',
+    thursday: 'Thursday',
+    friday: 'Friday',
+    saturday: 'Saturday',
+    sunday: 'Sunday'
+};
+
+export function getDayOfTheWeekName(date) {
+    switch (new Date(date).getDay()) {
+        case 0:
+            return daysOfTheWeekNames.sunday;
+        case 1:
+            return daysOfTheWeekNames.monday;
+        case 2:
+            return daysOfTheWeekNames.tuesday;
+        case 3:
+            return daysOfTheWeekNames.wednesday;
+        case 4:
+            return daysOfTheWeekNames.thursday;
+        case 5:
+            return daysOfTheWeekNames.friday;
+        case 6:
+            return daysOfTheWeekNames.saturday;
+        default:
+            return null;
+    }
+}
+```
+
+## Still not Friday?
+
+```C#
+private int? mondayOpenTime;
+private int? mondayCloseTime;
+private int? mondayFirstOrderTime;
+private int? mondayLastOrderTime;
+private int? tuesdayOpenTime;
+private int? tuesdayCloseTime;
+private int? tuesdayFirstOrderTime;
+private int? tuesdayLastOrderTime;
+private int? wednesdayOpenTime;
+private int? wednesdayCloseTime;
+private int? wednesdayFirstOrderTime;
+private int? wednesdayLastOrderTime;
+private int? thursdayOpenTime;
+private int? thursdayCloseTime;
+private int? thursdayFirstOrderTime;
+private int? thursdayLastOrderTime;
+private int? fridayOpenTime;
+private int? fridayCloseTime;
+private int? fridayFirstOrderTime;
+private int? fridayLastOrderTime;
+private int? saturdayOpenTime;
+private int? saturdayCloseTime;
+private int? saturdayFirstOrderTime;
+private int? saturdayLastOrderTime;
+private int? sundayOpenTime;
+private int? sundayCloseTime;
+private int? sundayFirstOrderTime;
+private int? sundayLastOrderTime;
+```

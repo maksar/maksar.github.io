@@ -1,0 +1,17 @@
+---
+title: When there is a hammer in hands
+language: english
+---
+
+## Everything looks like a nail
+
+```java
+private static List<String> removeBlankElements(List<String> strings) {
+    for (Integer i = 0; i < strings.size(); i++) {
+        if (String.isBlank(strings[i])) {
+            strings.remove(i);
+        }
+    }
+    return strings;
+}
+```

@@ -1,0 +1,26 @@
+---
+title: Hidden data structure
+language: english
+---
+
+## Lurking in the code
+
+```javascript
+if (attributes.type === "landmark") {
+    text = "LM";
+} else if (attributes.type === "benchmark") {
+    text = "BM";
+} else if (attributes.type === "pointofinterest") {
+    text = "POI";
+} else if (attributes.type === "accidentpoint") {
+    text = "ACC";
+} else if (attributes.type === "evidencepoint") {
+    text = "EVD";
+} else if (attributes.type === "eventlocation") {
+    text = "EVT";
+} else if (attributes.type === "startingpoint") {
+    text = "STR";
+} else if (attributes.type === "turningpoint") {
+    text = "TRN";
+}
+```

@@ -1,0 +1,31 @@
+---
+title: IP detective
+language: english
+---
+
+## I'll find you...
+
+```java
+public String getIp() {
+    URL whatismyip = null;
+    BufferedReader in = null;
+    try {
+        whatismyip = new URL("http://checkip.amazonaws.com");
+        in = new BufferedReader(new InputStreamReader(
+                whatismyip.openStream()));
+        String ip = in.readLine();
+        return ip;
+    } catch (IOException e) {
+        e.printStackTrace();
+    } finally {
+        if (in != null) {
+            try {
+                in.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    return null;
+}
+```

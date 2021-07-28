@@ -1,0 +1,23 @@
+---
+title: Wheel wants to be re-invented
+language: english
+---
+
+## Over and over again...
+
+```java
+private static Boolean isLastDayOfMonth(Date curDate) {
+    final List<Integer> monthsWithThirtyOneDays = new List<Integer> { 1, 3, 5, 7, 8, 10, 12};
+    final List<Integer> monthsWithThirtyDays = new List<Integer> {4, 6, 9, 11};
+
+    if (monthsWithThirtyOneDays.contains(curDate.month())) {
+        return curDate.day() == 31;
+    } else if (monthsWithThirtyDays.contains(curDate.month())) {
+        return curDate.day() == 30;
+    } else { // February
+        return Date.isLeapYear(curDate.year()) ?
+                curDate.day() == 29 :
+                curDate.day() == 28;
+    }
+}
+```

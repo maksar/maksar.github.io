@@ -1,0 +1,34 @@
+---
+title: Password hashing
+language: english
+---
+
+Hash from a password.
+
+Password is in config.
+
+Config is in repo.
+
+Repo is in access.
+
+## Reading data from configuration
+
+```java
+private static String username = null;
+private static String passwordHash = null;
+
+static{
+  username = bundle.getString("username");
+  passwordHash = new BigInteger(1,MessageDigest.getInstance("md5").digest(bundle.getString("password").getBytes("UTF-8"))).toString(16);
+}
+
+static String getUsername(){return username;}
+static String getPasswordHash(){return passwordHash;}
+```
+
+## And then using it
+
+```java
+SMSSenderImpl smsSender = new SMSSenderImpl(MessageDataConfig.getUsername(),MessageDataConfig.getPasswordHash());
+LOG.info(smsSender.sendSms(number, messageText));
+```

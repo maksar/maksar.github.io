@@ -1,0 +1,30 @@
+---
+title: Minimax problem
+language: english
+---
+
+## Naming is important
+
+```php
+    /**
+     * @param Product[] $products
+     *
+     * @return Product[]
+     */
+    private function sortingProductByPrice(array $products): array {
+        $lowPrise = 0;
+        $productList = [];
+        foreach ($products as $product) {
+            if (!$lowPrise) {
+                $lowPrise = $product->getPrice();
+            }
+            if ($lowPrise > $product->getPrice()) {
+                $lowPrise = $product->getPrice();
+                array_unshift($productList, $product);
+            } else {
+                $productList[] = $product;
+            }
+        }
+        return $productList;
+    }
+```

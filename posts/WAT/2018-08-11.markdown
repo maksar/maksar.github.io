@@ -1,0 +1,72 @@
+---
+title: Simple solutions
+language: english
+---
+
+Do you like "simple" solution just like I do?
+
+```C#
+#region debug
+protected override void OnPreviewKeyDown(KeyEventArgs e)
+{
+    if (e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftAlt) && Keyboard.IsKeyDown(Key.LeftCtrl))
+    {
+        if (Context.DeveloperPinchEnabled)
+        {
+            Context.DeveloperPinchEnabled = false;
+        }
+        else
+        {
+            var w = new EnterAdvancedModeWindow();
+            var result = w.ShowDialog();
+            if (result.GetValueOrDefault())
+            {
+                if (w.CodeBox.Text == GenerateTodaysPasscode())
+                    Context.DeveloperPinchEnabled = true;
+            }
+        }
+    }
+
+    base.OnPreviewKeyDown(e);
+}
+
+static string GenerateTodaysPasscode()
+{
+    var d = DateTime.Now;
+    var x = d.Month * 1000000 + d.Day * 10000 + d.Year;
+
+    return LargestPrimeFactor(x).ToString();
+}
+
+static int LargestPrimeFactor(int x)
+{
+    ComputePrimesUpTo(x);
+    return _primes.Where(p => x % p == 0).Max();
+}
+
+static List<int> _primes = new List<int>() { 2, 3, 5, 7, 11, 13, 17, 19 };
+static void ComputePrimesUpTo(int n)
+{
+    var p = _primes[_primes.Count - 1] + 2;
+    while (_primes[_primes.Count - 1] < n)
+    {
+        if (IsPrime(p))
+            _primes.Add(p);
+
+        p += 2;
+    }
+}
+
+static bool IsPrime(int p)
+{
+    for (int k = 0; _primes[k] * _primes[k] <= p; k++)
+    {
+        if (p % _primes[k] == 0)
+            return false;
+    }
+
+    return true;
+}
+
+#endregion
+```

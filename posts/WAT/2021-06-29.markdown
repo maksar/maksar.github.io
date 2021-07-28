@@ -1,0 +1,10 @@
+---
+title: Union types
+language: english
+---
+
+## Hardcore...
+
+```typescript
+date?: string | Date | [Date, Date];
+```

@@ -1,0 +1,44 @@
+---
+title: The best code I have ever seen
+language: english
+---
+
+## Pure glory
+
+```VB
+Function CheckLogin
+  If trim(request.form.item("user_email")) = "" AND trim(Session("user_email")) = "" Then
+    CheckLogin = 0 ' NOT LOGGED IN
+  Else
+    Dim WhichEmail
+    Dim WhichPassword
+    If trim(request.form.item("user_email")) = "" Then
+      WhichEmail = Session("user_email")
+      WhichPassword = Session("user_password")
+    Else
+      WhichEmail = request.form.item("user_email")
+      Session("user_email") = request.form.item("user_email")
+      WhichPassword = request.form.item("user_password")
+      Session("user_password") = request.form.item("user_password")
+    End If
+    Dim rsCheckLogin
+    Dim sqlCheckLogin
+    Set rsCheckLogin = Server.CreateObject("ADODB.Recordset")
+    sqlCheckLogin = "SELECT tblUser_new.user_email, tblUser_new.userid, tblUser_new.remove, tblUser_new.level, tblUser_new.user_password, tblUser_new.user_password_change FROM tblUser_new WHERE tblUser_new.user_email='" & WhichEmail & "'"
+    rsCheckLogin.Open sqlCheckLogin, conn, 1, 2
+    If rsCheckLogin.EOF Then
+      CheckLogin = 1 ' USER EMAIL NOT FOUND
+    ElseIf rsCheckLogin("user_password") <> WhichPassword Then
+      CheckLogin = 2 ' USER PASSWORD IS INCORRECT
+    ElseIf rsCheckLogin("remove") = true Then
+      CheckLogin = 3 ' USER HAS BEEN REMOVED
+    ElseIf isnull(rsCheckLogin("user_password_change")) OR now() - rsCheckLogin("user_password_change") > 7 Then
+      CheckLogin = 5 ' USER NEEDS TO CHANGE PASSWORD
+    Else
+      CheckLogin = 4 ' ALL GOOD
+      UserLevel = rsCheckLogin("level")
+      UserID = rsCheckLogin("userid")
+    End If
+  End If
+End Function
+```

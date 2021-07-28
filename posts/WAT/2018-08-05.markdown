@@ -1,0 +1,115 @@
+---
+title: Security best practices
+language: english
+---
+
+## I want to know everything
+
+```java
+@Override
+public String getPassword() {
+    logger.debug("pwd is:::"+super.getPassword());
+    return super.getPassword();
+}
+```
+
+## I really, really want to know...
+
+```java
+public  @ResponseBody UserInfo  login(@RequestBody UserInfo userInfo,HttpSession session)  {
+    logger.info("Inside Login Controller - user : " + userInfo);
+
+    logger.info("User = "+userInfo.getEmail());
+    logger.info("Password ="+userInfo.getPassword());
+
+    boolean authenticated = false;
+    try{
+    authenticated = userDelegate.isValidUser(userInfo.getEmail(), userInfo.getPassword());
+    logger.info("User Authentication:" + authenticated);
+
+    } catch (Exception e) { e.printStackTrace(); }
+
+    if (authenticated){
+        try{
+        userInfo = userDelegate.getUserInfo(userInfo.getEmail());
+        } catch(Exception e){
+            logger.info("Exception in User Authentication:");
+            e.printStackTrace();
+        }
+        userInfo.setMessage("Successfully logged in.");
+        session.setAttribute("userInfo", userInfo);
+    }else{
+        userInfo.setMessage("Login Failed. Invalid user name / password, Try again...");
+    }
+ return userInfo;
+}
+```
+
+## In any given moment
+
+```java
+public String toString(){
+    return "email : " + getEmail()
+            + ", First name : " + getFirstName()
+            + ", Last name : " + getLastName()
+            + ", zip: " + getZip()
+            + ", Phone Number: " + getPhoneNumber()
+            + ", dob: " + getDob()
+            + ", partner Age: " + getPartnerAge()
+            + ", Password: " + getPassword()
+            + ", Status: " + getStatus()
+            ;
+}
+```
+
+## But I'm not greedy, can let others see
+
+```html
+<tr>
+    <td>
+        Passwort&nbsp;*
+    </td>
+    <td>
+        <input class="inp" type="password" name="password" size="20" maxlength="30"
+                value='<%= user.getPassword() %>' />
+    </td>
+</tr>
+<tr>
+    <td>
+        Wiederholung Passwort&nbsp;*
+    </td>
+    <td>
+        <input class="inp" type="password" name="confirmPassword" size="20" maxlength="30"
+                value='<%= user.getPassword() %>' />
+    </td>
+</tr>
+
+<input type="hidden" name="<%=customerBean.encodeStringByBeanID( "email" )%>" value="<%=user.getEmail()%>"/>
+<input type="hidden" name="<%=customerBean.encodeStringByBeanID( "password" )%>" value="<%=user.getPassword()%>"/>
+<input type="hidden" name="<%=customerBean.encodeStringByBeanID( "confirmPassword" )%>" value="<%=user.getPassword()%>"/>
+```
+
+## Jokes aside, this is real know-how!
+
+```php
+public function validateToken($token, $sessionId)
+{
+    if (empty($token) || empty($sessionId)) {
+        return false;
+    }
+
+    $secret = $this->config->getItem('token_secret');
+    $currentTimestamp = time();
+    $secondsLimit = self::TOKEN_TTL;
+
+    do {
+        $currentToken = hash('sha512', $sessionId . $currentTimestamp . $secret);
+        $isTokenValid = $currentToken === $token;
+
+        --$secondsLimit;
+        --$currentTimestamp;
+    } while ($secondsLimit !== 0 && !$isTokenValid);
+
+    return $isTokenValid;
+}
+```

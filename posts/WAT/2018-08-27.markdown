@@ -1,0 +1,247 @@
+---
+title: Calendar events
+language: english
+---
+
+What day is it today? The old year is over, the new is the beginning. And I also heard from my grandfather that his grandfather told him that on this day everything in the world happens - just know how to lie in wait and spy.
+
+<img src="/previews/wat/calendar.jpg" class="center" />
+
+## The class
+
+```C#
+/// <summary>
+/// Represents status choice for months.
+/// </summary>
+public static class Months
+{
+    private static uint languageCode = 1033;
+
+    /// <summary>
+    /// Returns months name from its number.
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns></returns>
+    public static string GetMonthName(int number)
+    {
+        switch (number)
+        {
+            case 1: return January;
+            case 2: return February;
+            case 3: return March;
+            case 4: return April;
+            case 5: return May;
+            case 6: return June;
+            case 7: return July;
+            case 8: return August;
+            case 9: return September;
+            case 10: return October;
+            case 11: return November;
+            case 12: return December;
+        }
+        return January;
+    }
+
+    public static string April
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_April", languageCode); }
+    }
+
+    public static string August
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_August", languageCode); }
+    }
+
+    public static string December
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_December", languageCode); }
+    }
+
+    public static string February
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_February", languageCode); }
+    }
+
+    public static string January
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_January", languageCode); }
+    }
+
+    public static string July
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_July", languageCode); }
+    }
+
+    public static string June
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_June", languageCode); }
+    }
+
+    public static string March
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_March", languageCode); }
+    }
+
+    public static string May
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_May", languageCode); }
+    }
+
+    public static string November
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_November", languageCode); }
+    }
+
+    public static string October
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_October", languageCode); }
+    }
+
+    public static string September
+    {
+        get { return LocalizationUtility.Localize("Choices_Month_September", languageCode); }
+    }
+}
+
+/// <summary>
+/// Adds months to the dropdown control.
+/// </summary>
+private void InitializeMonthDropDown(DropDownList monthDropDown)
+{
+    ListItem[] months = {
+                            new ListItem(Months.January, "1"),
+                            new ListItem(Months.February, "2"),
+                            new ListItem(Months.March, "3"),
+                            new ListItem(Months.April, "4"),
+                            new ListItem(Months.May, "5"),
+                            new ListItem(Months.June, "6"),
+                            new ListItem(Months.July, "7"),
+                            new ListItem(Months.August, "8"),
+                            new ListItem(Months.September, "9"),
+                            new ListItem(Months.October, "10"),
+                            new ListItem(Months.November, "11"),
+                            new ListItem(Months.December, "12")
+                        };
+    monthDropDown.Items.AddRange(months);
+}
+```
+
+## The enum
+
+```C#
+    /// <summary>
+    /// Months enum
+    /// </summary>
+    public enum Month
+    {
+        /// <summary>
+        /// The january
+        /// </summary>
+        January,
+
+        /// <summary>
+        /// The february
+        /// </summary>
+        February,
+
+        /// <summary>
+        /// The march
+        /// </summary>
+        March,
+
+        /// <summary>
+        /// The april
+        /// </summary>
+        April,
+
+        /// <summary>
+        /// The may
+        /// </summary>
+        May,
+
+        /// <summary>
+        /// The june
+        /// </summary>
+        June,
+
+        /// <summary>
+        /// The july
+        /// </summary>
+        July,
+
+        /// <summary>
+        /// The august
+        /// </summary>
+        August,
+
+        /// <summary>
+        /// The september
+        /// </summary>
+        September,
+
+        /// <summary>
+        /// The october
+        /// </summary>
+        October,
+
+        /// <summary>
+        /// The november
+        /// </summary>
+        November,
+
+        /// <summary>
+        /// The december
+        /// </summary>
+        December
+    }
+```
+
+## The interface
+
+```C#
+/**
+ * Useful constants for months.  Note that these are NOT equivalent to the
+ * constants defined by java.util.Calendar (where JANUARY=0 and DECEMBER=11).
+ * <P>
+ * Used by the SerialDate and RegularTimePeriod classes.
+ */
+public interface MonthConstants {
+
+    /** Constant for January. */
+    public static final int JANUARY = 1;
+
+    /** Constant for February. */
+    public static final int FEBRUARY = 2;
+
+    /** Constant for March. */
+    public static final int MARCH = 3;
+
+    /** Constant for April. */
+    public static final int APRIL = 4;
+
+    /** Constant for May. */
+    public static final int MAY = 5;
+
+    /** Constant for June. */
+    public static final int JUNE = 6;
+
+    /** Constant for July. */
+    public static final int JULY = 7;
+
+    /** Constant for August. */
+    public static final int AUGUST = 8;
+
+    /** Constant for September. */
+    public static final int SEPTEMBER = 9;
+
+    /** Constant for October. */
+    public static final int OCTOBER = 10;
+
+    /** Constant for November. */
+    public static final int NOVEMBER = 11;
+
+    /** Constant for December. */
+    public static final int DECEMBER = 12;
+
+}
+```

@@ -1,0 +1,22 @@
+---
+title: Equality for everyone
+language: english
+---
+
+## Measure seven times before cutting
+
+```javascript
+if (locationsCards.length > 0) {
+    let cardHeight = $(locationsCards[0]).height();
+    locationsCards.each(function () {
+        let currentCardHeight = $(this).height();
+        if (currentCardHeight > cardHeight) {
+            cardHeight = currentCardHeight;
+        }
+    });
+
+    locationsCards.each(function () {
+        $(this).height(cardHeight);
+    });
+}
+```

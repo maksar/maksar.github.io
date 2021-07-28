@@ -1,0 +1,11 @@
+---
+title: To trim or not to trim
+language: english
+---
+
+## That is the question!
+
+```javascript
+const replaceLineBreaksBeforeAndAfterString = /^\s+|\s+$/g;
+const replaceLineBreaks = ((currentString: string) => currentString.replace(replaceLineBreaksBeforeAndAfterString, ''));
+```

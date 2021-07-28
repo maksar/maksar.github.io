@@ -1,0 +1,17 @@
+---
+title: Not all errors are equal
+language: english
+---
+
+## Some are more equal then others
+
+```java
+catch (Exception e) {
+    Throwable cause = e.getCause();
+    if (cause instanceof Exception) {
+        logger.warn("problem with adding {} {}", fbId, e.getMessage());
+    } else {
+        logger.error("problem with adding {} {}", fbId, e.getMessage());
+    }
+}
+```

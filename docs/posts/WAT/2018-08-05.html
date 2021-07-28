@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Security best practices</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Security best practices</h1>
+    <article>
+  <span class="header">
+    August  5, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+  </span>
+  <section>
+    <h2 id="i-want-to-know-everything">I want to know everything</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="at">@Override</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">String</span> <span class="fu">getPassword</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">debug</span><span class="op">(</span><span class="st">&quot;pwd is:::&quot;</span><span class="op">+</span><span class="kw">super</span><span class="op">.</span><span class="fu">getPassword</span><span class="op">());</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="kw">super</span><span class="op">.</span><span class="fu">getPassword</span><span class="op">();</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="i-really-really-want-to-know">I really, really want to know…</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span>  <span class="at">@ResponseBody</span> UserInfo  <span class="fu">login</span><span class="op">(</span><span class="at">@RequestBody</span> UserInfo userInfo<span class="op">,</span>HttpSession session<span class="op">)</span>  <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;Inside Login Controller - user : &quot;</span> <span class="op">+</span> userInfo<span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User = &quot;</span><span class="op">+</span>userInfo<span class="op">.</span><span class="fu">getEmail</span><span class="op">());</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;Password =&quot;</span><span class="op">+</span>userInfo<span class="op">.</span><span class="fu">getPassword</span><span class="op">());</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">boolean</span> authenticated <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span><span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    authenticated <span class="op">=</span> userDelegate<span class="op">.</span><span class="fu">isValidUser</span><span class="op">(</span>userInfo<span class="op">.</span><span class="fu">getEmail</span><span class="op">(),</span> userInfo<span class="op">.</span><span class="fu">getPassword</span><span class="op">());</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;User Authentication:&quot;</span> <span class="op">+</span> authenticated<span class="op">);</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span> e<span class="op">.</span><span class="fu">printStackTrace</span><span class="op">();</span> <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>authenticated<span class="op">){</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span><span class="op">{</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>        userInfo <span class="op">=</span> userDelegate<span class="op">.</span><span class="fu">getUserInfo</span><span class="op">(</span>userInfo<span class="op">.</span><span class="fu">getEmail</span><span class="op">());</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span><span class="op">(</span><span class="bu">Exception</span> e<span class="op">){</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            logger<span class="op">.</span><span class="fu">info</span><span class="op">(</span><span class="st">&quot;Exception in User Authentication:&quot;</span><span class="op">);</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            e<span class="op">.</span><span class="fu">printStackTrace</span><span class="op">();</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        userInfo<span class="op">.</span><span class="fu">setMessage</span><span class="op">(</span><span class="st">&quot;Successfully logged in.&quot;</span><span class="op">);</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        session<span class="op">.</span><span class="fu">setAttribute</span><span class="op">(</span><span class="st">&quot;userInfo&quot;</span><span class="op">,</span> userInfo<span class="op">);</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span><span class="cf">else</span><span class="op">{</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        userInfo<span class="op">.</span><span class="fu">setMessage</span><span class="op">(</span><span class="st">&quot;Login Failed. Invalid user name / password, Try again...&quot;</span><span class="op">);</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a> <span class="cf">return</span> userInfo<span class="op">;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="in-any-given-moment">In any given moment</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="bu">String</span> <span class="fu">toString</span><span class="op">(){</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">&quot;email : &quot;</span> <span class="op">+</span> <span class="fu">getEmail</span><span class="op">()</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, First name : &quot;</span> <span class="op">+</span> <span class="fu">getFirstName</span><span class="op">()</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, Last name : &quot;</span> <span class="op">+</span> <span class="fu">getLastName</span><span class="op">()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, zip: &quot;</span> <span class="op">+</span> <span class="fu">getZip</span><span class="op">()</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, Phone Number: &quot;</span> <span class="op">+</span> <span class="fu">getPhoneNumber</span><span class="op">()</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, dob: &quot;</span> <span class="op">+</span> <span class="fu">getDob</span><span class="op">()</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, partner Age: &quot;</span> <span class="op">+</span> <span class="fu">getPartnerAge</span><span class="op">()</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, Password: &quot;</span> <span class="op">+</span> <span class="fu">getPassword</span><span class="op">()</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">+</span> <span class="st">&quot;, Status: &quot;</span> <span class="op">+</span> <span class="fu">getStatus</span><span class="op">()</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">;</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 id="but-im-not-greedy-can-let-others-see">But I’m not greedy, can let others see</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;tr&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        Passwort<span class="dv">&amp;nbsp;</span>*</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;input</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;inp&quot;</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;password&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;password&quot;</span> <span class="er">size</span><span class="ot">=</span><span class="st">&quot;20&quot;</span> <span class="er">maxlength</span><span class="ot">=</span><span class="st">&quot;30&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ot">                value=</span><span class="st">'</span><span class="er">&lt;</span><span class="st">%= user.getPassword() %&gt;'</span> <span class="kw">/&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/tr&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;tr&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        Wiederholung Passwort<span class="dv">&amp;nbsp;</span>*</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;input</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;inp&quot;</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;password&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;confirmPassword&quot;</span> <span class="er">size</span><span class="ot">=</span><span class="st">&quot;20&quot;</span> <span class="er">maxlength</span><span class="ot">=</span><span class="st">&quot;30&quot;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="ot">                value=</span><span class="st">'</span><span class="er">&lt;</span><span class="st">%= user.getPassword() %&gt;'</span> <span class="kw">/&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/tr&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;hidden&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;</span><span class="er">&lt;</span><span class="st">%=customerBean.encodeStringByBeanID( &quot;</span><span class="er">email&quot;</span> <span class="er">)%</span><span class="kw">&gt;</span>&quot; value=&quot;<span class="er">&lt;</span>%=user.getEmail()%&gt;&quot;/&gt;</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;hidden&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;</span><span class="er">&lt;</span><span class="st">%=customerBean.encodeStringByBeanID( &quot;</span><span class="er">password&quot;</span> <span class="er">)%</span><span class="kw">&gt;</span>&quot; value=&quot;<span class="er">&lt;</span>%=user.getPassword()%&gt;&quot;/&gt;</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;hidden&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;</span><span class="er">&lt;</span><span class="st">%=customerBean.encodeStringByBeanID( &quot;</span><span class="er">confirmPassword&quot;</span> <span class="er">)%</span><span class="kw">&gt;</span>&quot; value=&quot;<span class="er">&lt;</span>%=user.getPassword()%&gt;&quot;/&gt;</span></code></pre></div>
+<h2 id="jokes-aside-this-is-real-know-how">Jokes aside, this is real know-how!</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">function</span> validateToken(<span class="va">$token</span><span class="ot">,</span> <span class="va">$sessionId</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>{</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="kw">empty</span>(<span class="va">$token</span>) <span class="op">||</span> <span class="kw">empty</span>(<span class="va">$sessionId</span>)) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span><span class="ot">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="va">$secret</span> <span class="op">=</span> <span class="va">$this</span>-&gt;config-&gt;getItem(<span class="st">'token_secret'</span>)<span class="ot">;</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="va">$currentTimestamp</span> <span class="op">=</span> <span class="fu">time</span>()<span class="ot">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">$secondsLimit</span> <span class="op">=</span> <span class="kw">self</span>::<span class="cn">TOKEN_TTL</span><span class="ot">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">do</span> {</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">$currentToken</span> <span class="op">=</span> <span class="fu">hash</span>(<span class="st">'sha512'</span><span class="ot">,</span> <span class="va">$sessionId</span> <span class="op">.</span> <span class="va">$currentTimestamp</span> <span class="op">.</span> <span class="va">$secret</span>)<span class="ot">;</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">$isTokenValid</span> <span class="op">=</span> <span class="va">$currentToken</span> <span class="op">===</span> <span class="va">$token</span><span class="ot">;</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span><span class="va">$secondsLimit</span><span class="ot">;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span><span class="va">$currentTimestamp</span><span class="ot">;</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">while</span> (<span class="va">$secondsLimit</span> <span class="op">!==</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="va">$isTokenValid</span>)<span class="ot">;</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">$isTokenValid</span><span class="ot">;</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+---
+title: Discussion facilitation
+language: english
+---
+
+<a href="/images/wat/pull-request.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/pull-request.jpg"/></a>

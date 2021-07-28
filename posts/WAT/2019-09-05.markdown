@@ -1,0 +1,6 @@
+---
+title: Line numbers
+language: english
+---
+
+<a href="/images/wat/line-numbers.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/line-numbers.jpg"/></a>

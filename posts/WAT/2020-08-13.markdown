@@ -1,0 +1,22 @@
+---
+title: Financial software
+language: english
+---
+
+## Is that expected for a financial system?
+
+```java
+OrderStatusInBank orderStatusInBank = OrderStatusInBank.valueOf("ORDER_STATUS_NUMBER_" + jsonMap.get("OrderStatus"));
+```
+
+And then
+
+```java
+String messageKey = ORDER_STATUS_NUMBER_7.equals(order.getStatusInBank()) ? "payment.canceled" : "error.payment";
+```
+
+And finally
+
+```java
+final String messageHead = ORDER_STATUS_NUMBER_2.equals(order.getStatusInBank()) ? messageService.getMessage("email.order-payed-successfully") : messageService.getMessage("email.order-not-payed");
+```

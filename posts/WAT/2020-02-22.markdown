@@ -1,0 +1,11 @@
+---
+title: Some things are always true
+language: english
+---
+
+## There is always some hope...
+
+```kotlin
+fun String.isValidPassword(): Boolean = this.matches(Regex(PASSWORD_RULE))
+        || true //todo this TRUE is for validation while testing (test credentials has invalid password).
+```

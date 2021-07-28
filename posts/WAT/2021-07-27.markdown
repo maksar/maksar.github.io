@@ -1,0 +1,10 @@
+---
+title: Optional or null
+language: english
+---
+
+## Why bother...
+
+```java
+ApplicationUser applicationUser = Optional.ofNullable(ComponentAccessor.getUserManager().getUserByName(userName)).orElse(null);
+```

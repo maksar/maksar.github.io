@@ -1,0 +1,12 @@
+---
+title: There is no going back
+language: english
+---
+
+## Or is it?..
+
+```javascript
+import TextsConstants from '../../../../../../core/constants/TextsConstants';
+import GlobalStyles from '../../../../../../core/styles/GlobalStyles';
+import { MARKET_STATUSES } from '../../../../../../core/constants/MarketConstants';
+```

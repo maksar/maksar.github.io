@@ -1,0 +1,19 @@
+---
+title: Passwords complexity
+language: english
+---
+
+I am a bit tired from such regular expressions to check password complexity.
+
+```javascript
+/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-z\d!@#$%^&*()]{8,18}$/
+```
+
+Several questions for the void:
+
+- Why can't I use name of my favorite anime characters in the password?
+- Why spaces are not allows, the longer – the better, right?
+- Size does matter, but why 18 is the limit? Your password may be shorted, but I want to go to the extreme!
+
+
+P.S. If "we have that in the requirements" is the answer, such requirements are bad and must be a subject of change.

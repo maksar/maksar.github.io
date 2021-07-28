@@ -1,0 +1,17 @@
+---
+title: Date parsing
+language: english
+---
+
+## From MongoDB with love
+
+```ruby
+# Dirty hack to remove JavaScript objects
+output.gsub!(/ISODate\((.+?)\)/, '\1 ')
+output.gsub!(/Timestamp\((.+?)\)/, '[\1]')
+
+#Hack to avoid non-json empty sets
+output = "{}" if output == "null\n"
+
+JSON.parse(output)
+```
