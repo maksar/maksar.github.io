@@ -15,5 +15,8 @@ executable blog
     , hakyll-shortcut-links
 
   ghc-options:        -threaded
-  default-extensions: OverloadedStrings
+  default-extensions:
+    OverloadedStrings
+    StandaloneDeriving
+
   default-language:   Haskell2010

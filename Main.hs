@@ -13,6 +13,8 @@ import Text.Blaze.Html.Renderer.String (renderHtml)
 import qualified Text.Blaze.Html5 as H
 import Text.Blaze.Html5.Attributes (class_, href)
 
+deriving instance Eq a => Eq (Item a)
+
 config :: Configuration
 config =
   defaultConfiguration
@@ -48,7 +50,7 @@ main = hakyllWith config $ do
 
   tags <- buildTags "posts/**" (fromCapture "tags/*.html")
   categories <- buildCategories "posts/**" (fromCapture "categories/*.html")
-  languages <- buildLanguages "posts/**" (fromCapture "languages/*.html")
+  languages <- buildLanguages ("posts/**" .&&. complement "posts/WAT/**") (fromCapture "languages/*.html")
   empty <- buildTags "" (const "")
 
   match "about.markdown" $ do
@@ -74,14 +76,14 @@ main = hakyllWith config $ do
         >>= relativizeUrls
 
   tagsRules categories $ \tag pat -> do
-    let title = "Articles from " <> capitalize tag <> " category"
+    let title = "Articles in " <> capitalize tag <> " category"
     route idRoute
     compile $ do
       posts <- recentFirst =<< loadAll pat
 
       let ctx =
             constField "title" title
-              <> listField "posts" (postCtxWithTags tags empty languages) (return posts)
+              <> listField "posts" (postCtxWithTags tags empty empty) (return posts)
               <> postCtxWithTags tags categories languages
 
       makeItem ""
@@ -94,9 +96,10 @@ main = hakyllWith config $ do
     route idRoute
     compile $ do
       posts <- recentFirst =<< loadAll pat
+      wats <- recentFirst =<< loadAll "posts/WAT/**"
       let ctx =
             constField "title" title
-              <> listField "posts" (postCtxWithTags tags categories empty) (return posts)
+              <> listField "posts" (postCtxWithTags tags categories languages) (return $ posts \\ wats)
               <> postCtxWithTags tags categories languages
 
       makeItem ""
@@ -107,10 +110,13 @@ main = hakyllWith config $ do
   match "posts/**" $ do
     route $ setExtension "html"
     compile $ do
+      id <- getUnderlying
+      cat <- getCategory id
       let ctx = postCtxWithTags tags categories languages
+      let ctx1 = postCtxWithTags tags categories (if "WAT" `elem` cat then empty else languages)
       allShortcutLinksCompiler
         >>= saveSnapshot blogSnapshot
-        >>= loadAndApplyTemplate "templates/post.html" ctx
+        >>= loadAndApplyTemplate "templates/post.html" ctx1
         >>= loadAndApplyTemplate "templates/default.html" ctx
         >>= relativizeUrls
 
@@ -119,9 +125,10 @@ main = hakyllWith config $ do
     compile $ do
       let ctx = postCtxWithTags tags categories languages
       posts <- recentFirst =<< loadAll "posts/**"
+      wats <- recentFirst =<< loadAll "posts/WAT/**"
 
       let indexCtx =
-            listField "posts" ctx (return posts)
+            listField "posts" ctx (return $ posts \\ wats)
               <> tagsListField "tagCloud" tags
               <> ctx
 

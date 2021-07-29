@@ -149,7 +149,7 @@
     <h1>Optional or null</h1>
     <article>
   <span class="header">
-    July 27, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    July 27, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="why-bother">Why bother…</h2>
@@ -214,7 +214,7 @@
     <h1>Union types</h1>
     <article>
   <span class="header">
-    June 29, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    June 29, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="hardcore">Hardcore…</h2>
@@ -279,7 +279,7 @@
     <h1>URL validation</h1>
     <article>
   <span class="header">
-    June 24, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    June 24, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/url.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/url.jpg" /></a></p>
@@ -343,7 +343,7 @@
     <h1>Week formatting</h1>
     <article>
   <span class="header">
-    June 21, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    June 21, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="is-it-friday-yet">Is it Friday yet?</h2>
@@ -713,7 +713,7 @@
     <h1>Date formatting</h1>
     <article>
   <span class="header">
-    May 25, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    May 25, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="masterpiece">Masterpiece</h2>
@@ -780,7 +780,7 @@
     <h1>Enums</h1>
     <article>
   <span class="header">
-    May 24, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    May 24, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="hi-there">HI there</h2>
@@ -848,7 +848,7 @@
     <h1>Chanel number 5</h1>
     <article>
   <span class="header">
-    May  5, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    May  5, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="where-is-5">Where is 5?</h2>
@@ -918,7 +918,7 @@
     <h1>TODOs</h1>
     <article>
   <span class="header">
-    April 22, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    April 22, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="famous-last-words">Famous last words</h2>
@@ -986,7 +986,7 @@
     <h1>Explicit vs implicit</h1>
     <article>
   <span class="header">
-    April  7, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    April  7, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/explicit.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/explicit.jpg" /></a></p>
@@ -1050,7 +1050,7 @@
     <h1>Refactoring</h1>
     <article>
   <span class="header">
-    April  6, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    April  6, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/refactoring.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/refactoring.jpg" /></a></p>
@@ -1439,7 +1439,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Incognito mode</h1>
     <article>
   <span class="header">
-    March 16, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    March 16, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> emailRegex <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+(?</span><span class="ss">:</span><span class="sc">\.[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+)*|</span><span class="ss">&quot;</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*</span><span class="ss">&quot;</span><span class="sc">)</span><span class="ss">@</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[a-z0-9](?</span><span class="ss">:</span><span class="sc">[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?</span><span class="ss">:</span><span class="sc">[a-z0-9-]*[a-z0-9])?|\[(?</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">(</span><span class="ss">2</span><span class="sc">(</span><span class="ss">5</span><span class="sc">[0-5]|[0-4][0-9])|</span><span class="ss">1</span><span class="sc">[0-9][0-9]|[1-9]?[0-9]))\.){3}(?</span><span class="ss">:</span><span class="sc">(</span><span class="ss">2</span><span class="sc">(</span><span class="ss">5</span><span class="sc">[0-5]|[0-4][0-9])|</span><span class="ss">1</span><span class="sc">[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])</span><span class="ss">/g</span></span>
@@ -1887,7 +1887,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>No comments</h1>
     <article>
   <span class="header">
-    January 28, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    January 28, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="fu">sprintf</span>(<span class="st">'</span></span>
@@ -1964,7 +1964,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Discussion facilitation</h1>
     <article>
   <span class="header">
-    January 26, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    January 26, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/pull-request.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/pull-request.jpg" /></a></p>
@@ -2135,7 +2135,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>When comments are self-explanatory</h1>
     <article>
   <span class="header">
-    December 16, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    December 16, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// This function makes a new password from a plaintext password.</span></span>
@@ -2448,7 +2448,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Passwords complexity</h1>
     <article>
   <span class="header">
-    November  3, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    November  3, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>I am a bit tired from such regular expressions to check password complexity.</p>
@@ -2520,7 +2520,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>When there is a hammer in hands</h1>
     <article>
   <span class="header">
-    October 30, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    October 30, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="everything-looks-like-a-nail">Everything looks like a nail</h2>
@@ -2592,7 +2592,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>To trim or not to trim</h1>
     <article>
   <span class="header">
-    October 29, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    October 29, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="that-is-the-question">That is the question!</h2>
@@ -2658,7 +2658,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Wheel wants to be re-invented</h1>
     <article>
   <span class="header">
-    October 27, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    October 27, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="over-and-over-again">Over and over again…</h2>
@@ -2736,7 +2736,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Financial software</h1>
     <article>
   <span class="header">
-    August 13, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 13, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="is-that-expected-for-a-financial-system">Is that expected for a financial system?</h2>
@@ -2805,7 +2805,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Hidden data structure</h1>
     <article>
   <span class="header">
-    August 12, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 12, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="lurking-in-the-code">Lurking in the code</h2>
@@ -2886,7 +2886,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Ouiii</h1>
     <article>
   <span class="header">
-    August  7, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August  7, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="french-is-not-hard">French is not hard…</h2>
@@ -2952,7 +2952,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>Equality for everyone</h1>
     <article>
   <span class="header">
-    May 24, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    May 24, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="measure-seven-times-before-cutting">Measure seven times before cutting</h2>
@@ -3029,7 +3029,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
     <h1>There is no going back</h1>
     <article>
   <span class="header">
-    May 20, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    May 20, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="or-is-it..">Or is it?..</h2>
@@ -3617,7 +3617,7 @@ Image efficiency score: 100 %</code></pre>
     <h1>Not all errors are equal</h1>
     <article>
   <span class="header">
-    April 23, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    April 23, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="some-are-more-equal-then-others">Some are more equal then others</h2>
@@ -3689,7 +3689,7 @@ Image efficiency score: 100 %</code></pre>
     <h1>The shortest anecdote about Spring</h1>
     <article>
   <span class="header">
-    March 25, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    March 25, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="not-even-funny">Not even funny</h2>
@@ -4034,7 +4034,7 @@ Finished in 2.2859 seconds
     <h1>Minimax problem</h1>
     <article>
   <span class="header">
-    March 17, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    March 17, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="naming-is-important">Naming is important</h2>
@@ -4437,7 +4437,7 @@ Finished in 2.2859 seconds
     <h1>Some things are always true</h1>
     <article>
   <span class="header">
-    February 22, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    February 22, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="there-is-always-some-hope">There is always some hope…</h2>
@@ -4503,7 +4503,7 @@ Finished in 2.2859 seconds
     <h1>Regularity</h1>
     <article>
   <span class="header">
-    February 14, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    February 14, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="i-love-regular-expressions">I love regular expressions…</h2>
@@ -4580,7 +4580,7 @@ Finished in 2.2859 seconds
     <h1>Rendering collections</h1>
     <article>
   <span class="header">
-    February 11, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    February 11, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="no-escape">No escape…</h2>
@@ -5326,7 +5326,7 @@ Finished in 2.2859 seconds
     <h1>Security by obscurity</h1>
     <article>
   <span class="header">
-    December 12, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    December 12, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="let-me-in">Let me in…</h2>
@@ -5399,7 +5399,7 @@ Finished in 2.2859 seconds
     <h1>PHP md5 WAT</h1>
     <article>
   <span class="header">
-    December  5, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    December  5, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/php.png" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/php.png" /></a></p>
@@ -5729,7 +5729,7 @@ result: 0 Success
     <h1>Commit messages</h1>
     <article>
   <span class="header">
-    September 26, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    September 26, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/commits.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/commits.jpg" /></a></p>
@@ -5793,7 +5793,7 @@ result: 0 Success
     <h1>Tempus fugit</h1>
     <article>
   <span class="header">
-    September 10, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    September 10, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="memento-mori">Memento mori</h2>
@@ -5859,7 +5859,7 @@ result: 0 Success
     <h1>Line numbers</h1>
     <article>
   <span class="header">
-    September  5, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    September  5, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/line-numbers.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/line-numbers.jpg" /></a></p>
@@ -5923,7 +5923,7 @@ result: 0 Success
     <h1>Infiltration</h1>
     <article>
   <span class="header">
-    August 16, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 16, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="pure-counterexample">Pure counterexample</h2>
@@ -5996,7 +5996,7 @@ result: 0 Success
     <h1>Javascript eval WAT</h1>
     <article>
   <span class="header">
-    August 15, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 15, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h1 id="i-can-explain">I can explain…</h1>
@@ -6062,7 +6062,7 @@ result: 0 Success
     <h1>IP detective</h1>
     <article>
   <span class="header">
-    August  6, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August  6, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="ill-find-you">I’ll find you…</h2>
@@ -6148,7 +6148,7 @@ result: 0 Success
     <h1>You shell not pass</h1>
     <article>
   <span class="header">
-    July 30, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    July 30, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="she-sells-seashells-on-the-seashore">She sells seashells on the seashore</h2>
@@ -6219,7 +6219,7 @@ result: 0 Success
     <h1>The best code I have ever seen</h1>
     <article>
   <span class="header">
-    April  8, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    April  8, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="pure-glory">Pure glory</h2>
@@ -6318,7 +6318,7 @@ result: 0 Success
     <h1>Hash code</h1>
     <article>
   <span class="header">
-    April  1, 2019 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    April  1, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="hash-date-random">Hash = Date + Random</h2>
@@ -6387,7 +6387,7 @@ result: 0 Success
     <h1>Code comments</h1>
     <article>
   <span class="header">
-    December 27, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    December 27, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="comments-are-reflection-of-the-genius">Comments are reflection of the genius</h2>
@@ -6453,7 +6453,7 @@ result: 0 Success
     <h1>Tic-tac</h1>
     <article>
   <span class="header">
-    November 22, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    November 22, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> sec <span class="op">=</span> <span class="dv">00</span><span class="op">;</span>   <span class="co">// set the seconds</span></span>
@@ -6551,7 +6551,7 @@ result: 0 Success
     <h1>Date parsing</h1>
     <article>
   <span class="header">
-    November 12, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    November 12, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="from-mongodb-with-love">From MongoDB with love</h2>
@@ -6623,7 +6623,7 @@ result: 0 Success
     <h1>Stairway to Heaven</h1>
     <article>
   <span class="header">
-    October 20, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    October 20, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/stairway.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/stairway.jpg" /></a></p>
@@ -6687,7 +6687,7 @@ result: 0 Success
     <h1>Repetition is a key</h1>
     <article>
   <span class="header">
-    October 16, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    October 16, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="size-is-indeed-important">Size is indeed important</h2>
@@ -6760,7 +6760,7 @@ result: 0 Success
     <h1>Password hashing</h1>
     <article>
   <span class="header">
-    September 15, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    September 15, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>Hash from a password.</p>
@@ -6841,7 +6841,7 @@ result: 0 Success
     <h1>Email validations</h1>
     <article>
   <span class="header">
-    September  2, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    September  2, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><img src="../../previews/wat/email.jpg" class="center" /></p>
@@ -6944,7 +6944,7 @@ result: 0 Success
     <h1>Calendar events</h1>
     <article>
   <span class="header">
-    August 27, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 27, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>What day is it today? The old year is over, the new is the beginning. And I also heard from my grandfather that his grandfather told him that on this day everything in the world happens - just know how to lie in wait and spy.</p>
@@ -7236,7 +7236,7 @@ result: 0 Success
     <h1>My favorite type of comments</h1>
     <article>
   <span class="header">
-    August 20, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 20, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>A selection of dearly beloved todos and fixes</p>
@@ -7325,7 +7325,7 @@ return TRUE;
     <h1>Proper mapping</h1>
     <article>
   <span class="header">
-    August 18, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 18, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>No comments, just tears.</p>
@@ -7628,7 +7628,7 @@ return TRUE;
     <h1>Simple solutions</h1>
     <article>
   <span class="header">
-    August 11, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August 11, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>Do you like “simple” solution just like I do?</p>
@@ -7755,7 +7755,7 @@ return TRUE;
     <h1>Security best practices</h1>
     <article>
   <span class="header">
-    August  5, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August  5, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="i-want-to-know-everything">I want to know everything</h2>
@@ -7909,7 +7909,7 @@ return TRUE;
     <h1>Few examples of reading cookie values</h1>
     <article>
   <span class="header">
-    August  4, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    August  4, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>There are several examples of “how to read cookies”. Which one do you like the most?</p>
@@ -8044,7 +8044,7 @@ return TRUE;
     <h1>Development processes</h1>
     <article>
   <span class="header">
-    July  7, 2018 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/WAT.html">WAT</a> 
+    July  7, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="proposal-from-the-project-technical-lead-to-improve-development-processes.">Proposal from the project technical lead to improve development processes.</h2>
