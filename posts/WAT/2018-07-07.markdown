@@ -1,0 +1,17 @@
+---
+title: Development processes
+language: english
+---
+
+## Proposal from the project technical lead to improve development processes.
+
+Configuring additional sonar rudders to trigger and analyze new changes for compliance with code size and complexity conventions (discussed with the team). The build will fail if the following metrics are not met:
+
+- The number of lines of code in a method should not exceed 100
+- The number of lines of code in a class should not exceed 1000
+- The number of lines of code in a file should not exceed 1000
+- The number of characters in a line of code should not exceed 130
+- The number of methods / constructors / properties in a class should not exceed 25
+- The number of method / constructor parameters should not exceed 10
+- The complexity of a method or property should not exceed 10
+- Complexity of the class must not exceed 100

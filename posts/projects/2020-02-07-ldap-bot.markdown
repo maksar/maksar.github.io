@@ -12,6 +12,8 @@ Here is a facebook bot (we use facebook's Workplace product as an intranet colla
 <a href="/images/ldap-bot/2.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/2.png"/></a>
 <a href="/images/ldap-bot/3.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/3.png"/></a>
 <a href="/images/ldap-bot/4.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/4.png"/></a>
+<a href="/images/ldap-bot/5.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/5.jpg"/></a>
+<a href="/images/ldap-bot/6.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/ldap-bot/6.jpg"/></a>
 
 ## History
 
