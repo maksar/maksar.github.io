@@ -84,7 +84,60 @@ parser :: FromJSON a => (Text, Value) -> Parser (Text, Maybe [a])
 parser (x, field) = (x,) <$> (parseJSON field <|> fmap (replicate 1) <$> parseJSON field) <|> pure (x, Nothing)
 ```
 
-That (and NIX [flakes](@gh(maksar):coorish/blob/10c6a3be99ace3fc363613c85caadd256704531a/flake.nix#L23-L46) of course) allowed me to create several binaries for each JIRA field to test against (instead of configuring it with terminal flags or environment variables). Being tired of typing `T.pack` and `T.unpack`, I decided to give a [relude](@gh(kowainik)) a try – a custom prelude, which is quite nice to use (but I haven't yet tried [rio](@hackage) or [universum](@gh(serokell))).
+That (and NIX [flakes](@gh(maksar):coorish/blob/master/flake.nix#L23-L46) of course) allowed me to create several binaries for each JIRA field to test against (instead of configuring it with terminal flags or environment variables). Being tired of typing `T.pack` and `T.unpack`, I decided to give a [relude](@gh(kowainik)) a try – a custom prelude, which is quite nice to use (but I haven't yet tried [rio](@hackage) or [universum](@gh(serokell))).
+
+```nix
+configs = {
+  "technical-cordinator" = p:
+    p "Technical Coordinator" "Tech Coordinators";
+  "cto-office-representative" = p:
+    p "CTO Office Representative" "CTO Office";
+  "project-manager" = p: p "Project manager" "Managers All";
+  ...
+};
+
+basePackage = haskellPackages.callCabal2nix "coorish" ./. { };
+
+package = (name: field: groups:
+  basePackage.overrideDerivation (drv: {
+    pname = "coorish-${name}";
+    buildInputs = drv.buildInputs or [ ] ++ [ pkgs.makeWrapper ];
+    postInstall = ''
+      mv $out/bin/coorish-console $out/bin/coorish-${name}
+      rm $out/bin/coorish-server
+      wrapProgram $out/bin/coorish-${name} --set COORISH_JIRA_FIELD "${field}" --set COORISH_LDAP_GROUPS "${groups}"
+    '';
+  }));
+```
+
+## Server
+
+But having only console utilities are not useful for other people. Sometimes non-technical personnel wants to know "what is wrong" with project cards. So I decided to split the code into three parts:
+
+- Library code, which does all the heavy lifting, but free of any presentation logic
+- Console application to display results in terminal (nix will build multiple binaries per config value)
+- Web server which executes all queries to JIRA and AD in concurrently and serves result on a single page
+
+Since web server needs all configs at once, I am concatenating everything together into `flatConfig` variable to pass it into `coorish-server` wrapper.
+
+```nix
+basePackage = haskellPackages.callCabal2nix "coorish" ./coorish { };
+basePackageConsole = haskellPackages.callCabal2nix "console" ./console { coorish = basePackage; };
+basePackageServer = haskellPackages.callCabal2nix "server" ./server { coorish = basePackage; };
+
+flatConfig = (builtins.concatStringsSep ";"
+  (map (f: f (a: b: "${a}=${b}")) (lib.attrValues configs)));
+
+server = basePackageServer.overrideDerivation (drv: {
+  pname = "coorish-server";
+  buildInputs = drv.buildInputs or [ ] ++ [ pkgs.makeWrapper ];
+  postInstall = ''
+    wrapProgram $out/bin/coorish-server --set COORISH_SERVER_CONFIG "${flatConfig}"
+  '';
+});
+```
+
+## Plans
 
 I am also experimenting with generating a haskell data structure (with template-haskell) with fields, which would correspond to a JIRA project card on compile time.
 
