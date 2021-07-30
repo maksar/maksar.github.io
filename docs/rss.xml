@@ -1826,7 +1826,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fronzen ::</span> <span class="dt">Member</span> <span class="dt">TimeEffect</span> eff <span class="ot">=&gt;</span> <span class="dt">Time</span> <span class="ot">-&gt;</span> <span class="dt">Effect</span> eff a <span class="ot">-&gt;</span> <span class="dt">Effect</span> (eff <span class="op">:</span> <span class="dt">Trace</span>) a</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fronzen instant <span class="ot">=</span> intercept <span class="op">$</span> <span class="fu">const</span> <span class="op">$</span> <span class="fu">pure</span> instant</span></code></pre></div>
 <p>Кстати, а вы заметили в примерах множество полей с навешанными на них <code>Autowired</code> аннотациями или может быть десятки аргументов в конструкторах классов? Прелесть в том, что они оказываются не нужны – роль DI framework-а играет простая <a href="https://github.com/maksar/ldap-bot/blob/master/src/Server/Hook.hs#L33">композиция функций</a>. Чуть не забыл про тесты упомянуть – благодаря тому, что все тестовые интерпретаторы не работают с <code>IO</code> – <a href="https://asciinema.org/a/389000">выполняются</a> они довольно быстро:</p>
-<p><a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center" /></a></p>
+<p><a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center full" /></a></p>
   </section>
 </article>
 
@@ -8304,6 +8304,798 @@ Passwords for users:</code></pre>
 </html>]]></description>
     <pubDate>Tue, 21 Feb 2017 00:00:00 UT</pubDate>
     <guid>https://maksar.github.io/posts/code/2017-02-21-teamcity.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>Непрерывная интеграция как спасательный круг в организации процесса разработки ПО</title>
+    <link>https://maksar.github.io/posts/code/2016-10-12-ci.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Непрерывная интеграция как спасательный круг в организации процесса разработки ПО</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Непрерывная интеграция как спасательный круг в организации процесса разработки ПО</h1>
+    <article>
+  <span class="header">
+    October 12, 2016 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+  </span>
+  <section>
+    <p>Непрерывная интеграция (continuous integration, CI) – это методология организации процесса разработки программных систем, при которой каждое изменение исходного кода, как и поведение самой системы с внесенным изменением, подвергается набору различных проверок.</p>
+<p>Непрерывная интеграция позволяет на постоянной основе следить за различными метриками качества кода, обнаруживать ошибки сборки, замечать наличие дефектов в программном продукте на более ранних этапах разработки, экономя драгоценное время и уменьшая стоимость как разработки, так и исправления дефектов. Благодаря тому, что каждое изменение подвергается набору автоматических проверок, для клиента открывается возможность постоянного наблюдения за ходом разработки, качеством и статусом готовности той или иной функции системы.</p>
+<p>Статья также доступна на <a href="../../posts/code/2015-09-01-ci.html">Английском</a> языке.</p>
+<!--more-->
+<h2 id="почему-тест-джоэла-до-сих-пор-актуален">Почему тест Джоэла до сих пор актуален?</h2>
+<p>Обычно для определения профессионального уровня команды разработки требуются недели, если не месяцы. Широко известный тест Джоэла позволяет легко оценить этот уровень за короткое время. Три первых вопроса теста самые важные:</p>
+<ul>
+<li>Используете ли вы систему контроля ревизий?</li>
+<li>Можете ли вы сделать сборку за один шаг?</li>
+<li>Делаете ли вы ежедневные сборки?</li>
+</ul>
+<p>Положительные ответы на них не дают никаких гарантий, что перед вами команда грамотных и опытных разработчиков. Обратное же позволяет утверждать: если хотя бы один из ответов отрицателен, будьте уверены – такая команда требует перемен. Сами формулировки этих фундаментальных вопросов помогают командам понять выгоды и ценность от использования непрерывной интеграции – проекты могут развиваться и расти наиболее органичным образом в постоянно изменяющихся условиях (изменение требований, состава команды и т. д.). Не всегда наличие непрерывной интеграции в ИТ-проектах говорит о том, что команда следит за количеством и частотой возникновения и устранения проблем, покрытием кода тестами или сбором статистики и метриками качества кода. Однако использование CI значительно упрощает внедрение такого рода контроля в будущем.</p>
+<h2 id="инверсия-структуры-затрат-в-ит">Инверсия структуры затрат в ИТ</h2>
+<p>В большинстве отраслей, связанных с инженерными работами, стоимость проектирования низка, а воплощения или строительства напротив – очень высока. В ИТ же структура затрат инвертирована – именно проектирование является самой дорогостоящей стадией. На этот счет есть несколько альтернативных мнений. Одни говорят, что в ИТ вообще нет этапа воплощения (производства), другие утверждают, что в отличие от «строительства домов» производство программных продуктов состоит из бесконечного повторения коротких фаз проектирование-воплощение. Подобные дебаты сходятся в одном – затраты на инжиниринг составляют очень весомую часть всей структуры затрат. Немудрено, что многочисленные попытки внедрения классических методов мотивации инженеров и управления производством заканчиваются провалом.</p>
+<p>Командам по разработке программного обеспечения жизненно необходимо узнавать о всех возможных технических проблемах как можно раньше. Ведь чем раньше проблема обнаружена – тем дешевле обойдется ее исправление. Утверждение кажется очевидным и применимым везде, не только в ИТ, но это только на первый взгляд. Книги и справочники, к примеру, содержат список исправлений на отдельных страницах в конце, практически любая дефектная деталь автомобиля может быть заменена на исправную и после начала эксплуатации. В примере с книгой стоимость внесения исправлений после выпуска продукции оказывается даже ниже – всего-то допечатать несколько страниц вместо замены всего тиража.</p>
+<p>Несмотря на то, что внедрение непрерывной интеграции является разовой активностью и не отличается сложностью либо особым финансированием, многие компании отказываются от CI в попытках сэкономить. Такое неразумное поведение оборачивается весьма значительными (хотя и с трудом поддающимися точной оценке) временными и финансовыми потерями впоследствии. Время, инвестированное во внедрение непрерывной интеграции, окупается сторицей благодаря значительному уменьшению цикла обратной связи (feedback loop).</p>
+<p>Клиенты ИТ-компаний желают видеть работающие приложения и системы как можно раньше. С другой стороны, разработчикам не всегда удается хоть сколько-нибудь точно оценить время, к которому новая часть системы будет пригодна для использования. Непрерывная интеграция – одна из немногих методик, реально помогающих (и даже подталкивающих) всегда иметь работающую версию продукта, готового к демонстрации.</p>
+<p>Большинство методик предполагают итерации разработки длиной в несколько недель или даже месяцев. Такая величина цикла обратной связи может быть приемлема для менеджеров и заказчиков, но никак не для разработчиков. CI естественным образом подталкивает к сокращению итераций: команда может выпускать рабочую сборку ежедневно, а отклик непосредственно по коду получать при каждом внесении изменений. Все это позволяет уменьшить один из самых важных на сегодняшний день KPI – показатель time to market, не пренебрегая качеством продукта.</p>
+<h2 id="прозрачность-для-всех">Прозрачность для всех</h2>
+<p>Совсем недавно мне посчастливилось побывать в Грузии. Как и в любом путешествии, глаз неизбежно цепляется за разного рода «аномалии». Одной из них стали полицейские участки. Они повсеместно прозрачны. Оказывается, не так давно правительство взяло курс на повышение уровня прозрачности работы государственных органов (не только правопорядка) для населения. И это указание было воспринято буквально. Нет, это отнюдь не повод для насмешек, напротив – такие меры позволили не только повысить уровень доверия со стороны населения к органам охраны правопорядка, но и изменить методы работы самой полиции к лучшему.</p>
+<p>Клиенты ИТ-компаний все чаще обладают технической компетенцией, ищут возможности быть глубже вовлеченными в процесс разработки. Непрерывная интеграция позволяет им получать детальные отчеты о том, как себя «чувствует» продукт без отвлечения команды разработки или менеджеров. Прозрачность и автоматизация всего процесса дают заказчику чувство уверенности в том, что команда занимается наиболее важной задачей и делает это качественно.</p>
+<p>Применение CI также дает больше информации для менеджеров. Они имеют постоянный доступ к важным данным: какая ревизия кода уже доступна для команды тестирования; насколько хорошо покрыт функциональными тестами тот или иной модуль системы; кто из разработчиков оказывает наибольшее влияние на метрики качества.</p>
+<h2 id="удобство-для-разработчиков">Удобство для разработчиков</h2>
+<p>Команда разработки – самый важный бенефициар от внедрения непрерывной интеграции. Прежде всего CI – это средство автоматизации. Создание сборок, прогон автоматических тестов, сбор статистики – рутинные задачи, которые непременно стоит автоматизировать. Не зря у компании IBM такой девиз: человек должен думать, а машина – работать.</p>
+<p>CI увеличивает степень уверенности. Какое бы изменение разработчик не внес, он(а) всегда знает: его тщательно проверят, прогонят все тесты и эвристики, покажут, не повлияло ли изменение на другие части системы.</p>
+<p>Сервер непрерывной интеграции можно использовать и для слежения за стандартами кодирования (форматирование, статический анализ). Даже самый внимательный code review не исключает попадания плохо отформатированного кода в репозиторий.</p>
+<p>Конечно, наличие CI само по себе не дает всех описанных преимуществ. Для того чтобы все заработало, исходный код должен быть тестируемым, процедуры CI должны быть хорошо настроены, генерируемые отчеты – иметь удобный для машинного и человеческого восприятия вид.</p>
+<h2 id="заключение">Заключение</h2>
+<p>Время, потраченное на конфигурацию и тонкую настройку сервера непрерывной интеграции – это выгодная инвестиция. CI экономит время и денежные средства уменьшая feedback loop, значительно сокращая риски задержек, повышая уровень прозрачности. Позволяет предметно обсуждать возникающие проблемы, имея всю необходимую информацию под рукой. Служит средством автоматической сборки и выпуска готового продукта.</p>
+<p>Наличие рабочей версии в любой момент времени позволяет делать релизы чаще и собирать больше отзывов от конечных пользователей, использовать эту информацию для улучшения продукта раньше конкурентов.</p>
+<p>В мире ИТ, где компании постоянно соревнуются в скорости выпуска новых версий и сокращении затрат на производство для повышения конкурентоспособности, непрерывная интеграция, проверенная временем, это реально рабочая методика. Выгоду от нее получают не только разработчики, но и управленцы, и заказчики.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Wed, 12 Oct 2016 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2016-10-12-ci.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>Keep calm and kill mutants</title>
+    <link>https://maksar.github.io/posts/code/2015-12-16-mutant.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Keep calm and kill mutants</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Keep calm and kill mutants</h1>
+    <article>
+  <span class="header">
+    December 16, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
+  </span>
+  <section>
+    <p>Mutants, zombies… Yes, there is an inconsistency between the article’s topic and image to attract attention. But I swear to god it is actually the poster hanging on the wall inside my flat.</p>
+<p>The topic of this article is mutation testing – a very special methodology among others in the field of testing software quality. It is capable to amaze, make you think you lost your mind and, finally, can bring peace into your programmer’s soul. I know, the definition sounds quite bold and pretentious, but I hope that after reading the rest of the article you’ll be convinced just like I am.</p>
+<!--more-->
+<p><img src="../../previews/mutant/logo.png" class="center" /></p>
+<p><a href="https://en.wikipedia.org/wiki/Mutation_testing">Mutation testing</a> technique is based on quite a simple idea. Say, you have a bunch of code and a number of tests to verify its correctness. Doesn’t matter how those tests were born: using techniques like <a href="https://en.wikipedia.org/wiki/Test-driven_development">TDD</a> or written afterwards. Mutation testing allows to verify that your test suite is <strong>full</strong>. By <strong>full</strong> I mean – there is no code (code execution path, to be precisely correct) that is not covered with at least one test case.</p>
+<h2 id="program-correctness">Program Correctness</h2>
+<p>Why do we have to measure test coverage after all? To be sure that the program behaves as intended, to protect from regression failures, etc. How about program <a href="https://en.wikipedia.org/wiki/Correctness_(computer_science)">correctness</a>? How do we get confidence that the program works correctly on all valid inputs? Well, it’s hard to cover all program states (for some programs is’t not possible at all). Consider function <code>next_char</code>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> next_char(char)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  char<span class="at">.ord.next.chr</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>A quite simple function accepting a character and returning the next one in <a href="https://en.wikipedia.org/wiki/ASCII">ASCII</a> table. To prove it’s correct, it would be needed to pass every possible char out there, including the edge case for <code>"\xFF"</code>.</p>
+<p>A light change to <code>next_char</code> (now it accepts the optional <code>step</code> parameter to specify <em>how far to jump</em>) function makes testing impossible:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> next_char(char, step <span class="kw">=</span> <span class="dv">1</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  (char<span class="at">.ord</span> <span class="kw">+</span> step)<span class="at">.chr</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>To fully cover all input parameter space, we would need to pass every possible integer value for each possible char… So, I think it’s clear now why program correctness will always remain in the field of computer science. However, there are other kinds of metrics, letting you gain confidence that your code is actually correct.</p>
+<h2 id="coverage">Coverage</h2>
+<p>There are test coverage tools out there for almost every language. Yes, but most of them collect statistics only about source code lines, namely, whether particular line of source code was executed or not (and how many times). But in fact, there is more than just line coverage: just look at this <a href="http://www.slideshare.net/hiroppie/test-coverage">slide</a>.</p>
+<p><strong>C1</strong> is intended to track code branches execution. Each source code line can potentially contain more than one code branch. Think about conditions, loops, early returns and nasty things like <code>try</code> operator. To satisfy <strong>C1</strong> coverage, tests should contain at least two cases, one for each of the execution branch. Otherwise, some branches may remain <em>un-visited</em> having, however, <strong>C0</strong> coverage on this particular line satisfied.</p>
+<p><strong>C2</strong> is called condition coverage. If condition expression consists of more than one sub-expressions (for example: <code>if a == 2 || b.nil?</code>), it ensures that each sub-expression gets evaluated to <code>true</code> and <code>false</code> at least once.</p>
+<h2 id="a-real-world-example">A real world example</h2>
+<p>Enough with theory, as programmers we love to get our hands dirty and see some code. Let’s write an example program to automate a simple workflow business process:</p>
+<p>Workflow consists of many steps, each of which is configured with a threshold value. To proceed to the next step of the workflow, it’s necessary to get the number of votes from applicable (according to the voting permissions) users. If a user has enough permissions, it’s possible for him to force skip one workflow step. Every user with at least a voting permission can reject the current step of the voting process. Workflow will continue from the beginning of previous step. Inactive users cannot vote or reject. A user can only vote once on the same step.</p>
+<p><img src="../../images/mutant/animation.gif" class="center full" /></p>
+<p>Here is one possible implementation of the described workflow:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">class</span> <span class="dt">Workflow</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> initialize(steps_config)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@steps_config</span> <span class="kw">=</span> steps_config</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@current_step</span> <span class="kw">=</span> <span class="dv">0</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@votes</span> <span class="kw">=</span> <span class="dt">Array</span><span class="at">.new</span>(steps_config<span class="at">.size</span>) <span class="kw">{</span> <span class="dt">Set</span><span class="at">.new</span> <span class="kw">}</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> approve(actor)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">unless</span> actor<span class="at">.active?</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> actor<span class="at">.can_force_step?</span>(<span class="ot">@current_step</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      increment</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elsif</span> actor<span class="at">.can_vote_on_step?</span>(<span class="ot">@current_step</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>      vote(actor)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> reject(actor)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="cf">unless</span> actor<span class="at">.active?</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    decrement <span class="cf">if</span> actor<span class="at">.can_vote_on_step?</span>(<span class="ot">@current_step</span>) <span class="kw">||</span> actor<span class="at">.can_force_step?</span>(<span class="ot">@current_step</span>)</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> finished?</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@current_step</span> <span class="kw">==</span> <span class="ot">@steps_config</span><span class="at">.size</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  <span class="at">private</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> increment</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@current_step</span> <span class="kw">+=</span> <span class="dv">1</span> <span class="cf">unless</span> finished?</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> vote(actor)</span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">&lt;&lt;</span> actor</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>    increment <span class="cf">if</span> <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span><span class="at">.size</span> <span class="kw">&gt;=</span> <span class="ot">@steps_config</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> decrement</span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">=</span> <span class="dt">Set</span><span class="at">.new</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@current_step</span> <span class="kw">-=</span> <span class="dv">1</span> <span class="cf">unless</span> <span class="ot">@current_step</span> <span class="kw">==</span> <span class="dv">0</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>    <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">=</span> <span class="dt">Set</span><span class="at">.new</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>It was written without any tests in mind, but looks… robust. All required business features are there: inactive users, duplicate votes, force approves, etc. So, let’s tests it! It would be a good idea to actually bring the example from the diagram to existence.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>describe <span class="dt">Workflow</span> <span class="cf">do</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[</span><span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="kw">]</span>) <span class="kw">}</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  it <span class="vs">'works in real world scenario'</span> <span class="cf">do</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(voter <span class="kw">=</span> <span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="co"># First vote on first step</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(voter) <span class="co"># Subsequent vote does not affect workflow state</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="co"># Second vote on first workflow step</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>, <span class="dv">false</span>)) <span class="co"># Inactive users cannot affect workflow state</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="co"># Final vote, workflow proceeds to the next step</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span>, <span class="cn">FORCE</span><span class="kw">]</span>)) <span class="co"># Workflow is forced to proceed to the third step</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span>, <span class="cn">NONE</span>, <span class="cn">VOTE</span><span class="kw">]</span>)) <span class="co"># Reject! Falling back to the second step and starting over</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span>, <span class="cn">VOTE</span><span class="kw">]</span>)) <span class="co"># Getting first</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span>, <span class="cn">VOTE</span><span class="kw">]</span>)) <span class="co"># And second vote on second step</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    expect <span class="cf">do</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>      subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span>, <span class="cn">VOTE</span>, <span class="cn">FORCE</span><span class="kw">]</span>)) <span class="co"># Completing workflow by skipping voting process on last step</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span><span class="at">.to</span> change <span class="kw">{</span> subject<span class="at">.finished?</span> <span class="kw">}</span><span class="at">.from</span>(<span class="dv">false</span>)<span class="at">.to</span>(<span class="dv">true</span>)</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Running spec is successful indeed. Moreover, <code>simplecov</code> claims to have <strong>100%</strong> code coverage!</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>➜  mentat git<span class="op">:(</span>master<span class="op">)</span> rspec version_1<span class="op">/</span>workflow_spec<span class="op">.</span><span class="fu">rb</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Workflow</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  works in real world scenario</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>Finished in <span class="fl">0.00181</span> <span class="fu">seconds</span> <span class="op">(</span>files took <span class="fl">0.13433</span> seconds to load<span class="op">)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> example<span class="op">,</span> <span class="dv">0</span> failures</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>Coverage report generated <span class="cf">for</span> RSpec to <span class="op">/</span>Users<span class="op">/</span>maksar<span class="op">/</span>projects<span class="op">/</span>mentat<span class="op">/</span>coverage<span class="op">.</span> <span class="dv">40</span> <span class="op">/</span> <span class="dv">40</span> <span class="fu">LOC</span> <span class="op">(</span><span class="fl">100.0</span><span class="op">%)</span> covered<span class="op">.</span></span></code></pre></div>
+<p><img src="../../images/mutant/coverage.png" class="center full" /></p>
+<h2 id="mutation-testing">Mutation testing</h2>
+<p>This is where the story might end for a mediocre developer. One would think that since coverage indicates we are good, there is no work left to do. Well, let’s not be in a hurry, <a href="https://github.com/mbj/mutant">mutant</a> to the rescue!</p>
+<pre class="console"><code>$ mentat git:(master) mutant -I . -r version_1/workflow_spec.rb --use rspec 'Workflow'</code></pre>
+<p><a href="https://asciinema.org/a/31217" target="_blank"><img src="https://asciinema.org/a/31217.svg" class="center full" /></a></p>
+<p>What? Only <strong>64.71%</strong>? It sounds very… sobering. Let’s see what just happened. We specified mutation target (<code>'Workflow'</code> string in the command line), mutant detected 7 mutation subjects (methods) in that class. For each subject, it has constructed an <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a> (Abstract Syntax Tree) of the code and tried to apply different <em>mutations</em> to it. Mutations are small code changes, for example: flipping a condition to its opposite, removing a whole line of code, changing constant value, etc. Mutations are easier to deal with working with AST instead of plain text, and that’s why mutant parses your code, applies mutation (new Mutant is born) and then converts AST back to code and inserts it into your VM, to let <code>rspec</code> execute tests against it (attempt to kill the Mutant). If all tests are passed, Mutant remains alive. Think about it: someone just deleted a whole line from your code, and tests are still passing… That basically means that a test suite does not contain enough examples to cover all execution branches.</p>
+<p>On the screenshot above, mutant claims that if we remove condition check inside <code>vote</code> method, tests will continue to work. Hard to believe? Let’s verify:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> vote(actor)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">&lt;&lt;</span> actor</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  increment</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Code is changed, running specs:</p>
+<pre class="console"><code>$ mentat git:(master) rspec version_1/workflow_spec.rb -f p
+.
+
+Finished in 0.00144 seconds (files took 0.08017 seconds to load)
+1 example, 0 failures</code></pre>
+<p>Zero failures! It surprises me every time… After staring at other alive Mutants I finally realized how stupid I was, thinking that one test case proves correctness or can protect me from regressions. OK, enough being dumb, we can do better! This time I tried to write a very extensive test suite, covering every business feature one by one:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>describe <span class="dt">Workflow</span> <span class="cf">do</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'empty workflow'</span> <span class="cf">do</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>) <span class="kw">}</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    it(<span class="vs">'should be already finished'</span>) <span class="kw">{</span> expect(subject)<span class="at">.to</span> be_finished <span class="kw">}</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="cn">ALL</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>permission<span class="kw">|</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>      it(<span class="st">&quot;should remain finished after </span><span class="sc">#{</span>permission<span class="sc">}</span><span class="st"> reject action&quot;</span>) <span class="cf">do</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>        expect <span class="kw">{</span> subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(permission)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>      it(<span class="st">&quot;should remain finished after </span><span class="sc">#{</span>permission<span class="sc">}</span><span class="st"> approve action&quot;</span>) <span class="cf">do</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(permission)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'workflow from single step'</span> <span class="cf">do</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">[</span><span class="dv">0</span>, <span class="dv">1</span><span class="kw">]</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>votes<span class="kw">|</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>      context <span class="st">&quot;where step requires </span><span class="sc">#{</span>votes<span class="sc">}</span><span class="st"> votes&quot;</span> <span class="cf">do</span></span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>        subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[</span>votes<span class="kw">]</span>) <span class="kw">}</span></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>        it(<span class="vs">'should not be initially finished'</span>) <span class="kw">{</span> expect(subject)<span class="at">.not_to</span> be_finished <span class="kw">}</span></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>        it(<span class="vs">'should not be finished after approve from incapable actor'</span>) <span class="cf">do</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>          expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>        <span class="cn">ACTIONABLE</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>permission<span class="kw">|</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>          it(<span class="st">&quot;should be finished after </span><span class="sc">#{</span>permission<span class="sc">}</span><span class="st"> approve action&quot;</span>) <span class="cf">do</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>            expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span>permission<span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>          <span class="cf">end</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>          it(<span class="st">&quot;should not be finished after inactive actors </span><span class="sc">#{</span>permission<span class="sc">}</span><span class="st"> actions&quot;</span>) <span class="cf">do</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>            expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span>permission<span class="kw">]</span>, <span class="dv">false</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>          <span class="cf">end</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>    context <span class="vs">'where step requires two votes'</span> <span class="cf">do</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>      subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[</span><span class="dv">2</span><span class="kw">]</span>) <span class="kw">}</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>      it(<span class="vs">'should be finished only after first force action'</span>) <span class="cf">do</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>        expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>      it(<span class="vs">'should be finished only after second vote action'</span>) <span class="cf">do</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>        expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>        expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>      it(<span class="vs">'should not be finished after subsequent vote action of the same actor'</span>) <span class="cf">do</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>        subject<span class="at">.approve</span>(actor <span class="kw">=</span> <span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>        expect <span class="kw">{</span> subject<span class="at">.approve</span>(actor) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>      <span class="cn">ACTIONABLE</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>permission<span class="kw">|</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>        it(<span class="st">&quot;should be able to reset votes by reject action from </span><span class="sc">#{</span>permission<span class="sc">}</span><span class="st"> actor&quot;</span>) <span class="cf">do</span></span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>          subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>          subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span>permission<span class="kw">]</span>))</span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>          expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>          expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>        it(<span class="st">&quot;inactive </span><span class="sc">#{</span>permission<span class="sc">}</span><span class="st"> actor cannot affect voting process&quot;</span>) <span class="cf">do</span></span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>          subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>          subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span>permission<span class="kw">]</span>, <span class="dv">false</span>))</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>          expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>        it(<span class="vs">'actor without permissions cannot reject'</span>) <span class="cf">do</span></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>          subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>          subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">NONE</span><span class="kw">]</span>))</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>          expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'Workflow from three steps'</span> <span class="cf">do</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>    subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="kw">]</span>) <span class="kw">}</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>    it(<span class="vs">'reject should erase votes from current and previous step'</span>) <span class="cf">do</span></span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>      subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span><span class="kw">]</span>))</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>      subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span>, <span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>      subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span>, <span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>      subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span>, <span class="cn">VOTE</span>, <span class="cn">VOTE</span><span class="kw">]</span>))</span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>      expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span>, <span class="cn">FORCE</span>, <span class="cn">FORCE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>      expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span>, <span class="cn">FORCE</span>, <span class="cn">FORCE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Let’s run our <del>enemy</del>friend mutant once again:</p>
+<p><a href="https://asciinema.org/a/31226" target="_blank"><img src="https://asciinema.org/a/31226.svg" class="center full" /></a></p>
+<p>Much better this time, <strong>91.33%</strong> But not perfect, let’s see why:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> def vote(actor)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="st">-  @votes[@current_step] &lt;&lt; actor</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="va">+  @votes.fetch(@current_step) &lt;&lt; actor</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>   if (@votes[@current_step].size &gt;= @steps_config[@current_step])</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>     increment</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>   end</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a> end</span></code></pre></div>
+<p>This time, one of the mutant’s complains was about using <code>.fetch</code> method instead of just <code>[]</code> array accessor. You might think it’s not a big of a deal, but it’s worth thinking deeper. The difference between the semantics of <code>[]</code> and <code>fetch</code> is in absent values handling: <code>[]</code> will silently return <code>nil</code>, while <code>fetch</code> will raise an error. So, instead of just substituting accessors in our code to a more strict version, let’s think what mutant is actually trying to tell us… And the message is: “There might be a problem with error handling in your code or the test suite does not have a case, forcing your code to suffer from <code>NoMethodError</code> on <code>nil</code> values”.</p>
+<p>OK, let’s try to write one:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>it(<span class="vs">'should not raise error on inconsistent configuration'</span>) <span class="cf">do</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>)<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> raise_error</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>It predictably fails with old good <code>NotMethodError</code>:</p>
+<pre class="console"><code>Workflow
+  empty workflow
+    should not raise error on inconsistent configuration (FAILED - 1)
+
+Failures:
+
+  1) Workflow empty workflow should not raise error on inconsistent configuration
+     Failure/Error: expect { Workflow.new([]).approve(User.new([VOTE])) }.not_to raise_error
+
+       expected no Exception, got #&lt;NoMethodError: undefined method `&lt;&lt;' for nil:NilClass&gt; with backtrace:
+         # ./version_2/workflow.rb:36:in `vote'
+         # ./version_2/workflow.rb:15:in `approve'
+         # ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'
+         # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
+     # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
+
+Finished in 0.00971 seconds (files took 0.08025 seconds to load)
+1 example, 1 failure</code></pre>
+<p>What can we do about it? Let’s actually try to apply the change, suggested by mutant. The <code>vote</code> method now looks like this:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> vote(actor)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="at">.fetch</span>(<span class="ot">@current_step</span>) <span class="kw">&lt;&lt;</span> actor</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  increment <span class="cf">if</span> <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span><span class="at">.size</span> <span class="kw">&gt;=</span> <span class="ot">@steps_config</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Running tests again results in a different <code>IndexError</code> error:</p>
+<pre class="console"><code>Workflow
+  empty workflow
+    should not raise error on inconsistent configuration (FAILED - 1)
+
+Failures:
+
+  1) Workflow empty workflow should not raise error on inconsistent configuration
+     Failure/Error: expect { Workflow.new([]).approve(User.new([VOTE])) }.not_to raise_error
+
+       expected no Exception, got #&lt;IndexError: index 0 outside of array bounds: 0...0&gt; with backtrace:
+         # ./version_2/workflow.rb:36:in `fetch'
+         # ./version_2/workflow.rb:36:in `vote'
+         # ./version_2/workflow.rb:15:in `approve'
+         # ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'
+         # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
+     # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
+
+Finished in 0.01043 seconds (files took 0.0895 seconds to load)
+1 example, 1 failure</code></pre>
+<p>This one is actually much better to work with. The code blows up exactly where it should, on the code containing accessing error, not later. In the previous run, it failed on <code>&lt;&lt;</code> operator, which in real world examples may be far away from the place containing an error.</p>
+<p>OK, we learned something useful, let’s not waste time on actually fixing it properly. Instead, I’ll just pretend <code>IndexError</code> is the desired behavior and replace all hash and array accessing methods to be <code>fetch</code>:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>) <span class="kw">}</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>it(<span class="vs">'should raise IndexError on inconsistent configuration'</span>) <span class="cf">do</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> raise_error(<span class="dt">IndexError</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Running mutant again:</p>
+<p><a href="https://asciinema.org/a/31227" target="_blank"><img src="https://asciinema.org/a/31227.svg" class="center full" /></a></p>
+<p>Better results: <strong>92.95%</strong> What’s next?</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a> def increment</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="st">-  unless finished?</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="st">-    @current_step += 1</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="st">-  end</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="va">+  @current_step += 1</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a> end</span></code></pre></div>
+<p>Surprising again. I’m convinced I can fully rely on mutant now and will not try to double-check it once again. It looks like we did not check the case where somebody attempts to work with finished workflow, which forces <code>@current_step</code> variable to increase and <code>@current_step == @steps_config.size</code> invariant does not work anymore. Introducing new test and fixed code:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[</span><span class="dv">2</span><span class="kw">]</span>) <span class="kw">}</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>it(<span class="vs">'finished workflow not should react on actions'</span>) <span class="cf">do</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)<span class="at">.from</span>(<span class="dv">false</span>)<span class="at">.to</span>(<span class="dv">true</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span>, <span class="cn">FORCE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.reject</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">FORCE</span>, <span class="cn">FORCE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> increment</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="cf">if</span> finished?</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@current_step</span> <span class="kw">+=</span> <span class="dv">1</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> decrement</span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="cf">if</span> finished?</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">=</span> <span class="dt">Set</span><span class="at">.new</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@current_step</span> <span class="kw">-=</span> <span class="dv">1</span> <span class="cf">unless</span> <span class="ot">@current_step</span> <span class="kw">==</span> <span class="dv">0</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">=</span> <span class="dt">Set</span><span class="at">.new</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Mutant reports <strong>94.17%</strong> of mutation coverage now, complaining about equality semantics:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a> def finished?</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="st">-  @current_step == @steps_config.size</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="va">+  @current_step.equal?(@steps_config.size)</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a> end</span></code></pre></div>
+<p>This is similar to the <code>[]</code> vs <code>fetch</code> case. Mutant again states that using a more strict code (see <a href="http://stackoverflow.com/a/7157051/5346542">here</a> for details) doesn’t brake the tests. In our case it doesn’t matter (<code>equal?</code> on integers is pretty straight-forward), but in real projects, especially with hashes and custom implementation of <code>hash</code> function it may lead to problems. So, we are replacing comparisons with <code>equal?</code> and running mutant:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> finished?</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@current_step</span><span class="at">.equal?</span>(<span class="ot">@steps_config</span><span class="at">.size</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> decrement</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="cf">if</span> finished?</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">=</span> <span class="dt">Set</span><span class="at">.new</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@current_step</span> <span class="kw">-=</span> <span class="dv">1</span> <span class="cf">unless</span> <span class="ot">@current_step</span><span class="at">.zero?</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span> <span class="kw">=</span> <span class="dt">Set</span><span class="at">.new</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Mutation coverage is now <strong>95.25%</strong>, we are close to the finish line:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a> def decrement</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>   if finished?</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>     return</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>   end</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>   @votes[@current_step] = Set.new</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>   unless @current_step.zero?</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>     @current_step -= 1</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>   end</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a><span class="st">-  @votes[@current_step] = Set.new</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a> end</span></code></pre></div>
+<p>This last line is there to remove any votes on the step, into which the workflow rejects to. I think our tests are only using <code>FORCE</code> permission after the reject operation. That is why removing this line does not break the suite. In fact, there is <code>VOTE</code> activity after <code>reject</code> action in <code>"should be able to reset votes by reject action from #{permission} actor"</code> case, but since workflow contains only one step, <code>@current_step</code> does not get decremented. We need to modify <code>'reject should erase votes from current and previous step'</code> case slightly:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span><span class="kw">]</span>) <span class="kw">}</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>let(<span class="wa">:voter</span>) <span class="kw">{</span> <span class="kw">-&gt;</span> <span class="kw">{</span> <span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span>, <span class="cn">VOTE</span>, <span class="cn">VOTE</span><span class="kw">]</span>) <span class="kw">}</span> <span class="kw">}</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>it(<span class="vs">'reject should erase votes from current and previous step'</span>) <span class="cf">do</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">5</span><span class="at">.times</span> <span class="kw">{</span> subject<span class="at">.approve</span>(voter<span class="at">.call</span>) <span class="kw">}</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  subject<span class="at">.reject</span>(voter<span class="at">.call</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> <span class="dv">3</span><span class="at">.times</span> <span class="kw">{</span> subject<span class="at">.approve</span>(voter<span class="at">.call</span>) <span class="kw">}</span> <span class="kw">}</span><span class="at">.not_to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.approve</span>(voter<span class="at">.call</span>) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>Now, when all Mutants have been killed, mutant happily reports 100% mutation coverage.</p>
+<pre class="console"><code>Mutant configuration:
+Matcher:         #&lt;Mutant::Matcher::Config match_expressions: [Workflow]&gt;
+Integration:     Mutant::Integration::Rspec
+Expect Coverage: 100.00%
+Jobs:            8
+Includes:        [&quot;.&quot;]
+Requires:        [&quot;version_6/workflow_spec.rb&quot;]
+Subjects:        7
+Mutations:       316
+Results:         316
+Kills:           316
+Alive:           0
+Runtime:         8.57s
+Killtime:        33.80s
+Overhead:        -74.66%
+Mutations/s:     36.89
+Coverage:        100.00%
+Expected:        100.00%</code></pre>
+<h2 id="conclusion">Conclusion</h2>
+<p>Traditional coverage tools only highlights code which was executed by running a test suite. Let’s run a little thought experiment: squint for a second, blink twice and imagine all assertion checks from your test suite have just disappeared. Will that affect coverage?.. It’s very refreshing to realize it will not. Furthermore, even having full branch coverage does not guarantee you are safe. See <a href="http://pitest.org/weak_tests/">here</a> for examples. Ask yourself a very simple question: are you still sure that the test suite you have is actually able to detect failures in the code?</p>
+<p>Besides branch coverage, mutation testing is intended to ensure that code is <em>meaningfully</em> tested, giving your test suite powers to weed broken code out. However, no formal guarantees can be given, it’s a <strong>way</strong> to perfection, not ideal itself.</p>
+<p>As a tool, mutant can be used for many tasks. One example is using it as a guide to write better tests (it highlights code paths which were never executed). Or it can be utilized to highlight tests, which are not contributing anymore into branch coverage (deleting such tests will still show <strong>100%</strong> mutation coverage).</p>
+<p>I personally don’t always use mutant in my day-to-day development job, and I’m not here to convince you absolutely must. But it helps to better understand and improve your code and coding skills in general. To explore different mutation operators mutant can apply to your code, see <a href="https://github.com/mbj/mutant/tree/master/meta">here</a>. Give it a try some time in the future!</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Wed, 16 Dec 2015 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2015-12-16-mutant.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>How to make software products evolve naturally</title>
+    <link>https://maksar.github.io/posts/code/2015-09-01-ci.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - How to make software products evolve naturally</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>How to make software products evolve naturally</h1>
+    <article>
+  <span class="header">
+    September  1, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+  </span>
+  <section>
+    <p>To stand the test of time, software products must be built with changes in mind.</p>
+<p>Continuous Integration (CI) is a methodology of organizing the software development process in which every change of the source code from the shared repository, as well as the behavior of the software system as a whole with the aforementioned changes, are checked for validity.</p>
+<p>Article is also available in <a href="../../posts/code/2016-10-12-ci.html">Russian</a> language.</p>
+<!--more-->
+<p>CI helps detect problems and issues early in development, saving time and money by locating bugs and fixing them early in the process. In addition, because each commit is verified by an automated build, it is possible to see if the code works and share results with the client at any moment, shortening the feedback loop.</p>
+<h2 id="why-does-the-joel-test-still-work">Why Does The Joel Test Still Work?</h2>
+<p>The famous Joel Test is helpful when rating the quality of a software team in a very short period of time—something that would otherwise take days, if not months. I believe the first three questions are the most important, and should be asked and answered every day: Do you use source control? Can you make a build in one step? Do you make daily builds?</p>
+<p>These three essential questions help teams use CI naturally and allow projects to evolve with the changing circumstances in the most organic manner possible. All IT projects that use CI find it much easier to make builds, monitor quality indicators, check the quantity of mistakes, and measure test coverage.</p>
+<h2 id="the-law-of-cost-inversion-in-it">The Law of Cost Inversion in IT</h2>
+<p>In classical engineering, the process of designing is cheap, and building is expensive. In IT, the structure of costs is inverted; designing is the most expensive part of the process, and building is the cheapest. Why is that? In the modern world, hardware is worth next to nothing compared to the high expenses of good developers and their time. For that reason, it is important remember that classic engineering methods cannot be used in IT without modifications.</p>
+<p>Software development teams need to be aware of existing and future technical issues as soon as possible. The sooner a bug is detected, the cheaper it is to fix.</p>
+<p>Although setting up CI is a one-time activity that is neither costly nor complicated, many companies stay away from CI in an effort to lower costs. However, they end up losing money in the long run. The time that goes into setting up CI is well worth spending, since the efforts will be monetized in the near-term thanks to a shorter feedback loop. Because clients of IT companies want working results faster than before, and it is not always possible to predict when they will be available to check on the product, CI is the only methodology that allows developers to always have a working product to demonstrate.</p>
+<p>Most methodologies presuppose iterations once a month or week. CI forces developers to make iterations daily—a popular trend that significantly shortens time to market. If you use CI and automated rollout into production, you can even do it once every few minutes, if necessary. If the software product is large and complex, it is easier to experiment and add features that you aren’t sure about to the interim build and take it back for a different build if it doesn’t work.</p>
+<h2 id="transparency-makes-clients-happy">Transparency Makes Clients Happy</h2>
+<p>Clients like to be more involved in today’s development process. CI practices allow clients to get detailed reports on how the product works without manager involvement. Because the process is automated, it is possible to see bugs and errors in the source code at any given time without backtracking. If the code works as planned, a build can be assembled on the spot and sent to the client.</p>
+<p>CI adoption also means more transparency for managers who now have instant access to vital information such as which employee was responsible for detecting a bug, when it was discovered, and how long it took to fix it.</p>
+<p>All of these advantages allow teams to organize work with the client in a way that grants them access to important information on the state of the team and the project without having to involve the manager in the process.</p>
+<h2 id="convenience-for-developers">Convenience for Developers</h2>
+<p>Developers benefit from CI in various ways. First of all, with the help of CI, it is possible to automate the rollout of products into production.</p>
+<p>Second, CI helps increase the developer’s level of confidence. Whenever a change in the source code is made, the developer knows whether any accidental errors were introduced.</p>
+<p>Third, CI helps to enforce code style guidelines on all projects, which is useful for teams with ‘not-so-experienced’ members who still need to learn to work together and speak a common language.</p>
+<p>With the help of CI, developers can finally be the creative gods they have always wanted to be, and machines can run their automated processes to safe cushion their experiments. For these processes to work, the source code needs to be self testing and CI must be properly set up.</p>
+<h2 id="a-few-final-words-in-defense-of-ci">A Few Final Words in Defense of CI</h2>
+<p>Time spent on setting up CI is well worth it. By catching and validating fixes of bugs early, CI helps save time and money, shortens the feedback loop, reduces risks significantly, increases visibility and transparency, enhances communication, and automatically releases working software into production. Faster time to market also means software can be used by the target audience early on and more easily adapt to user needs and changing business requirements. In a world where IT teams compete for even faster, cheaper ways to make software, CI is a proven methodology that delivers working results that are appreciated not only by clients, but also managers and developers equally.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Tue, 01 Sep 2015 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2015-09-01-ci.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>How To Leverage Ruby&#39;s Functional Programming Capability</title>
+    <link>https://maksar.github.io/posts/code/2015-08-24-functional-ruby.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - How To Leverage Ruby's Functional Programming Capability</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>How To Leverage Ruby's Functional Programming Capability</h1>
+    <article>
+  <span class="header">
+    August 24, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
+  </span>
+  <section>
+    <p>Ruby is a multi-paradigm programming language. It fully allows writing old-fashioned procedural code, but also provides many useful constructs and features from the functional world.</p>
+<p>The majority of developers come to <a href="https://www.programmableweb.com/news/why-parse-picked-googles-go-over-microsofts-c-to-replace-its-ailing-ruby-stack/brief/2015/06/16">Ruby</a> from the imperative world. They are used to making many local variables, changing their state and relying on implicit dependencies. Very quickly, it becomes clear that code can be much more expressive, using powerful idioms from functional languages. Ruby isn’t a fully functional language by any means; functions are not first class citizens, evaluation flow is not lazy, pattern matching support is very limited, etc. But still, it is possible to write code in a functional way and garner many benefits as a result.</p>
+<!--more-->
+<p>I’d like to start with a practical example. Let’s define a problem, try to solve it using both imperative and functional styles in Ruby and see what happens. Let me first point out that it’s very hard to come up with a good example that is concise and easily understandable and, at the same time, not too artificial, but I have done my best.</p>
+<p><strong>Problem definition:</strong> Write a Function, which accepts a list of users with a <code>full_name</code> property and returns a string with users’ names and birthdays sorted by distance from the current point in time. Birthdays of users can be obtained from an external system by using <code>birthday</code> method of <code>BirthdayRegistry</code> class. If multiple people are lucky enough to be born on the same day, the function should combine them together with a comma.</p>
+<p><strong>Example:</strong> Bob and Joe are both born on July 16, 1985, Maria celebrates her birthday on January 2, 1989, and Alice blows out her candles on October 25, 1989. The function should return <code>"[Alice] - 1989-10-25; [Maria] - 1989-01-02; [Bob, Joe] - 1985-07-16"</code> string.</p>
+<p><strong>Imperative implementation:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> birthday_sequence(users)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  result <span class="kw">=</span> <span class="vs">''</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  hash <span class="kw">=</span> <span class="kw">{}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  users<span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>user<span class="kw">|</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    birthday <span class="kw">=</span> <span class="dt">BirthdayRegistry</span><span class="at">.birthday</span>(<span class="wa">:date</span>, user)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    hash<span class="kw">[</span>birthday<span class="kw">]</span> <span class="kw">||=</span> <span class="kw">[]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    hash<span class="kw">[</span>birthday<span class="kw">]</span> <span class="kw">&lt;&lt;</span> user</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  sorted <span class="kw">=</span> hash<span class="at">.sort_by</span> <span class="kw">{</span> <span class="kw">|</span>birthday, _<span class="kw">|</span> (<span class="dt">Date</span><span class="at">.today</span> <span class="kw">-</span> birthday)<span class="at">.abs</span> <span class="kw">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  sorted<span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>birthday, celebrators<span class="kw">|</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    result <span class="kw">&lt;&lt;</span> <span class="ch">'['</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    names <span class="kw">=</span> <span class="kw">[]</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    celebrators<span class="at">.each</span> <span class="kw">{</span> <span class="kw">|</span>user<span class="kw">|</span> names <span class="kw">&lt;&lt;</span> user<span class="at">.full_name</span> <span class="kw">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    names<span class="at">.sort!</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    names<span class="kw">[</span><span class="dv">0</span><span class="kw">..-</span><span class="dv">2</span><span class="kw">]</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>name<span class="kw">|</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      result <span class="kw">&lt;&lt;</span> name</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      result <span class="kw">&lt;&lt;</span> <span class="vs">', '</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    result <span class="kw">&lt;&lt;</span> names<span class="at">.last</span> <span class="kw">+</span> <span class="st">&quot;] - </span><span class="sc">#{</span>birthday<span class="sc">}</span><span class="st">; &quot;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  result<span class="kw">[</span><span class="dv">0</span><span class="kw">..-</span><span class="dv">3</span><span class="kw">]</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>As I mentioned earlier, this example is a bit artificial, but code similar to this can be easily found in an arbitrary Ruby project featuring several junior developers. My hope is that you, as the reader, will practice some patience with this example since it is only used for demonstration purposes of the article.</p>
+<p>Let’s rewrite this Function using functional style, applying well-known Ruby idioms.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> birthday_sequence(users, registry <span class="kw">=</span> <span class="dt">BirthdayRegistry</span>, today <span class="kw">=</span> <span class="dt">Date</span><span class="at">.today</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  users<span class="at">.group_by</span>(<span class="kw">&amp;</span>registry<span class="at">.method</span>(<span class="wa">:birthday</span>)<span class="at">.to_proc.curry</span><span class="kw">[</span><span class="wa">:date</span><span class="kw">]</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">.sort_by</span> <span class="kw">{</span> <span class="kw">|</span>birthday, _<span class="kw">|</span> (today <span class="kw">-</span> birthday)<span class="at">.abs</span> <span class="kw">}</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.map</span> <span class="kw">{</span> <span class="kw">|</span>birthday, celebrators<span class="kw">|</span> <span class="st">&quot;[</span><span class="sc">#{</span>celebrators<span class="at">.map</span>(<span class="kw">&amp;</span><span class="wa">:full_name</span>)<span class="at">.sort.join</span>(<span class="vs">', '</span>)<span class="sc">}</span><span class="st">] - </span><span class="sc">#{</span>birthday<span class="sc">}</span><span class="st">&quot;</span> <span class="kw">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.join</span>(<span class="vs">'; '</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>This looks much more concise than the original variant. Even after refactoring of the former (keeping imperative style intact), it will remain longer. This is a very common side effect of writing programs in functional style. It <em>forces</em> you to express <em>what</em> is in the code, instead of <em>how</em>. Let’s review the most interesting parts of the second code example.</p>
+<p>Please pay extra attention to the absence of variables in the method written in functional style. How much easier is it to extract formatting code out of it? You don’t have to scan the method, detecting all places where the result variable is used.</p>
+<p>Data transformation and filtering (<code>map</code>, <code>collect</code>, <code>inject</code>, <code>reduce</code>, <code>filter</code>, <code>detect</code>, <code>reject</code>, <code>zip</code>, etc.) – that is what makes Ruby, as well as other functional languages, so expressive and concise. All developers new to Ruby learn the usefulness of these functions first. Indeed, it’s much more practical to just describe <em>what</em> to do with data, instead of writing nasty <em>for</em> loops. <code>users.map(&amp;:full_name)</code> will iterate through users, extracting value of <code>full_name</code> property from each of them and returning an array of <code>full_names</code>. The <code>join</code> function will combine everything together, separating values by a comma followed by a space.</p>
+<p><code>group_by</code> is a function, which groups an input array into <em>buckets</em>(arrays) by result of block evaluation on each value. Given an array of strings: <code>['foo', 'bar', 'buzz']</code>, <code>group_by { |string| string.length }</code> will return <code>{ 3 =&gt; ['foo', 'bar'], 4 =&gt; ['buzz'] }</code> hash. I know, it doesn’t look like a completely fair substitution (in the original piece of code it’s done ‘by hand’), but <code>group_by</code> as well as <code>index_by</code> and similar concepts are very well known and accepted in functional languages. Developers use such data transformations as building blocks, combining them with each other to achieve the desired result instead of describing what the computer should do during each step.</p>
+<p><code>.method</code>. In Ruby, it’s a way to get a method object – ‘pointer’ to a method. Here we are getting a pointer to <code>birthday</code> method of the <code>registry</code>. The <code>&amp;</code> symbol converts method to a block, which can be then passed to any method expecting one. For example: <code>5.method(:modulo).call(2)</code> will give the same result as <code>5.modulo(2)</code>. This is a common way to pass a method instead of a block. But just getting a method isn’t enough, <code>BirthdayRegistry.birthday</code> also accepts format as a first argument.</p>
+<p>The trick is to <em>curry</em> that pointer to a method. In functional languages, currying means partially applying arguments to a function. A curry operation takes a <code>proc</code> of N arguments and returns a <code>proc</code> of one argument, which returns a <code>proc</code> of one argument, which returns… N times – you get the idea. In the functional code example, we are currying the <code>birthday</code> method, providing the first argument to it (<code>call(:date)</code> notation is substituted with <code>[:date]</code> notation for shortness – Ruby has many ways to call a function). Having done that, the result can be used in the <code>group_by</code> function as a block.</p>
+<p>The sorting part looks essentially the same in both examples with one minor difference – but a very important difference. Imperative code just uses <code>Date.today</code> to get the current date. This is a reference to a global, non-pure state! The result of <code>Date.today</code> is different each time (day) we call it. Having <code>Date.today</code> engraved into the function body makes it very hard to test without the <em>magical</em> <a href="https://github.com/travisjeffery/timecop">timecop</a> gem (which monkey patches <code>Date</code> and can stop time for a while). Not to mention the incorrect behavior of the <code>birthday_sequence</code> function itself – for each user today can be different and, therefore, the time difference between birthday and today is different. Just imagine yourself debugging a defect, from the QA team about ‘off by hour’ shift in the middle of the user’s birthday string only twice a year.</p>
+<p>The solution to that problem is also dependency injection. This is not a functional paradigm concept at all, but almost every functional program uses it. For a function to be pure, it’s not allowed to operate in an external global state (otherwise, it will return non-deterministic results). So, instead of referring to a global state, we inject a variable inside a function through its parameters. Doing so, we eliminate the possibility of an ‘off by hour’ defect to even appear (each time the difference is now calculated with the same ‘now’ value).</p>
+<p>Purity is, probably, the most loved concept in functional languages. A function that does not depend on any external state always returns the same result, is very testable, reusable and easy to understand. In the majority of cases, it is also much easier to debug such a function. Actually, no debugging is needed; you just call a function with some arguments and inspect the result. There is no way for the external world (the rest of the system) to influence what pure function is going to return. The signature <code>def birthday_sequence(users, registry = BirthdayRegistry, today = Date.today)</code> injects dependencies of a function from the outside instead of referencing them from the function body. Just looking at a function signature makes it clear for other developers that it actually uses today inside, falling back to <code>Date.today</code> by default, if nothing was passed. With such a signature, we can make a function pure, as soon as <code>BirthdayRegistry.birthday</code> is also pure.</p>
+<p>The injection of <code>BirthdayRegistry</code> doesn’t look like a big deal, but it’s hard to underestimate it. This little injection has a huge implication on testing. If you are a good developer, you write a couple of unit tests to ensure that the <code>birthday_sequence</code> function works as expected. Before calling it and asserting the result, however, you need to set up an environment. You need to make sure that <code>BirthdayRegistry.birthday</code> will actually return data for users on which you are testing your function. Therefore, you have a choice of seeding an external storage (from which <code>BirthdayRegistry</code> takes its data) or Mocking the implementation of the birthday method. The latter is easier, so you do <code>allow (BirthdayRegistry).to receive(:birthday).with(anything, user).and_return(...)</code>. Now, look at your unit test. Developers who will read it later will have no clue why you are setting up a <code>BirthdayRegistry</code> mock before calling the <code>birthday_sequence</code> function without looking at its implementation. Congratulations, you now have a semantic dependency! Every time you decide to work with the <code>birthday_sequence</code> function, you’ll have to keep in mind that it’s actually calling <code>BirthdayRegistry</code> inside. The injection allows you to pass stub implementation of <code>BirthdayRegistry</code> in the unit test explicitly, without semantic dependency (if the method accepts it in parameters, I would bet it’s using it).</p>
+<p>Comparing code from <a href="https://github.com/maksar/functional_ruby_article/blob/master/imperative_fake_spec.rb">imperative_fake_spec.rb</a> and <a href="https://github.com/maksar/functional_ruby_article/blob/master/imperative_real_spec.rb">imperative_real_spec.rb</a> tests, it’s not easy to see the difference, but it’s crucial for test feedback loop speed. Just stubbing out <code>BirthdayRegistry</code> dependency, we gain speed – lots of speed. Since unit tests are not hitting databases or any other external storage, they can work lightning-fast. The functional code test <a href="https://github.com/maksar/functional_ruby_article/blob/master/functional_spec.rb">functional_spec.rb</a> encourages passing fake implementation of external dependency, leaving no chance to test slowness.</p>
+<p><a href="https://asciinema.org/a/21318" target="_blank"><img src="https://asciinema.org/a/21318.svg" class="center full" /></a></p>
+<p>Full sources of examples and unit tests can be found at <a href="https://github.com/maksar/functional_ruby_article">GitHub</a> repo.</p>
+<p>There are many other areas in which functional languages can affect the way you write Ruby code: <a href="https://en.wikipedia.org/wiki/Monad_(functional_programming)">Monads</a>, <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher order functions</a>, <a href="https://en.wikipedia.org/wiki/Immutable_object">immutability</a>, etc. My goal in this article was to demonstrate the basic elements of functional programming in Ruby and inspire developers to discuss this issue further in the hopes of learning to code better and faster.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Mon, 24 Aug 2015 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2015-08-24-functional-ruby.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>How to stop doing TDD and start getting real value from testing</title>
+    <link>https://maksar.github.io/posts/code/2015-02-06-tdd.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - How to stop doing TDD and start getting real value from testing</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>How to stop doing TDD and start getting real value from testing</h1>
+    <article>
+  <span class="header">
+    February  6, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+  </span>
+  <section>
+    <p>In the field of testing, there are many ideas and movements, some of which have formed into schools. But there is really no universally accepted standard for what testing is and how it should be performed.</p>
+<p>The attempts to establish such a standard (such as the infamous <a href="https://sdtimes.com/software-testing-schism/">ISO 29119</a>) are met with either ice-cold indifference or hell-hot opposition. Why? Well, because professional developers want to be able to choose approaches and tools that fit particular projects, time frames, budgets and business goals, and deep down they know they will continue to do what’s best to perform their duties well.</p>
+<!--more-->
+<h2 id="test-driven-development-tdd-and-automation-debates">Test-driven development (TDD) and automation debates</h2>
+<p>In this context, I am no longer surprised articles claiming that “TDD is dead” are published all the time. The word “automation” also provokes intense reactions from both extremes; Continuous Deployment still encourages everyone to automate, while the context-driven testing aficionados claim it dehumanizes the process. I believe this happens because there is no real understanding of what testing (not to mention TDD) stands for.</p>
+<p>According to a popular misconception, the term TDD is only associated with testing (unit or integration). Not everything should be taken at face value, however. First and foremost, TDD is about quality – quality of design and code. TDD means writing good code. But what does “good” code even mean? The question is a contention point for generations of programmers, with such metrics as spaces vs. tabs, brace positions, line lengths, as coupling, dependency matrixes, and more used to decide whether a piece of code is “good” or not (or if it’s at least “better” than the previous version).</p>
+<p>In my opinion, code can be called “good” when it’s easy to read and understand. After all, we are writing code to be read by humans, not for computers or compilers.</p>
+<p>However, there are several factors that can make code better:</p>
+<p><strong>1. Modularity, independence, single responsibility principle.</strong> Modular code is easy to test. Coupling is your enemy. Far too many people don’t want to test, since they don’t understand the value of testing.</p>
+<p>Writing first, testing later is time- and effort-consuming. If the system is interconnected, it’s hard to check whether the individual parts work properly. Writing modular code by dividing functionality into independent and interchangeable modules, responsible for one aspect of functionality, helps to test those parts of the system without integrating everything together. This allows developers to avoid regression risks and enhance transparency for the client since, in test suites, results are apparent, not implied or described only in documentation. Modules are also great since they are self-sufficient and can be used in another product or exchanged for another module.</p>
+<p>However, modular code is not necessarily good code. It is only one of the quality attributes, indicative of independent test potential, which is great from the architectural point of view.</p>
+<p><strong>2. Framework-independent code: Test your app, not database or Web framework.</strong> Testing through frameworks and databases is very expensive and effort-consuming since you have to test functionality through the whole stack, connecting to a database or framework. If the system is modular, you can pick out a validation module and test it directly to ensure that it gives correct answers.</p>
+<p><strong>3. Do only one thing and do it well. Viva Unix!</strong> Every module must be responsible for one aspect of functionality, fulfilling a single goal and being able to do that without integration with the system. Loose coupling and interchangeable modules are a real lifesaver for quality testing.</p>
+<p><strong>4. Speed always matters. In order to bring real value, unit tests should be fast.</strong> Slow tests are like mercury, slowly killing your productivity and happiness. When tests are slow, programmers give up and hope they’ll sail through somehow. They won’t! By testing each module independently, you speed up the test suite and cut costs, running business tests in seconds. If you test through a Web framework or database, it takes minutes or even hours.</p>
+<p>It’s terrible when you cannot distinguish business logic out of the app since it’s dispersed in different parts of it. (Some business rules are encoded in browser code only, many invariants are only checked on the database level, and a big part of constraints sits in Web controller code.) When you design and architect well, business logic can be reused in another interface. You should make a self-check: Can I realize a different delivery mechanism for the app with all the business logic that’s already there? If you can make the app interface work through the command line, it’s a well-written app: modular, with isolated business logic.</p>
+<p><strong>5. Automate everything.</strong> People can be creative and machines can do what they do best: check how well humans work. Continuous Integration will check the system for the developer when there is a change in code, send e-mails, report bugs, build metrics, etc. The programmer can always see what’s wrong, who is responsible for the bug, when it last functioned properly, why it malfunctioned, and what the test coverage is. To achieve success, automation has to be controlled and encouraged by managers, while tech leads should be responsible for its implementation, continuous education and training of developers.</p>
+<p><strong>6. Project management made simple. It is you who decides how to do the job, not your manager.</strong> The secret to being a professional is to do work the way you find fit. No one should tell you how to deliver quality and speed. No one should say, “Don’t test because we don’t have time.” Testing should not be part of the billing hours game or the time race. The only way to go fast is to go right.</p>
+<p>Micromanagement kills productivity and motivation, while self-management helps you arrive at the best result—every time! You have a goal and you choose the way to reach that goal. If it takes longer to do it right, you have to do it right and find a compromise with management. The proof is always in the pudding, and when managers see results (even if you went against their orders), you gain their respect and solidify your reputation and place in the market.</p>
+<p>Of course, this approach requires a certain level of professionalism, and at first, tech leads have to teach developers those skills so that later they can graduate to emancipating themselves and defending their point of view.</p>
+<p>The best way to approach testing is to pay less attention to formulaic “standards,” conflicting schools and holy wars, and to concentrate on quality. Focus on speed, independence and interchangeability; get rid of frameworks and databases; use automation tools; and give clients links to <a href="https://en.wikipedia.org/wiki/Cucumber_(software)">Сucumber</a> test results instead of wasting time and money on old-fashioned extensive documentation to describe what you have done. Seeing hard facts, both you and the client can be confident that the product works and the behavior that was specified has been fully implemented.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Fri, 06 Feb 2015 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2015-02-06-tdd.html</guid>
     <dc:creator>Shestakov Alex</dc:creator>
 </item>
 

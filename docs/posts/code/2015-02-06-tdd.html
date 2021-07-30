@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - How to stop doing TDD and start getting real value from testing</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>How to stop doing TDD and start getting real value from testing</h1>
+    <article>
+  <span class="header">
+    February  6, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+  </span>
+  <section>
+    <p>In the field of testing, there are many ideas and movements, some of which have formed into schools. But there is really no universally accepted standard for what testing is and how it should be performed.</p>
+<p>The attempts to establish such a standard (such as the infamous <a href="https://sdtimes.com/software-testing-schism/">ISO 29119</a>) are met with either ice-cold indifference or hell-hot opposition. Why? Well, because professional developers want to be able to choose approaches and tools that fit particular projects, time frames, budgets and business goals, and deep down they know they will continue to do what’s best to perform their duties well.</p>
+<!--more-->
+<h2 id="test-driven-development-tdd-and-automation-debates">Test-driven development (TDD) and automation debates</h2>
+<p>In this context, I am no longer surprised articles claiming that “TDD is dead” are published all the time. The word “automation” also provokes intense reactions from both extremes; Continuous Deployment still encourages everyone to automate, while the context-driven testing aficionados claim it dehumanizes the process. I believe this happens because there is no real understanding of what testing (not to mention TDD) stands for.</p>
+<p>According to a popular misconception, the term TDD is only associated with testing (unit or integration). Not everything should be taken at face value, however. First and foremost, TDD is about quality – quality of design and code. TDD means writing good code. But what does “good” code even mean? The question is a contention point for generations of programmers, with such metrics as spaces vs. tabs, brace positions, line lengths, as coupling, dependency matrixes, and more used to decide whether a piece of code is “good” or not (or if it’s at least “better” than the previous version).</p>
+<p>In my opinion, code can be called “good” when it’s easy to read and understand. After all, we are writing code to be read by humans, not for computers or compilers.</p>
+<p>However, there are several factors that can make code better:</p>
+<p><strong>1. Modularity, independence, single responsibility principle.</strong> Modular code is easy to test. Coupling is your enemy. Far too many people don’t want to test, since they don’t understand the value of testing.</p>
+<p>Writing first, testing later is time- and effort-consuming. If the system is interconnected, it’s hard to check whether the individual parts work properly. Writing modular code by dividing functionality into independent and interchangeable modules, responsible for one aspect of functionality, helps to test those parts of the system without integrating everything together. This allows developers to avoid regression risks and enhance transparency for the client since, in test suites, results are apparent, not implied or described only in documentation. Modules are also great since they are self-sufficient and can be used in another product or exchanged for another module.</p>
+<p>However, modular code is not necessarily good code. It is only one of the quality attributes, indicative of independent test potential, which is great from the architectural point of view.</p>
+<p><strong>2. Framework-independent code: Test your app, not database or Web framework.</strong> Testing through frameworks and databases is very expensive and effort-consuming since you have to test functionality through the whole stack, connecting to a database or framework. If the system is modular, you can pick out a validation module and test it directly to ensure that it gives correct answers.</p>
+<p><strong>3. Do only one thing and do it well. Viva Unix!</strong> Every module must be responsible for one aspect of functionality, fulfilling a single goal and being able to do that without integration with the system. Loose coupling and interchangeable modules are a real lifesaver for quality testing.</p>
+<p><strong>4. Speed always matters. In order to bring real value, unit tests should be fast.</strong> Slow tests are like mercury, slowly killing your productivity and happiness. When tests are slow, programmers give up and hope they’ll sail through somehow. They won’t! By testing each module independently, you speed up the test suite and cut costs, running business tests in seconds. If you test through a Web framework or database, it takes minutes or even hours.</p>
+<p>It’s terrible when you cannot distinguish business logic out of the app since it’s dispersed in different parts of it. (Some business rules are encoded in browser code only, many invariants are only checked on the database level, and a big part of constraints sits in Web controller code.) When you design and architect well, business logic can be reused in another interface. You should make a self-check: Can I realize a different delivery mechanism for the app with all the business logic that’s already there? If you can make the app interface work through the command line, it’s a well-written app: modular, with isolated business logic.</p>
+<p><strong>5. Automate everything.</strong> People can be creative and machines can do what they do best: check how well humans work. Continuous Integration will check the system for the developer when there is a change in code, send e-mails, report bugs, build metrics, etc. The programmer can always see what’s wrong, who is responsible for the bug, when it last functioned properly, why it malfunctioned, and what the test coverage is. To achieve success, automation has to be controlled and encouraged by managers, while tech leads should be responsible for its implementation, continuous education and training of developers.</p>
+<p><strong>6. Project management made simple. It is you who decides how to do the job, not your manager.</strong> The secret to being a professional is to do work the way you find fit. No one should tell you how to deliver quality and speed. No one should say, “Don’t test because we don’t have time.” Testing should not be part of the billing hours game or the time race. The only way to go fast is to go right.</p>
+<p>Micromanagement kills productivity and motivation, while self-management helps you arrive at the best result—every time! You have a goal and you choose the way to reach that goal. If it takes longer to do it right, you have to do it right and find a compromise with management. The proof is always in the pudding, and when managers see results (even if you went against their orders), you gain their respect and solidify your reputation and place in the market.</p>
+<p>Of course, this approach requires a certain level of professionalism, and at first, tech leads have to teach developers those skills so that later they can graduate to emancipating themselves and defending their point of view.</p>
+<p>The best way to approach testing is to pay less attention to formulaic “standards,” conflicting schools and holy wars, and to concentrate on quality. Focus on speed, independence and interchangeability; get rid of frameworks and databases; use automation tools; and give clients links to <a href="https://en.wikipedia.org/wiki/Cucumber_(software)">Сucumber</a> test results instead of wasting time and money on old-fashioned extensive documentation to describe what you have done. Seeing hard facts, both you and the client can be confident that the product works and the behavior that was specified has been fully implemented.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>

@@ -26,8 +26,7 @@ main = hakyllWith config $ do
   match "images/**" $ do
     route $ gsubRoute "images/" (const "previews/")
     compile $
-      loadImage
-        >>= ensureFitCompiler 512 512
+      loadImage >>= ensureFitCompiler 512 512
 
     version "raw" $ do
       route idRoute

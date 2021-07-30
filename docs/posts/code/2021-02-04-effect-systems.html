@@ -143,7 +143,7 @@
 <div class="sourceCode" id="cb13"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fronzen ::</span> <span class="dt">Member</span> <span class="dt">TimeEffect</span> eff <span class="ot">=&gt;</span> <span class="dt">Time</span> <span class="ot">-&gt;</span> <span class="dt">Effect</span> eff a <span class="ot">-&gt;</span> <span class="dt">Effect</span> (eff <span class="op">:</span> <span class="dt">Trace</span>) a</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>fronzen instant <span class="ot">=</span> intercept <span class="op">$</span> <span class="fu">const</span> <span class="op">$</span> <span class="fu">pure</span> instant</span></code></pre></div>
 <p>Кстати, а вы заметили в примерах множество полей с навешанными на них <code>Autowired</code> аннотациями или может быть десятки аргументов в конструкторах классов? Прелесть в том, что они оказываются не нужны – роль DI framework-а играет простая <a href="https://github.com/maksar/ldap-bot/blob/master/src/Server/Hook.hs#L33">композиция функций</a>. Чуть не забыл про тесты упомянуть – благодаря тому, что все тестовые интерпретаторы не работают с <code>IO</code> – <a href="https://asciinema.org/a/389000">выполняются</a> они довольно быстро:</p>
-<p><a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center" /></a></p>
+<p><a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center full" /></a></p>
   </section>
 </article>
 

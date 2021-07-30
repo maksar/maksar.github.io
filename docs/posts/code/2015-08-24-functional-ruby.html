@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - How To Leverage Ruby's Functional Programming Capability</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script src="../../vendor/highlight/languages/haskell.min.js"></script>
+  <script src="../../vendor/highlight/languages/ruby.min.js"></script>
+  <script src="../../vendor/highlight/languages/shell.min.js"></script>
+  <script src="../../vendor/highlight/languages/kotlin.min.js"></script>
+  <script src="../../vendor/highlight/languages/javascript.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>How To Leverage Ruby's Functional Programming Capability</h1>
+    <article>
+  <span class="header">
+    August 24, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
+  </span>
+  <section>
+    <p>Ruby is a multi-paradigm programming language. It fully allows writing old-fashioned procedural code, but also provides many useful constructs and features from the functional world.</p>
+<p>The majority of developers come to <a href="https://www.programmableweb.com/news/why-parse-picked-googles-go-over-microsofts-c-to-replace-its-ailing-ruby-stack/brief/2015/06/16">Ruby</a> from the imperative world. They are used to making many local variables, changing their state and relying on implicit dependencies. Very quickly, it becomes clear that code can be much more expressive, using powerful idioms from functional languages. Ruby isn’t a fully functional language by any means; functions are not first class citizens, evaluation flow is not lazy, pattern matching support is very limited, etc. But still, it is possible to write code in a functional way and garner many benefits as a result.</p>
+<!--more-->
+<p>I’d like to start with a practical example. Let’s define a problem, try to solve it using both imperative and functional styles in Ruby and see what happens. Let me first point out that it’s very hard to come up with a good example that is concise and easily understandable and, at the same time, not too artificial, but I have done my best.</p>
+<p><strong>Problem definition:</strong> Write a Function, which accepts a list of users with a <code>full_name</code> property and returns a string with users’ names and birthdays sorted by distance from the current point in time. Birthdays of users can be obtained from an external system by using <code>birthday</code> method of <code>BirthdayRegistry</code> class. If multiple people are lucky enough to be born on the same day, the function should combine them together with a comma.</p>
+<p><strong>Example:</strong> Bob and Joe are both born on July 16, 1985, Maria celebrates her birthday on January 2, 1989, and Alice blows out her candles on October 25, 1989. The function should return <code>"[Alice] - 1989-10-25; [Maria] - 1989-01-02; [Bob, Joe] - 1985-07-16"</code> string.</p>
+<p><strong>Imperative implementation:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> birthday_sequence(users)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  result <span class="kw">=</span> <span class="vs">''</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  hash <span class="kw">=</span> <span class="kw">{}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  users<span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>user<span class="kw">|</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    birthday <span class="kw">=</span> <span class="dt">BirthdayRegistry</span><span class="at">.birthday</span>(<span class="wa">:date</span>, user)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    hash<span class="kw">[</span>birthday<span class="kw">]</span> <span class="kw">||=</span> <span class="kw">[]</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    hash<span class="kw">[</span>birthday<span class="kw">]</span> <span class="kw">&lt;&lt;</span> user</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  sorted <span class="kw">=</span> hash<span class="at">.sort_by</span> <span class="kw">{</span> <span class="kw">|</span>birthday, _<span class="kw">|</span> (<span class="dt">Date</span><span class="at">.today</span> <span class="kw">-</span> birthday)<span class="at">.abs</span> <span class="kw">}</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  sorted<span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>birthday, celebrators<span class="kw">|</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    result <span class="kw">&lt;&lt;</span> <span class="ch">'['</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    names <span class="kw">=</span> <span class="kw">[]</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    celebrators<span class="at">.each</span> <span class="kw">{</span> <span class="kw">|</span>user<span class="kw">|</span> names <span class="kw">&lt;&lt;</span> user<span class="at">.full_name</span> <span class="kw">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    names<span class="at">.sort!</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    names<span class="kw">[</span><span class="dv">0</span><span class="kw">..-</span><span class="dv">2</span><span class="kw">]</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>name<span class="kw">|</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      result <span class="kw">&lt;&lt;</span> name</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      result <span class="kw">&lt;&lt;</span> <span class="vs">', '</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    result <span class="kw">&lt;&lt;</span> names<span class="at">.last</span> <span class="kw">+</span> <span class="st">&quot;] - </span><span class="sc">#{</span>birthday<span class="sc">}</span><span class="st">; &quot;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>  result<span class="kw">[</span><span class="dv">0</span><span class="kw">..-</span><span class="dv">3</span><span class="kw">]</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>As I mentioned earlier, this example is a bit artificial, but code similar to this can be easily found in an arbitrary Ruby project featuring several junior developers. My hope is that you, as the reader, will practice some patience with this example since it is only used for demonstration purposes of the article.</p>
+<p>Let’s rewrite this Function using functional style, applying well-known Ruby idioms.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> birthday_sequence(users, registry <span class="kw">=</span> <span class="dt">BirthdayRegistry</span>, today <span class="kw">=</span> <span class="dt">Date</span><span class="at">.today</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  users<span class="at">.group_by</span>(<span class="kw">&amp;</span>registry<span class="at">.method</span>(<span class="wa">:birthday</span>)<span class="at">.to_proc.curry</span><span class="kw">[</span><span class="wa">:date</span><span class="kw">]</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">.sort_by</span> <span class="kw">{</span> <span class="kw">|</span>birthday, _<span class="kw">|</span> (today <span class="kw">-</span> birthday)<span class="at">.abs</span> <span class="kw">}</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.map</span> <span class="kw">{</span> <span class="kw">|</span>birthday, celebrators<span class="kw">|</span> <span class="st">&quot;[</span><span class="sc">#{</span>celebrators<span class="at">.map</span>(<span class="kw">&amp;</span><span class="wa">:full_name</span>)<span class="at">.sort.join</span>(<span class="vs">', '</span>)<span class="sc">}</span><span class="st">] - </span><span class="sc">#{</span>birthday<span class="sc">}</span><span class="st">&quot;</span> <span class="kw">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.join</span>(<span class="vs">'; '</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<p>This looks much more concise than the original variant. Even after refactoring of the former (keeping imperative style intact), it will remain longer. This is a very common side effect of writing programs in functional style. It <em>forces</em> you to express <em>what</em> is in the code, instead of <em>how</em>. Let’s review the most interesting parts of the second code example.</p>
+<p>Please pay extra attention to the absence of variables in the method written in functional style. How much easier is it to extract formatting code out of it? You don’t have to scan the method, detecting all places where the result variable is used.</p>
+<p>Data transformation and filtering (<code>map</code>, <code>collect</code>, <code>inject</code>, <code>reduce</code>, <code>filter</code>, <code>detect</code>, <code>reject</code>, <code>zip</code>, etc.) – that is what makes Ruby, as well as other functional languages, so expressive and concise. All developers new to Ruby learn the usefulness of these functions first. Indeed, it’s much more practical to just describe <em>what</em> to do with data, instead of writing nasty <em>for</em> loops. <code>users.map(&amp;:full_name)</code> will iterate through users, extracting value of <code>full_name</code> property from each of them and returning an array of <code>full_names</code>. The <code>join</code> function will combine everything together, separating values by a comma followed by a space.</p>
+<p><code>group_by</code> is a function, which groups an input array into <em>buckets</em>(arrays) by result of block evaluation on each value. Given an array of strings: <code>['foo', 'bar', 'buzz']</code>, <code>group_by { |string| string.length }</code> will return <code>{ 3 =&gt; ['foo', 'bar'], 4 =&gt; ['buzz'] }</code> hash. I know, it doesn’t look like a completely fair substitution (in the original piece of code it’s done ‘by hand’), but <code>group_by</code> as well as <code>index_by</code> and similar concepts are very well known and accepted in functional languages. Developers use such data transformations as building blocks, combining them with each other to achieve the desired result instead of describing what the computer should do during each step.</p>
+<p><code>.method</code>. In Ruby, it’s a way to get a method object – ‘pointer’ to a method. Here we are getting a pointer to <code>birthday</code> method of the <code>registry</code>. The <code>&amp;</code> symbol converts method to a block, which can be then passed to any method expecting one. For example: <code>5.method(:modulo).call(2)</code> will give the same result as <code>5.modulo(2)</code>. This is a common way to pass a method instead of a block. But just getting a method isn’t enough, <code>BirthdayRegistry.birthday</code> also accepts format as a first argument.</p>
+<p>The trick is to <em>curry</em> that pointer to a method. In functional languages, currying means partially applying arguments to a function. A curry operation takes a <code>proc</code> of N arguments and returns a <code>proc</code> of one argument, which returns a <code>proc</code> of one argument, which returns… N times – you get the idea. In the functional code example, we are currying the <code>birthday</code> method, providing the first argument to it (<code>call(:date)</code> notation is substituted with <code>[:date]</code> notation for shortness – Ruby has many ways to call a function). Having done that, the result can be used in the <code>group_by</code> function as a block.</p>
+<p>The sorting part looks essentially the same in both examples with one minor difference – but a very important difference. Imperative code just uses <code>Date.today</code> to get the current date. This is a reference to a global, non-pure state! The result of <code>Date.today</code> is different each time (day) we call it. Having <code>Date.today</code> engraved into the function body makes it very hard to test without the <em>magical</em> <a href="https://github.com/travisjeffery/timecop">timecop</a> gem (which monkey patches <code>Date</code> and can stop time for a while). Not to mention the incorrect behavior of the <code>birthday_sequence</code> function itself – for each user today can be different and, therefore, the time difference between birthday and today is different. Just imagine yourself debugging a defect, from the QA team about ‘off by hour’ shift in the middle of the user’s birthday string only twice a year.</p>
+<p>The solution to that problem is also dependency injection. This is not a functional paradigm concept at all, but almost every functional program uses it. For a function to be pure, it’s not allowed to operate in an external global state (otherwise, it will return non-deterministic results). So, instead of referring to a global state, we inject a variable inside a function through its parameters. Doing so, we eliminate the possibility of an ‘off by hour’ defect to even appear (each time the difference is now calculated with the same ‘now’ value).</p>
+<p>Purity is, probably, the most loved concept in functional languages. A function that does not depend on any external state always returns the same result, is very testable, reusable and easy to understand. In the majority of cases, it is also much easier to debug such a function. Actually, no debugging is needed; you just call a function with some arguments and inspect the result. There is no way for the external world (the rest of the system) to influence what pure function is going to return. The signature <code>def birthday_sequence(users, registry = BirthdayRegistry, today = Date.today)</code> injects dependencies of a function from the outside instead of referencing them from the function body. Just looking at a function signature makes it clear for other developers that it actually uses today inside, falling back to <code>Date.today</code> by default, if nothing was passed. With such a signature, we can make a function pure, as soon as <code>BirthdayRegistry.birthday</code> is also pure.</p>
+<p>The injection of <code>BirthdayRegistry</code> doesn’t look like a big deal, but it’s hard to underestimate it. This little injection has a huge implication on testing. If you are a good developer, you write a couple of unit tests to ensure that the <code>birthday_sequence</code> function works as expected. Before calling it and asserting the result, however, you need to set up an environment. You need to make sure that <code>BirthdayRegistry.birthday</code> will actually return data for users on which you are testing your function. Therefore, you have a choice of seeding an external storage (from which <code>BirthdayRegistry</code> takes its data) or Mocking the implementation of the birthday method. The latter is easier, so you do <code>allow (BirthdayRegistry).to receive(:birthday).with(anything, user).and_return(...)</code>. Now, look at your unit test. Developers who will read it later will have no clue why you are setting up a <code>BirthdayRegistry</code> mock before calling the <code>birthday_sequence</code> function without looking at its implementation. Congratulations, you now have a semantic dependency! Every time you decide to work with the <code>birthday_sequence</code> function, you’ll have to keep in mind that it’s actually calling <code>BirthdayRegistry</code> inside. The injection allows you to pass stub implementation of <code>BirthdayRegistry</code> in the unit test explicitly, without semantic dependency (if the method accepts it in parameters, I would bet it’s using it).</p>
+<p>Comparing code from <a href="https://github.com/maksar/functional_ruby_article/blob/master/imperative_fake_spec.rb">imperative_fake_spec.rb</a> and <a href="https://github.com/maksar/functional_ruby_article/blob/master/imperative_real_spec.rb">imperative_real_spec.rb</a> tests, it’s not easy to see the difference, but it’s crucial for test feedback loop speed. Just stubbing out <code>BirthdayRegistry</code> dependency, we gain speed – lots of speed. Since unit tests are not hitting databases or any other external storage, they can work lightning-fast. The functional code test <a href="https://github.com/maksar/functional_ruby_article/blob/master/functional_spec.rb">functional_spec.rb</a> encourages passing fake implementation of external dependency, leaving no chance to test slowness.</p>
+<p><a href="https://asciinema.org/a/21318" target="_blank"><img src="https://asciinema.org/a/21318.svg" class="center full" /></a></p>
+<p>Full sources of examples and unit tests can be found at <a href="https://github.com/maksar/functional_ruby_article">GitHub</a> repo.</p>
+<p>There are many other areas in which functional languages can affect the way you write Ruby code: <a href="https://en.wikipedia.org/wiki/Monad_(functional_programming)">Monads</a>, <a href="https://en.wikipedia.org/wiki/Higher-order_function">higher order functions</a>, <a href="https://en.wikipedia.org/wiki/Immutable_object">immutability</a>, etc. My goal in this article was to demonstrate the basic elements of functional programming in Ruby and inspire developers to discuss this issue further in the hopes of learning to code better and faster.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>

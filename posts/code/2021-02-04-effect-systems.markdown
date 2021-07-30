@@ -170,4 +170,4 @@ fronzen instant = intercept $ const $ pure instant
 
 Кстати, а вы заметили в примерах множество полей с навешанными на них `Autowired` аннотациями или может быть десятки аргументов в конструкторах классов? Прелесть в том, что они оказываются не нужны – роль DI framework-а играет простая [композиция функций](@gh(maksar):ldap-bot/blob/master/src/Server/Hook.hs#L33). Чуть не забыл про тесты упомянуть – благодаря тому, что все тестовые интерпретаторы не работают с `IO` – [выполняются](https://asciinema.org/a/389000) они довольно быстро:
 
-<a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center"/></a>
+<a href="https://asciinema.org/a/389000" target="_blank"><img src="https://asciinema.org/a/389000.svg" class="center full"/></a>
