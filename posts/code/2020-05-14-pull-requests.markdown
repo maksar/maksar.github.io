@@ -1,5 +1,6 @@
 ---
 title: About pull requests
+tags: code-review
 language: russian
 ---
 
