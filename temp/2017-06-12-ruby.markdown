@@ -1,7 +1,0 @@
----
-title: Ruby coding guidelines
-tags: ruby
-language: english
----
-
-https://wiki.itransition.com/display/CTOP/Ruby+Coding+Guidelines

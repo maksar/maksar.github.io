@@ -7942,6 +7942,417 @@ return TRUE;
     <dc:creator>Shestakov Alex</dc:creator>
 </item>
 <item>
+    <title>Что такое Dev Meetups?</title>
+    <link>https://maksar.github.io/posts/code/2017-11-23-meetups.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Что такое Dev Meetups?</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Что такое Dev Meetups?</h1>
+    <article>
+  <span class="header">
+    November 23, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
+  </span>
+  <section>
+    <p>В марте этого года в компании появилась новая инициатива – открытые митапы для разработчиков, которые проводятся раз в два месяца. Их организаторами выступили Александр Шестаков и Александр Зенькович.</p>
+<!--more-->
+<h2 id="как-вам-пришла-идея-сделать-митапы-для-разработчиков">Как вам пришла идея сделать митапы для разработчиков?</h2>
+<p><strong>Александр Шестаков</strong>: Такие встречи в локальном масштабе в компании проводились давно: кто-то собирался командами, кто-то отделами. В начале этого года мы с Сашей решили создать подобную инициативу для всей компании. Кинули клич, собрали необходимое количество желающих. Как всегда в проведении такого рода ивентов, выступающие и хороший контент – это самое главное, место и формат – вопросы второстепенные. Первый митап прошел 16 марта. Все было хорошо – пришло много народу, около 70 человек, была бесплатная пицца, это святое. Второй митап состоялся 11 мая, третий – 19 июля.</p>
+<p>Важная проблема, с которой мы столкнулись, – это недостаточная осведомленность наших коллег. Первый митап мы рекламировали на нашем корпоративном сайте и из уст в уста. Ко второму Саша подошел более серьезно: сделал логотип и стикеры, распечатал постеры и развесил их по всему офису. Выяснилось, что люди, увы, в упор постеры не замечают.</p>
+<h2 id="сколько-в-итоге-выступающих-на-встречах-и-как-вы-отбираете-темы">Сколько в итоге выступающих на встречах и как вы отбираете темы?</h2>
+<p><strong>Александр Зенькович</strong>: На каждом митапе два доклада где-то по 45 минут каждый плюс перерыв. Как мы отбираем темы? Бывает, что человек приходит с какой-то конкретной идеей, а бывает, что у него просто есть желание выступить – тогда мы помогаем ему с формулировкой темы. Спикер готовит доклад, затем мы проводим его ревью: слушаем презентацию и даем рекомендации по формату и содержанию.</p>
+<h2 id="проходят-ли-обсуждения-во-время-митапа">Проходят ли обсуждения во время митапа?</h2>
+<p><strong>Александр Зенькович</strong>: Да, но формат встречи зависит от выступающего. Некоторые просят, чтобы вопросы задавались по ходу доклада, другие предпочитают отвечать на них в конце речи. Если это какая-то специфическая тема, которую ты используешь в своем проекте, то можно потом спокойно встретиться с докладчиком лично.</p>
+<p><strong>Александр Шестаков</strong>: Прелесть таких митапов в том, что все друг друга знают, и у слушателей всегда есть возможность обсудить что-то со спикером после выступления. Этого преимущества лишены посетители больших конференций. Наш формат – это скорее микроконференция.</p>
+<h2 id="как-регулярно-вы-проводите-митапы">Как регулярно вы проводите митапы?</h2>
+<p><strong>Александр Зенькович</strong>: Сначала мы планировали делать их раз в месяц. Но пока докладчиков не так много, как хотелось бы, поэтому сейчас раз в два месяца.</p>
+<p><strong>Александр Шестаков</strong>: Мы стараемся готовить доклады с запасом на случай форс-мажоров. Иногда приходится сдвигать даты, потому что люди уезжают в отпуска, в командировки.</p>
+<p><strong>Александр Зенькович</strong>: Сейчас у нас около 10 выступающих, которые работают над своими докладами.</p>
+<p><strong>Александр Шестаков</strong>: Это настолько нетривиальная задача – подготовить хороший доклад, что проводить митап раз в месяц просто не получается. Казалось бы, ничего сложного: сделал слайды, показал куски кода – на все про все должно уходить не больше четырех часов. Но нет, на подготовку качественного доклада уходит от 20 часов и больше, потому что надо сделать презентацию, написать текст, оформить куски кода и несколько раз прогнать речь перед «уточкой» [rubber duck debugging – прим. ред.], иначе выступление не получится. К тому же каждый доклад мы тестим перед коллегами: собираем несколько человек, просим спикера сделать презентацию и указываем на недостатки выступления, начиная от самых простых вроде «у тебя номера слайдов не проставлены» и заканчивая более детальным разбором контента.</p>
+<h2 id="на-ваш-взгляд-в-чем-состоит-самая-главная-сложность-в-поиске-спикеров">На ваш взгляд, в чем состоит самая главная сложность в поиске спикеров?</h2>
+<p><strong>Александр Шестаков</strong>: Люди стесняются и ленятся, точнее, им очень трудно найти время, потому что все загружены проектными задачами. Это самая частая отговорка, которую мы слышим. Даже если заранее договориться с менеджером, все равно возникают проблемы, потому что рабочие обязанности в приоритете.</p>
+<h2 id="как-вы-думаете-в-чем-заключается-главная-мотивация-выступающих">Как вы думаете, в чем заключается главная мотивация выступающих?</h2>
+<p><strong>Александр Зенькович</strong>: Думаю, в том, чтобы что-то рассказать. Во-первых, когда ты готовишь доклад, ты углубляешься в тему и сам для себя узнаешь много нового. Во-вторых, это интересный опыт выступления и общения с аудиторией.</p>
+<p><strong>Александр Шестаков</strong>: Я отвечу очень прагматично. Цель любого выступления – это PR, самореклама и получение опыта публичных выступлений. Что касается нас самих… Изначальный интерес Саши в том, чтобы больше начали использовать язык программирования Kotlin, мой – чтобы начали писать более качественный код. Моя глобальная цель как работника компании – повысить уровень сервиса, который компания предоставляет своим клиентам, через повышение качества софта, который мы производим. Один из способов достичь этого я вижу в том, чтобы реализовывать разные методологии тестирования. Эту идею я продвигаю и на митапах, и вне их.</p>
+<p>Так что мы за повышение интереса к новым технологиям и методам, за общение между отделами и разработчиками. Мы рассказываем, как делать хорошо и как не делать плохо.</p>
+<h2 id="с-какими-темами-уже-выступали-докладчики">С какими темами уже выступали докладчики?</h2>
+<p><strong>Александр Зенькович</strong>: Первый доклад был на тему «Мутационное тестирование», его читал Саша, и был про Azure Service Fabric от Саши Панфиленка. На втором митапе я рассказывал про язык Kotlin, и был доклад про «Технический долг» от Кирилла Чужова.</p>
+<p><strong>Александр Шестаков</strong>: У нас есть несколько проектов, которые, в том числе и благодаря Саше, начали использовать Kotlin и счастливы.</p>
+<p><strong>Александр Зенькович</strong>: Мы стараемся комбинировать темы, чтобы не ограничивать свою аудиторию. Например, Azure Service Fabric – это такая типичная для .Net штука, про которую с удовольствием слушали и не .Net-программисты. Еще были доклады про property-based-тестирование от Саши и про текстовые редакторы на Contenteditable от Миши Костина.</p>
+<p><strong>Александр Шестаков</strong>: Мы сначала волновались, что доклад про Contenteditable – это фича в HTML, которая позволяет создавать поля ввода легко и просто, – очень специфический. Но опыт показал, что если человек все-таки пришел на митап, то что-то полезное для себя он вынесет в любом случае. По крайней мере, узнает, к кому обращаться в случае необходимости. Так и вышло – доклад получился нескучный и познавательный.</p>
+<h2 id="все-таки-эти-митапы-в-первую-очередь-для-разработчиков.-как-вы-думаете-сейлам-ребятам-из-маркетингового-отдела-и-другим-сотрудникам-компании-имеет-смысл-приходить-на-них">Все-таки эти митапы в первую очередь для разработчиков. Как вы думаете, сейлам, ребятам из маркетингового отдела и другим сотрудникам компании имеет смысл приходить на них?</h2>
+<p><strong>Александр Зенькович</strong>: Уже приходят и слушают. Как-то сейлы даже ходили с нами на собрание группы, которая готовит доклады для митапов. Я не думаю, что они углубляются в технические дебри, но, когда мы обсуждаем какие-то общие моменты, им интересно послушать.</p>
+<p><strong>Александр Шестаков</strong>: Их интерес понятен: они смогут лучше продавать и будут знать, специалисты какого плана есть в компании.</p>
+<h2 id="как-вам-кажется-есть-ли-уже-какой-то-прогресс-в-митапах-и-куда-вы-хотите-привести-этот-проект">Как вам кажется, есть ли уже какой-то прогресс в митапах? И куда вы хотите привести этот проект?</h2>
+<p><strong>Александр Шестаков</strong>: Прогресс есть даже в самой организации: после первого митапа люди сами начали к нам приходить с желанием что-то прочитать или улучшить. Теперь мы не только выкладываем записи докладов на Youtube, но и делаем онлайн-стримы в социальные сети компании и на наш <a href="https://www.youtube.com/channel/UCk7aU21BBLT3GxNp3TgYEDg/videos">Youtube-канал</a>. Сколько человек смотрит онлайн-стримы? Где-то 30, для начала это неплохо. Если будет постоянный интерес, то мы сделаем выступления более публичными, увеличим количество докладов, пригласим спикеров из университетов и других компаний. Это наша глобальная цель.</p>
+<p><strong>Александр Зенькович</strong>: Возможно, руководство выделит людям время на подготовку докладов, на их ревью. Сейчас все делается на общественных началах: докладчик тратит свое личное время на создание презентации, мы свое – на организацию ивента. Хотелось бы, конечно, действовать сообща со всей компанией.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Thu, 23 Nov 2017 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2017-11-23-meetups.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>Лучшая вещь – это та, которой нет</title>
+    <link>https://maksar.github.io/posts/code/2017-09-11-interview.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Лучшая вещь – это та, которой нет</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Лучшая вещь – это та, которой нет</h1>
+    <article>
+  <span class="header">
+    September 11, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
+  </span>
+  <section>
+    <p>Я работаю в текущей компании вот уже 12 лет. Пришел сюда еще на третьем курсе университета. Работал все время в отделе разработки программных систем. Занимался программированием на C#, потом была Java и немножко JavaScript, долгое время работал на Ruby — все, кто меня знают, ассоциируют с этим языком программирования. Ruby я люблю за выразительность, в нем в единице кода помещается больше «смысла». Если, к примеру, на C# принято писать «Войну и мир», то на Ruby — баловаться хокку.</p>
+<p>Я прошел все стадии карьерной лестницы от junior и senior developer до software engineer. За последние пару лет я успел поработать на большом проекте HSS – архитектором, затем я решил отдохнуть и начал писать Ruby-код для одной социальной сети американских военных. Примерно 30% своего времени я уделял технической координации, помогал людям на других проектах. С окончанием работы на проекте у меня появилось некоторое количество свободного времени, и тут как раз было решено позицию CTO разделить на две части. Влад Никитин стал публичным лицом компании, а меня сделали «внутренним лицом» — VP Engineering, я являюсь главой технических координаторов.</p>
+<!--more-->
+<p>Мы как компания не тешим себя надеждами о том, что у нас всегда все будет хорошо. Все демпингуют, поэтому на рынке нам нужно успешно конкурировать. Как это можно сделать? Мы избрали путь повышения уровня сервиса для наших заказчиков. Моя задача состоит в том, чтобы достигать этого через повышение качества наших разработок.</p>
+<h2 id="чтобы-говорить-о-будущем-давай-сначала-в-прошлом-разберемся.-как-за-те-двенадцать-лет-что-ты-в-профессии-изменились-используемые-технологии">Чтобы говорить о будущем, давай сначала в прошлом разберемся. Как за те двенадцать лет, что ты в профессии, изменились используемые технологии?</h2>
+<p>Не могу сказать, что что-то изменилось. Заказчики хотят все того же: быстро, дешево, желательно вчера. Разве что если раньше вовсю использовалась клиент-серверная архитектура, то сейчас появилось больше способов достичь бизнес-целей. Можно сделать мобильное приложение под iPhone и затем адаптировать для веба или наоборот. Можно сделать кроссплатформенное приложение, которое будет работать и на iOS, и на Android. Можно забыть про мобильные клиенты и встроить его, прости господи, в холодильник. Ну, или по старинке ориентироваться на пользователя PC.</p>
+<p>Парадокс заключается в том, что 10 лет назад можно было представить себе одного человека, который сделал бы все. Отчасти оттого, что он такой крутой и у него много скилов, отчасти потому, что системы были проще. Сейчас представить себе такого человека довольно сложно, потому что, пока он будет делать приложение, конкуренты выпустят свою версию и будут иметь успех. Далеко за примером ходить не надо, тот же Pokemon GO — разработка небольшой команды. Но в первую же неделю после выпуска они столкнулись с такими масштабными проблемами, что одному человеку с ними справиться было решительно невозможно. Сегодня мы говорим про сотни, а то и тысячи серверов на систему, управлять всем этим хозяйством в одиночку, попутно отвечая на письма пользователей и дописывая какие-то фичи в приложении, просто нельзя. Индустрия сместилась в сторону командной разработки, именно поэтому популярность набрали командные техники вроде Scrum и Kanban.</p>
+<h2 id="а-что-касается-сферы-деятельности-заказчиков">А что касается сферы деятельности заказчиков?</h2>
+<p>К нам приходят с совершенно разными запросами. Раньше это в основном были крупные бизнесы: медицина, банки, казино — те, кто мог позволить себе сотрудничать с большой IT-конторой. Сейчас ситуация немного изменилась, средний размер проекта у нас поменьше: например, это может быть система бухгалтерского учета для американского дилера автомобилей.</p>
+<p>Появилось много белорусских заказчиков, допустим, мы делали систему поиска юридической информации, работали с крупнейшим сотовым оператором. Стало много мелких заказов: люди чаще приходят писать приложения под iOS. Мне вспоминается маленький стартап, который хотел разработать сайт и систему приема платежей, чтобы отправлять прах усопших на ракете в космос.</p>
+<h2 id="как-за-это-время-поменялись-люди-и-необходимые-для-работы-навыки">Как за это время поменялись люди и необходимые для работы навыки?</h2>
+<p>Сейчас рынок сильно перегрет, в Минске появилось очень много айтишных контор. Оттого раньше был больше выбор инженеров, и одновременно сегодня разработчики стали более требовательны к уровню заработной платы. В целом упал общий уровень соискателей. Те вопросы, которые раньше задавались на собеседовании, и те, которые мы задаем сейчас, — это небо и земля. Люди не знают, сколько будет два в восьмой степени, не могут перечислить три основных принципа объектно-ориентированного программирования, не говоря уже о каких-то глубинных знаниях. Почему так, я не знаю. Может быть, потому, что количество уровней абстракции очень велико и знать все слои, к тому же не зная основ, довольно сложно. Поэтому люди стараются обладать именно теми навыками и умениями, которые можно продать на рынке. Главное, чтобы фичу человек сделал, а не разобрался, насколько она быстро работает. Time to market — главный критерий, который все пытаются уменьшить.</p>
+<h2 id="давай-попробуем-оценить-все-эти-параметры-технологии-заказчики-кадры-с-точки-зрения-перспективы.-как-будет-меняться-it-сфера">Давай попробуем оценить все эти параметры — технологии, заказчики, кадры — с точки зрения перспективы. Как будет меняться IT-сфера?</h2>
+<p>Сложный вопрос. Если бы меня пять лет назад спросили, что будет сейчас, я также затруднился бы с ответом. Если говорить о существующих трендах, то главный — это искусственный интеллект, он широко находит себе применение в крупных бизнесах. Это разного рода экспертные системы, часто основанные на машинном обучении, которые дают прогнозы вроде «будет ли сериал на основе этого сценария популярным». Конечно, будут востребованы специалисты узкого профиля, которые занимаются разработкой такого рода систем. Появляется много сервисов в интернете от Google и Amazon, которые предоставляют API разного уровня сложности для использования машинного обучения. Но я думаю, что широкое распространение такого рода систем — это перспектива пяти лет, может даже больше. Почему? Бизнесы, которые не связаны с IT, очень от всего этого далеки. Они не могут представить, что так можно работать с их данными, что есть класс задач машинного обучения, которые направлены на то, чтобы вычленять неочевидные корреляции. Так что они подключатся к этим процессам не раньше, чем к ним кто-то придет и скажет: «А давайте мы вам большие данные проанализируем».</p>
+<p>Но я не вижу нашу компанию и вообще аутсорсинговые компании на рынке разработки такогорода систем.</p>
+<h2 id="почему">Почему?</h2>
+<p>Потому что крупные корпорации способны очень много денег вливать в отделы Research &amp; Development и науку. Потому что машинное обучение связано с оптимизацией вычислений, сложной математикой, моделями работы нейронных сетей. Кроме больших мозгов, требуются еще и большие вычислительные мощности, поскольку задача обучения нетривиальна и затратна. Мы также стараемся подтягиваться, выделили у себя несколько направлений приоритетного развития, которые исследуем в нашем отделе R&amp;D. Конечно, наши ресурсы не сравнятся с «корпорациями добра». Но тем не менее мы сознаем необходимость таких телодвижений.</p>
+<h2 id="ты-говорил-о-том-что-рынок-нынче-перегрет.-думаешь-ситуация-изменится-в-ближайшее-время">Ты говорил о том, что рынок нынче перегрет. Думаешь, ситуация изменится в ближайшее время?</h2>
+<p>Нет никаких предпосылок к этому. Количество бизнесов, не объятых IT, еще очень и очень велико. В 2000-х люди понимали, что без сайта продажи не идут, а сейчас люди понимают, что без мобильных приложений, интеграционных сервисов, умной рекламы, скидок и всего прочего бизнес не идет. Что можно добавить — в IT будет работать еще больше людей, а возраст немного увеличится, потому что люди в этой сфере остаются. Сейчас как раз формируется такая прослойка «зубров» в техническом и управленческом плане, которые будут делить рынок между собой.</p>
+<h2 id="а-если-подумать-про-далекое-будущее-лет-на-10-вперед">А если подумать про далекое будущее? Лет на 10 вперед</h2>
+<p>Искусственный интеллект не изобретут. Будут приближенные к нему системы, с которыми можно будет поговорить как с живым человеком, который ответит на твои вопросы и все-таки оформит доставку пиццы. Я вижу отличный потенциал во внедрении IT-технологий в автомобильную индустрию. Илон Маск, конечно, старается, но кроме широченного 17-дюймового дисплея в машине ничего принципиально нового пока не придумал. А вот роботизированные автомобили, беспилотники, могут изменить правила игры. Удовольствия от такой езды, конечно, не будет никакого. Но удобство сильно выиграет.</p>
+<h2 id="в-будущее-с-роботами-помощниками-ты-не-веришь">В будущее с роботами-помощниками ты не веришь?</h2>
+<p>Я не верю в роботов-помощников, потому что я считаю, что они не нужны. Человеку в первую очередь необходимо решить свою задачу, ему нужно не по кнопкам тыкать, а заказать пиццу. Было бы клево, если он подумал о пицце — а она к нему уже едет. Я в восторге от высказывания: «Лучшая вещь — это та, которой нет». Так что скорее появятся продвинутые нейроинтерфейсы, в которых ты будешь думать — а, например, сообщения будут формулироваться и отправляться автоматически. И при этом еще будет фильтроваться поток «хочу посмотреть котиков» из мозга.</p>
+<p>Станет меньше приватности. Ты не сможешь быть гражданином, не отдавая информацию о себе разным другим людям. Это сейчас в магазине можно подписаться господином Цветочкиным и не иметь при этом никаких проблем. В будущем нужно будет иметь отпечаток пальцев на какой-нибудь уникальной идентификационной карточке. А может, и не нужно — по сетчатке глаза распознают. Станет меньше магазинов, и в них не нужно будет расплачиваться, списание денег с карточки будет происходить автоматически, Amazon сейчас делает отличные шаги в этом направлении.</p>
+<h2 id="из-всех-упомянутых-направлений-в-каком-ты-видишь-себя">Из всех упомянутых направлений в каком ты видишь себя?</h2>
+<p>«Кем вы видите себя через 10 лет?» — отличный вопрос на собеседовании. Наверное, седым.</p>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Mon, 11 Sep 2017 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2017-09-11-interview.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
+    <title>Ruby coding guidelines</title>
+    <link>https://maksar.github.io/posts/code/2017-06-12-ruby-guidelines.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Ruby coding guidelines</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Ruby coding guidelines</h1>
+    <article>
+  <span class="header">
+    June 12, 2017 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/tdd.html">tdd</a>
+  </span>
+  <section>
+    <h2 id="quality-levels">Quality levels</h2>
+<p>The following table summarizes certain levels of Ruby code quality levels, we distinguish:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;"></th>
+<th style="text-align: center;">Unacceptable</th>
+<th style="text-align: center;">Acceptable</th>
+<th style="text-align: center;">Good</th>
+<th style="text-align: center;">Great</th>
+<th style="text-align: center;">Excellent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>Style</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Coverage</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Complexity</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Mutation</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<p>For any Pull Request, at least code style should be OK. Decent test coverage is highly recommended, passing complexity and mutation tests are optional.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">RSpec</span><span class="at">.describe</span> <span class="dt">CodeStyle</span> <span class="cf">do</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'code style is RuboCop compliant'</span> <span class="cf">do</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    it <span class="vs">'is OK to create a Pull Request'</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  it <span class="vs">'gives additional bonus points'</span> <span class="cf">if</span> coverage <span class="kw">==</span> <span class="dv">100</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">next</span> <span class="vs">'thing to do'</span> is<span class="at">.to</span> satisfy(<span class="dt">Reek</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  μυτατε(code)<span class="at">.and</span> <span class="fu">raise</span> quality<span class="at">.to</span> <span class="dt">Level</span><span class="at">.new</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<h2 id="style">Style</h2>
+<p>The <a href="https://github.com/rubocop/ruby-style-guide">Ruby Style Guide</a> is a main document to be considered for using on all projects.</p>
+<p>In addition, <a href="https://github.com/bbatsov/rubocop">RuboCop</a> tool is engaged for enforcement of following these rules. The default RuboCop ruleset is used, with several minor exceptions:</p>
+<ul>
+<li><a href="https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Layout/LineLength">LineLength</a> is set to 120 characters, since 80 doesn’t make sense with wide monitors and high DPI values.</li>
+<li><a href="http://wiki.c2.com/?AbcMetric">AbcSize</a> is set to 25. Ruby is pretty expressive language and it’s very possible to have high AbcSize metric on small methods (10 lines maximum is the RuboCop default) without sacrificing readability.</li>
+<li>Documentation rule is disabled. Despite it’s critical for public projects to have it (for some languages documentation is required, otherwise library cannot be published), we prefer another approach: because of other RuboCop rules, the code is split to small methods and classes, has low cyclomatic complexity and self-documented, thus it’s clear and easy to understand. So formal documentation on classes and method is usually not required (but still appreciated).</li>
+</ul>
+<p>Most controversial rules like ‘max. 10 lines per method’ and ‘max. 100 lines per class’ – are not changed. Arguments about large case statements or long hash definitions should be refused. Large case statement can always be converted to the data structure. Having long hash definitions in the code also usually signals about hidden data structure. Thanks to Ruby’s ‘block magic’ ©, it is possible to easily reuse code parts, extracted to the small, properly named, separate method.</p>
+<p>Working on legacy code, which wasn’t developed with full style guide compliance can be hard and tedious. Fortunately, there is a script, aimed to help. Being executed with –branch flag – it checks only lines, written by developer in current branch (committed or not) without touching legacy code. That is handy tool to check the code, before creating a pull request.</p>
+<p>If you have following folder structure:</p>
+<pre class="console"><code>$  tree -L 1 -A -C
+.
+├── admin-area
+├── ...
+├── env_setup.sh
+└── patched_rubocop.rb
+
+9 directories, 2 files</code></pre>
+<p>Before creating pull request you should inspect and fix style violations:</p>
+<pre class="console"><code>$ ./pacthed_rubocop.rb --branch
+Inspecting 4 files
+W.CC
+Offenses:
+....
+4 files inspected, 11 offenses detected</code></pre>
+<h2 id="test-coverage">Test Coverage</h2>
+<p>There are test coverage tools out there for almost every language. But most of them collect statistics only about source code lines, whether particular line of source code was executed or not (and how many times). But in fact, there is more than just line coverage: just look at this <a href="http://www.slideshare.net/hiroppie/test-coverage">slide</a>.</p>
+<ul>
+<li><strong>C1</strong> is intended to track code branches execution. Each source code line can potentially contain more than one code branch. Think about conditions, loops, early returns and nasty things like try operator. To satisfy <strong>C1</strong> coverage, tests should contain at least two cases, one for each of the execution branch. Otherwise, some branches may remain un-visited having, however, <strong>C0</strong> coverage on this particular line satisfied.</li>
+<li><strong>C2</strong> is called condition coverage. If condition expression consists of more than one sub-expressions (for example: <code>if a == 2 || b.nil?</code>), it ensures that each sub-expression gets evaluated to true and false at least once.</li>
+</ul>
+<p><a href="https://github.com/colszowka/simplecov">SimpleCov</a> is used to check test coverage. It generates nice-looking reports, like this:</p>
+<p><img src="../../images/ruby-guidelines/coverage.png" class="center" /></p>
+<p>Test coverage is not about TDD (which is about code design, not tests) or system quality. Having 100% <strong>C0</strong> test coverage does not even guarantee, that code is free of typos.</p>
+<p>But it definitely helps to:</p>
+<ul>
+<li>improve code design (poorly designed code is hard to test)</li>
+<li>ensure, that code works (with sane amount of mocking)</li>
+<li>protect from refactoring errors (we are people, we all make mistakes)</li>
+</ul>
+<p>SimpleCov reports are collected automatically on running RSpec and stored in coverage folder of the project.</p>
+<h2 id="complexity">Complexity</h2>
+<p><a href="https://github.com/troessner/reek">Reek</a> (belongs to the <a href="https://github.com/metricfu/metric_fu">MetricFu</a> toolset) is a tool that examines Ruby classes, modules, methods and reports any <a href="https://github.com/troessner/reek/blob/master/docs/Code-Smells.md">Code Smells</a> it finds.</p>
+<p>In general, the default ruleset is used, with some exceptions:</p>
+<ul>
+<li><a href="https://github.com/troessner/reek/blob/2b9cc78fe51456e184370da698f6230c982efb02/docs/Utility-Function.md">UtilityFunction</a> is enabled for public methods only. Most controversial rule <a href="https://github.com/troessner/reek/blob/2b9cc78fe51456e184370da698f6230c982efb02/docs/Nil-Check.md">NillCheck</a> is still enabled. Be patient and listen what reek is trying to say: <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">Law of Demeter</a> violation or maybe absence of <a href="https://en.wikipedia.org/wiki/Null_Object_pattern">Null Object</a>?</li>
+</ul>
+<h2 id="mutation-coverage">Mutation Coverage</h2>
+<p><a href="https://en.wikipedia.org/wiki/Mutation_testing">Mutation testing</a> technique is based on quite a simple idea. Say, you have a bunch of code and a number of tests to verify its correctness. Doesn’t matter how those tests were born: using techniques like <a href="https://en.wikipedia.org/wiki/Test-driven_development">TDD</a> or written afterwards. Mutation testing allows to verify that your test suite is full. By ‘full’ it means – there is no code (code execution path, to be precisely correct) that is not covered with at least one test case.</p>
+<p>There are plenty or <a href="https://github.com/mbj/mutant#blog-posts">articles</a> and <a href="https://github.com/mbj/mutant#presentations">presentations</a> explaining what is mutation testing and <a href="https://github.com/mbj/mutant">mutant</a> itself. If you are not familiar – it’s definitely worth to check.</p>
+<p>Running mutant is pretty easy:</p>
+<pre class="console"><code>$ RAILS_ENV=test bundle exec mutant -I . -I spec --use rspec -j 1 --fail-fast &quot;PaylocityParams#person&quot;</code></pre>
+<p>Last arguments is – name of the class and method you want to mutate and check whether the tests are still green or not.</p>
+<h2 id="protection">Protection</h2>
+<p>In order to protect from accidental mistakes and enforce high code style consistency and adhere to the coding standards, VCS commit hooks are used (both in form of CI checks and on local development machines).</p>
+<p>On development machines it is recommended to aggregate all checks in a commit hook tool like <a href="https://github.com/sds/overcommit">Overcommit</a>, which allows to configure and validate numerous checks before push or commit. Here is an example of configuration file:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PrePush</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Brakeman</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PreCommit</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ALL</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">problem_on_unmodified_line</span><span class="kw">:</span><span class="at"> warn</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">requires_files</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">required</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">quiet</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parallelize</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ErbLint</span><span class="kw">:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;erblint&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;.&quot;</span><span class="kw">]</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RubySyntax</span><span class="kw">:</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">[</span><span class="st">&quot;ruby&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;-e&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;ARGV.each { |applicable_file| ruby_c_output = `ruby -W:no-experimental -c #{applicable_file}`; puts ruby_c_output unless $?.success? }&quot;</span><span class="kw">]</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RuboCop</span><span class="kw">:</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;rubocop&quot;</span><span class="kw">]</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RSpec</span><span class="kw">:</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;rspec&quot;</span><span class="kw">]</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">DatabaseConsistency</span><span class="kw">:</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">quiet</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;database_consistency&quot;</span><span class="kw">]</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">BundleCheck</span><span class="kw">:</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">BundleAudit</span><span class="kw">:</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">TrailingWhitespace</span><span class="kw">:</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">YamlSyntax</span><span class="kw">:</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">AuthorEmail</span><span class="kw">:</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'[a-z][a-z0-9.\-][a-z]+@example\.com'</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">AuthorName</span><span class="kw">:</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="fu">CommitMsg</span><span class="kw">:</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RussianNovel</span><span class="kw">:</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">TextWidth</span><span class="kw">:</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max_subject_width</span><span class="kw">:</span><span class="at"> </span><span class="dv">80</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max_body_width</span><span class="kw">:</span><span class="at"> </span><span class="dv">80</span></span></code></pre></div>
+  </section>
+</article>
+
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+
+</html>]]></description>
+    <pubDate>Mon, 12 Jun 2017 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2017-06-12-ruby-guidelines.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
     <title>Руби в Ruby, или Немного о «магии» программирования</title>
     <link>https://maksar.github.io/posts/code/2017-04-26-ruby.html</link>
     <description><![CDATA[<!doctype html>
