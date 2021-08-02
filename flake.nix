@@ -13,14 +13,6 @@
     flake-utils.lib.eachDefaultSystem (system:
       with nixpkgs.legacyPackages.${system};
       let
-        callGithubDirect = { owner, repo, rev, sha256 }:
-          pkgs.haskellPackages.callCabal2nix repo (pkgs.fetchFromGitHub {
-            owner = owner;
-            repo = repo;
-            rev = rev;
-            inherit sha256;
-          });
-
         haskellPackages = pkgs.haskellPackages.override {
           overrides = self: super: rec {
             JuicyPixels-extra = self.callHackageDirect
@@ -46,14 +38,13 @@
 
               }
               { }));
-            hakyll-images = callGithubDirect
+            hakyll-images = self.callHackageDirect
               {
-                owner = "maksar";
-                repo = "hakyll-images";
-                rev = "git-pull";
-                sha256 = "sha256-aIuDhDDtvwojlo544rBIR60Xm6kz1qihrUOPBnHD47g=";
+                pkg = "hakyll-images";
+                ver = "1.1.0";
+                sha256 = "sha256-K35fkehx37olJKNQxyhQyLTvdfMUSrar0LFaYFOfQAE=";
               }
-              { JuicyPixels-extra = JuicyPixels-extra; };
+              { };
           };
         };
 

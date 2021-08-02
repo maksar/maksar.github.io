@@ -1,0 +1,15 @@
+---
+title: Comma
+language: english
+---
+
+## Lost in translation...
+
+```java
+@UtilityClass
+public class CharConstants {
+
+    public final char COMMA = ',';
+
+}
+```
