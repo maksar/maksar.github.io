@@ -84,6 +84,36 @@ parser :: FromJSON a => (Text, Value) -> Parser (Text, Maybe [a])
 parser (x, field) = (x,) <$> (parseJSON field <|> fmap (replicate 1) <$> parseJSON field) <|> pure (x, Nothing)
 ```
 
+UPD. Friend on mine suggested a nice idea of using `KnownSymbol` constraints for the `Aeson` instances.
+
+```haskell
+instance KnownSymbol key => FromJSON (ProjectCard key) where
+  parseJSON = withObject "card" $ \card -> do
+    let name = symbolVal (Proxy @key)
+    key <- card .: "key"
+    fields <- card .: "fields"
+    projectName <- fields .: "summary"
+    peopleMaybe <- fields .:? fromString name <|> fmap (replicate 1) <$> fields .:? fromString name
+    pure $ ProjectCard key projectName $ fromMaybe [] peopleMaybe
+```
+
+Turns out, you can build a `Symbol` by a runtime value.
+
+```haskell
+fieldId <- Jira.obtainFieldId jiraConfig jiraField
+SomeSymbol (Proxy :: Proxy key) <- pure $ someSymbolVal $ toString fieldId
+projectCards <- Jira.projectCards (Jira.Field @key jiraField fieldId) jiraConfig
+```
+
+Unfortunately, JIRA API has to split because additional type parameter prevents `servant`'s `client` function to have same type in both handlers.
+
+```haskell
+type JiraInternalAPI = "rest" :> "api" :> "latest" :> "field" :> Verb 'GET 200 '[JSON] [JiraField]
+
+type JiraAPI (key :: Symbol) =
+  "rest" :> "api" :> "latest" :> "search" :> RequiredParam "jql" Text :> RequiredParam "fields" Text :> RequiredParam "maxResults" Int :> Verb 'GET 200 '[JSON] (SearchResult key)
+```
+
 That (and NIX [flakes](@gh(maksar):coorish/blob/master/flake.nix#L23-L46) of course) allowed me to create several binaries for each JIRA field to test against (instead of configuring it with terminal flags or environment variables). Being tired of typing `T.pack` and `T.unpack`, I decided to give a [relude](@gh(kowainik)) a try – a custom prelude, which is quite nice to use (but I haven't yet tried [rio](@hackage) or [universum](@gh(serokell))).
 
 ```nix
