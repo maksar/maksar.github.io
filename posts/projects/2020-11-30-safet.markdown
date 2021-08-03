@@ -5,6 +5,8 @@ language: english
 
 This is a short description of the project I've been working in a previous company. I'll try to mention all technologically interesting aspects of it without revealing any intellectual property, which belongs to the customer.
 
+<!--more-->
+
 ## Auto-start
 
 Deployment script, among other things, exports a `Profile` of the application as a set of systemd services, so that operating system becomes responsible on (re-)starting everything.

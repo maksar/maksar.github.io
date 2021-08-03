@@ -2734,6 +2734,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   </span>
   <section>
     <p>This is a short description of the project I’ve been working in a previous company. I’ll try to mention all technologically interesting aspects of it without revealing any intellectual property, which belongs to the customer.</p>
+<!--more-->
 <h2 id="auto-start">Auto-start</h2>
 <p>Deployment script, among other things, exports a <code>Profile</code> of the application as a set of systemd services, so that operating system becomes responsible on (re-)starting everything.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>namespace <span class="wa">:foreman</span> <span class="cf">do</span></span>
