@@ -1,5 +1,6 @@
 ---
 title: Medicine tele-consulting system
+tags: ruby
 language: english
 ---
 
