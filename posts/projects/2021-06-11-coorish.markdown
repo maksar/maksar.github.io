@@ -84,7 +84,9 @@ parser :: FromJSON a => (Text, Value) -> Parser (Text, Maybe [a])
 parser (x, field) = (x,) <$> (parseJSON field <|> fmap (replicate 1) <$> parseJSON field) <|> pure (x, Nothing)
 ```
 
-UPD. Friend on mine suggested a nice idea of using `KnownSymbol` constraints for the `Aeson` instances.
+### UPD. `KnownSymbol` to the rescue.
+
+[Friend](@tg:kana_sama) of mine suggested a nice idea of using `KnownSymbol` constraints for the `Aeson` instances.
 
 ```haskell
 instance KnownSymbol key => FromJSON (ProjectCard key) where
@@ -113,6 +115,30 @@ type JiraInternalAPI = "rest" :> "api" :> "latest" :> "field" :> Verb 'GET 200 '
 type JiraAPI (key :: Symbol) =
   "rest" :> "api" :> "latest" :> "search" :> RequiredParam "jql" Text :> RequiredParam "fields" Text :> RequiredParam "maxResults" Int :> Verb 'GET 200 '[JSON] (SearchResult key)
 ```
+
+### UPD 2. The more you know...
+
+[reflection](@hackage) package provides a handy `Given` constraint, which allows to (with help of `FlexibleContexts` and `UndecidableInstances`) not worry about additional type parameters in your data types:
+
+```haskell
+instance Given String => FromJSON ProjectCard where
+  parseJSON = withObject "card" $ \card -> do
+    key <- card .: "key"
+    fields <- card .: "fields"
+    projectName <- fields .: "summary"
+    peopleMaybe <- fields .:? fromString given <|> fmap (replicate 1) <$> fields .:? fromString given
+    pure $ ProjectCard key projectName $ fromMaybe [] peopleMaybe
+```
+
+Upon usage, you just provide what was claimed as `Given`, which makes GHC happy.
+
+```haskell
+projectCards :: Text -> JiraConfig -> IO [ProjectCard]
+projectCards fieldName config@JiraConfig {..} = do
+  fieldId <- obtainFieldId config fieldName
+  runClient config $ cards <$> give (toString fieldId) searchForIssuesUsingJql (replace "{fieldName}" fieldName jql) (fieldId <> ",summary") 1000
+```
+
 
 That (and NIX [flakes](@gh(maksar):coorish/blob/master/flake.nix#L23-L46) of course) allowed me to create several binaries for each JIRA field to test against (instead of configuring it with terminal flags or environment variables). Being tired of typing `T.pack` and `T.unpack`, I decided to give a [relude](@gh(kowainik)) a try – a custom prelude, which is quite nice to use (but I haven't yet tried [rio](@hackage) or [universum](@gh(serokell))).
 
