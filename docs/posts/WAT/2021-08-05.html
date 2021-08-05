@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog - Hello from Feb 31-th</title>
+  <link rel="stylesheet" href="../../css/default.css" />
+
+  <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../languages/english.html">english</a> &amp;<a href="../../languages/russian.html">russian</a>
+      @<a href="../../categories/WAT.html">WAT</a> @<a href="../../categories/code.html">code</a> @<a href="../../categories/projects.html">projects</a>
+      <a href="../../about.html">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Hello from Feb 31-th</h1>
+    <article>
+  <span class="header">
+    August  5, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+  </span>
+  <section>
+    <h2 id="parse-dont-validate">Parse, don’t validate</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c#"><code class="sourceCode cs"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> DateHelper</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">static</span> <span class="dt">string</span> <span class="fu">GetCurrentDatePattern</span><span class="op">()</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">switch</span> <span class="op">(</span>CultureInfo<span class="op">.</span><span class="fu">CurrentCulture</span><span class="op">.</span><span class="fu">TwoLetterISOLanguageName</span><span class="op">)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">case</span> <span class="st">&quot;ru&quot;</span><span class="op">:</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>                <span class="kw">return</span> @<span class="st">&quot;^</span><span class="sc">\\</span><span class="st">s*(3[01]|[12][0-9]|0?[1-9])</span><span class="sc">\\</span><span class="st">.(1[012]|0?[1-9])</span><span class="sc">\\</span><span class="st">.((?:19|20)</span><span class="sc">\\</span><span class="st">d{2})</span><span class="sc">\\</span><span class="st">s*$&quot;</span><span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="kw">case</span> <span class="st">&quot;en&quot;</span><span class="op">:</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            <span class="kw">default</span><span class="op">:</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                <span class="kw">return</span> @<span class="st">&quot;^</span><span class="sc">\\</span><span class="st">s*(1[012]|0?[1-9])</span><span class="sc">\\</span><span class="st">/(3[01]|[12][0-9]|0?[1-9])</span><span class="sc">\\</span><span class="st">/((?:19|20)</span><span class="sc">\\</span><span class="st">d{2})</span><span class="sc">\\</span><span class="st">s*$&quot;</span><span class="op">;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

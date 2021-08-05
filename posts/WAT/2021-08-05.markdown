@@ -1,0 +1,23 @@
+---
+title: Hello from Feb 31-th
+language: english
+---
+
+## Parse, don't validate
+
+```c#
+public class DateHelper
+{
+    public static string GetCurrentDatePattern()
+    {
+        switch (CultureInfo.CurrentCulture.TwoLetterISOLanguageName)
+        {
+            case "ru":
+                return @"^\\s*(3[01]|[12][0-9]|0?[1-9])\\.(1[012]|0?[1-9])\\.((?:19|20)\\d{2})\\s*$";
+            case "en":
+            default:
+                return @"^\\s*(1[012]|0?[1-9])\\/(3[01]|[12][0-9]|0?[1-9])\\/((?:19|20)\\d{2})\\s*$";
+        }
+    }
+}
+```
