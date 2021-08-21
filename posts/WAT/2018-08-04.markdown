@@ -1,6 +1,5 @@
 ---
 title: Few examples of reading cookie values
-language: english
 ---
 
 There are several examples of "how to read cookies". Which one do you like the most?

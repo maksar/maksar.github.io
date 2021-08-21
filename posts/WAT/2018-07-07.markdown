@@ -1,6 +1,5 @@
 ---
 title: Development processes
-language: english
 ---
 
 ## Proposal from the project technical lead to improve development processes.

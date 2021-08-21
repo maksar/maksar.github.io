@@ -1,6 +1,5 @@
 ---
 title: Week formatting
-language: english
 ---
 
 ## Is it Friday yet?

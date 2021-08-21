@@ -1,6 +1,5 @@
 ---
 title: There is no going back
-language: english
 ---
 
 ## Or is it?..

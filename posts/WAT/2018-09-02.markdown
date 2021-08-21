@@ -1,6 +1,5 @@
 ---
 title: Email validations
-language: english
 ---
 
 <img src="/previews/wat/email.jpg" class="center" />

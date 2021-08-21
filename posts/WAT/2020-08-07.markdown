@@ -1,6 +1,5 @@
 ---
 title: Ouiii
-language: english
 ---
 
 ## French is not hard...

@@ -1,6 +1,5 @@
 ---
 title: Union types
-language: english
 ---
 
 ## Hardcore...

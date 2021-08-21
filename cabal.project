@@ -1,0 +1,4 @@
+packages: ./.
+optimization: False
+package *
+  ghc-options: -j +RTS -A128m -n2m -RTS

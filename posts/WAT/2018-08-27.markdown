@@ -1,6 +1,5 @@
 ---
 title: Calendar events
-language: english
 ---
 
 What day is it today? The old year is over, the new is the beginning. And I also heard from my grandfather that his grandfather told him that on this day everything in the world happens - just know how to lie in wait and spy.

@@ -1,6 +1,10 @@
+
 <article>
   <span class="header">
-    $date$ $language$ $category$ $tags$
+    $if(series)$
+    <a href="$seriesUrl$">$seriesCurPos$ / $seriesLength$ on $series$</a>
+    $endif$
+      $date$ $language$ $category$ $tags$
   </span>
   <section>
     $body$

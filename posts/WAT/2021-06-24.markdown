@@ -1,6 +1,5 @@
 ---
 title: URL validation
-language: english
 ---
 
 <a href="/images/wat/url.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/url.jpg"/></a>

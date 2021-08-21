@@ -1,6 +1,5 @@
 ---
 title: Chanel number 5
-language: english
 ---
 
 ## Where is 5?

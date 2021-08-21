@@ -1,6 +1,5 @@
 ---
 title: Minimax problem
-language: english
 ---
 
 ## Naming is important

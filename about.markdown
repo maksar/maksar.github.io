@@ -1,5 +1,5 @@
 ---
-title: About
+title: About me
 ---
 
 <img src="/images/logo.jpg" class="center" />

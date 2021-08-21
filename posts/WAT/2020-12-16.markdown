@@ -1,6 +1,5 @@
 ---
 title: When comments are self-explanatory
-language: english
 ---
 
 ```php

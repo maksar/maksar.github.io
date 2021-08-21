@@ -1,6 +1,5 @@
 ---
 title: Incognito mode
-language: english
 ---
 
 ```javascript

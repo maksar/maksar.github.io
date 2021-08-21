@@ -1,6 +1,5 @@
 ---
 title: Not all errors are equal
-language: english
 ---
 
 ## Some are more equal then others

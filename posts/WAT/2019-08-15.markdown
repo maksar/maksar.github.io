@@ -1,6 +1,5 @@
 ---
 title: Javascript eval WAT
-language: english
 ---
 
 # I can explain...

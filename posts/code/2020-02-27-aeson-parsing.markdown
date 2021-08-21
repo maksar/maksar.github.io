@@ -1,6 +1,7 @@
 ---
 title: Parsing different JSON payloads into a single data structure
 tags: haskell, aeson
+series: ldap-bot
 language: russian
 ---
 

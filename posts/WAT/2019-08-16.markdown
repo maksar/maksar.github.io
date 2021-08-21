@@ -1,6 +1,5 @@
 ---
 title: Infiltration
-language: english
 ---
 
 ## Pure counterexample

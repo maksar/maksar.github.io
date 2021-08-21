@@ -89,6 +89,7 @@
             haskellPackages.apply-refact
 
             zlib
+            imagemagick
 
             haskell-language-server
             haskellPackages.cabal-fmt

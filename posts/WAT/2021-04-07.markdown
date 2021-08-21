@@ -1,6 +1,5 @@
 ---
 title: Explicit vs implicit
-language: english
 ---
 
 <a href="/images/wat/explicit.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/explicit.jpg"/></a>

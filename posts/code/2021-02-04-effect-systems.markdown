@@ -1,6 +1,7 @@
 ---
 title: FP effects systems vs OOP interfaces
 tags: haskell, polysemy
+series: ldap-bot
 language: russian
 ---
 

@@ -1,6 +1,5 @@
 ---
 title: My favorite type of comments
-language: english
 ---
 
 A selection of dearly beloved todos and fixes

@@ -9,13 +9,26 @@ executable blog
       base
     , blaze-html
     , containers
+    , extra
     , hakyll
+    , hakyll-favicon
     , hakyll-images
     , hakyll-sass
     , hakyll-shortcut-links
 
-  ghc-options:        -threaded
+  other-modules:
+    Categories
+    Config
+    Feed
+    Html
+    Languages
+    Series
+    Static
+    Tags
+
+  hs-source-dirs:     src
   default-extensions:
+    LambdaCase
     OverloadedStrings
     StandaloneDeriving
 

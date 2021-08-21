@@ -1,6 +1,5 @@
 ---
 title: Security best practices
-language: english
 ---
 
 ## I want to know everything

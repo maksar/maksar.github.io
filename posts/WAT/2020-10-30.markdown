@@ -1,6 +1,5 @@
 ---
 title: When there is a hammer in hands
-language: english
 ---
 
 ## Everything looks like a nail

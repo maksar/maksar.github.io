@@ -1,6 +1,5 @@
 ---
 title: Date parsing
-language: english
 ---
 
 ## From MongoDB with love

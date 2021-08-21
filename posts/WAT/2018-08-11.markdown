@@ -1,6 +1,5 @@
 ---
 title: Simple solutions
-language: english
 ---
 
 Do you like "simple" solution just like I do?

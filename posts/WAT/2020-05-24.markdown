@@ -1,6 +1,5 @@
 ---
 title: Equality for everyone
-language: english
 ---
 
 ## Measure seven times before cutting

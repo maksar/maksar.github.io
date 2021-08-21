@@ -1,6 +1,5 @@
 ---
 title: The shortest anecdote about Spring
-language: english
 ---
 
 ## Not even funny

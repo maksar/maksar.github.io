@@ -18,7 +18,7 @@
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Migrating to the nix flakes for macbook setup</title>
+  <title>Shestakov Alex Blog Migrating to the nix flakes for macbook setup</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -44,9 +45,11 @@
 
   <main role="main">
     <h1>Migrating to the nix flakes for macbook setup</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  5, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/nix.html">nix</a>
+    
+      August  5, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/nix.html">nix</a>
   </span>
   <section>
     <p>For the long time, I’ve been using <a href="https://github.com/LnL7/nix-darwin">nix-darwin</a> and <a href="https://github.com/nix-community/home-manager">home-manager</a> to configure and and keep my laptop configuration up-to-date. Today I had a little bit of spare time and decided to finally migrate towards using nix flakes.</p>
@@ -236,7 +239,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Hello from Feb 31-th</title>
+  <title>Shestakov Alex Blog Hello from Feb 31-th</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -246,6 +249,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -262,9 +266,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Hello from Feb 31-th</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  5, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August  5, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="parse-dont-validate">Parse, don’t validate</h2>
@@ -327,7 +333,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Comma</title>
+  <title>Shestakov Alex Blog Comma</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -337,6 +343,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -353,9 +360,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Comma</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  2, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August  2, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="lost-in-translation">Lost in translation…</h2>
@@ -410,7 +419,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Parsing environment variables in kotlin with konfig</title>
+  <title>Shestakov Alex Blog Parsing environment variables in kotlin with konfig</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -420,6 +429,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -436,9 +446,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Parsing environment variables in kotlin with konfig</h1>
-    <article>
+    
+<article>
   <span class="header">
-    July 27, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/konfig.html">konfig</a>
+    
+      July 27, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/konfig.html">konfig</a>
   </span>
   <section>
     <p>There is a wonderful kotlin library for reading configuration from various sources (environment variables, files, etc.) – <a href="https://github.com/npryce/konfig">konfig</a>. It allows to define your application configuration in a declarative way and even perform some data transformations along the way.</p>
@@ -521,7 +533,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Optional or null</title>
+  <title>Shestakov Alex Blog Optional or null</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -531,6 +543,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -547,9 +560,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Optional or null</h1>
-    <article>
+    
+<article>
   <span class="header">
-    July 27, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      July 27, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="why-bother">Why bother…</h2>
@@ -599,7 +614,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Union types</title>
+  <title>Shestakov Alex Blog Union types</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -609,6 +624,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -625,9 +641,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Union types</h1>
-    <article>
+    
+<article>
   <span class="header">
-    June 29, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      June 29, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="hardcore">Hardcore…</h2>
@@ -677,7 +695,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - URL validation</title>
+  <title>Shestakov Alex Blog URL validation</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -687,6 +705,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -703,9 +722,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>URL validation</h1>
-    <article>
+    
+<article>
   <span class="header">
-    June 24, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      June 24, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/url.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/url.jpg" /></a></p>
@@ -754,7 +775,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Week formatting</title>
+  <title>Shestakov Alex Blog Week formatting</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -764,6 +785,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -780,9 +802,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Week formatting</h1>
-    <article>
+    
+<article>
   <span class="header">
-    June 21, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      June 21, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="is-it-friday-yet">Is it Friday yet?</h2>
@@ -890,7 +914,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - People membership validation in JIRA fields against Active Directory</title>
+  <title>Shestakov Alex Blog People membership validation in JIRA fields against Active Directory</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -900,6 +924,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -916,9 +941,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>People membership validation in JIRA fields against Active Directory</h1>
-    <article>
+    
+<article>
   <span class="header">
-    June 11, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/aeson.html">aeson</a> #<a href="../../tags/servant.html">servant</a>
+    
+      June 11, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/aeson.html">aeson</a> #<a href="../../tags/servant.html">servant</a>
   </span>
   <section>
     <p>Current version of JIRA inside Itransition does not allow to validate “whether a person belongs to a certain group” for multi-people fields, only for single-user fields. <a href="https://github.com/maksar/Coorish">Coorish</a> – is a small utility to determine ineligible people being specified in JIRA tickets.</p>
@@ -1183,7 +1210,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Date formatting</title>
+  <title>Shestakov Alex Blog Date formatting</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1193,6 +1220,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1209,9 +1237,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Date formatting</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 25, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      May 25, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="masterpiece">Masterpiece</h2>
@@ -1263,7 +1293,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Enums</title>
+  <title>Shestakov Alex Blog Enums</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1273,6 +1303,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1289,9 +1320,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Enums</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 24, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      May 24, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="hi-there">HI there</h2>
@@ -1344,7 +1377,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Chanel number 5</title>
+  <title>Shestakov Alex Blog Chanel number 5</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1354,6 +1387,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1370,9 +1404,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Chanel number 5</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May  5, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      May  5, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="where-is-5">Where is 5?</h2>
@@ -1427,7 +1463,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - TODOs</title>
+  <title>Shestakov Alex Blog TODOs</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1437,6 +1473,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1453,9 +1490,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>TODOs</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April 22, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      April 22, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="famous-last-words">Famous last words</h2>
@@ -1508,7 +1547,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Explicit vs implicit</title>
+  <title>Shestakov Alex Blog Explicit vs implicit</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1518,6 +1557,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1534,9 +1574,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Explicit vs implicit</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April  7, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      April  7, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/explicit.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/explicit.jpg" /></a></p>
@@ -1585,7 +1627,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Refactoring</title>
+  <title>Shestakov Alex Blog Refactoring</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1595,6 +1637,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1611,9 +1654,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Refactoring</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April  6, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      April  6, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/refactoring.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/refactoring.jpg" /></a></p>
@@ -1662,7 +1707,7 @@ Activating onFilesChange
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Telegram bot for managing Bitbucket repositories</title>
+  <title>Shestakov Alex Blog Telegram bot for managing Bitbucket repositories</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -1672,6 +1717,7 @@ Activating onFilesChange
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -1688,9 +1734,11 @@ Activating onFilesChange
 
   <main role="main">
     <h1>Telegram bot for managing Bitbucket repositories</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 17, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/fibers.html">fibers</a> #<a href="../../tags/rspec.html">rspec</a>
+    
+      March 17, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/fibers.html">fibers</a> #<a href="../../tags/rspec.html">rspec</a>
   </span>
   <section>
     <p>Gitman is a Telegram chat bot. It helps to manage source code repositories in Itransition Bitbucket server. Instead of creating repositories manually, our HelpDesk operators are using this bot. It sets up all merge hooks, commit message checks, default reviewers policy, other things which is tedious to do by hands.</p>
@@ -2000,7 +2048,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Incognito mode</title>
+  <title>Shestakov Alex Blog Incognito mode</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2010,6 +2058,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2026,9 +2075,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Incognito mode</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 16, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      March 16, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> emailRegex <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+(?</span><span class="ss">:</span><span class="sc">\.[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+)*|</span><span class="ss">&quot;</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*</span><span class="ss">&quot;</span><span class="sc">)</span><span class="ss">@</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[a-z0-9](?</span><span class="ss">:</span><span class="sc">[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?</span><span class="ss">:</span><span class="sc">[a-z0-9-]*[a-z0-9])?|\[(?</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">(</span><span class="ss">2</span><span class="sc">(</span><span class="ss">5</span><span class="sc">[0-5]|[0-4][0-9])|</span><span class="ss">1</span><span class="sc">[0-9][0-9]|[1-9]?[0-9]))\.){3}(?</span><span class="ss">:</span><span class="sc">(</span><span class="ss">2</span><span class="sc">(</span><span class="ss">5</span><span class="sc">[0-5]|[0-4][0-9])|</span><span class="ss">1</span><span class="sc">[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])</span><span class="ss">/g</span></span>
@@ -2079,7 +2130,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - JIRA bot to automatically update field values</title>
+  <title>Shestakov Alex Blog JIRA bot to automatically update field values</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2089,6 +2140,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2105,9 +2157,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>JIRA bot to automatically update field values</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 13, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/konfig.html">konfig</a>
+    
+      March 13, 2021 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/konfig.html">konfig</a>
   </span>
   <section>
     <p><a href="https://github.com/maksar/Personer">Personer</a> is a small bot written in Kotlin, which is started by <code>systemd</code> timer (thanks <code>nixos</code>) and performs a read-update cycle over our project cards (custom JIRA issues). It features modern Kotlin’s Flow framework.</p>
@@ -2203,7 +2257,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Power Automate for low-code services</title>
+  <title>Shestakov Alex Blog Power Automate for low-code services</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2213,6 +2267,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2229,9 +2284,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Power Automate for low-code services</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March  9, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a>
+    
+      March  9, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a>
   </span>
   <section>
     <p>Хочу рассказать о Low Code Platform, которой пришлось воспользоваться буквально на днях – Power Automate от Microsoft. Мне, как разработчику ПО, никогда не нравились подобные системы для “программирования мышкой”. Казалось, что с их помощью сложно добиться хоть сколько-нибудь приемлемого результата.</p>
@@ -2321,7 +2378,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - FP effects systems vs OOP interfaces</title>
+  <title>Shestakov Alex Blog FP effects systems vs OOP interfaces</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2331,6 +2388,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2347,9 +2405,13 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>FP effects systems vs OOP interfaces</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February  4, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a>
+    
+    <a href="../../series/ldap-bot.html">5 / 5 on ldap-bot</a>
+    
+      February  4, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a>
   </span>
   <section>
     <p>С большим опозданием, продолжаю цикл статей про <a href="../../posts/projects/2020-02-07-ldap-bot.html">Workplace бота</a>. Ссылки на предыдущие части: <a href="../../posts/code/2020-02-27-aeson-parsing.html">1</a>, <a href="../../posts/code/2020-03-09-servant.html">2</a>, <a href="../../posts/code/2020-03-23-env-parsing.html">3</a> и <a href="../../posts/code/2020-05-11-size-matters.html">4</a>. Сегодня, впрочем как обычно, речь пойдет про очедную функциональную дичь ;).</p>
@@ -2500,7 +2562,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - No comments</title>
+  <title>Shestakov Alex Blog No comments</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2510,6 +2572,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2526,9 +2589,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>No comments</h1>
-    <article>
+    
+<article>
   <span class="header">
-    January 28, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      January 28, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="fu">sprintf</span>(<span class="st">'</span></span>
@@ -2590,7 +2655,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Discussion facilitation</title>
+  <title>Shestakov Alex Blog Discussion facilitation</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2600,6 +2665,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2616,9 +2682,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Discussion facilitation</h1>
-    <article>
+    
+<article>
   <span class="header">
-    January 26, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      January 26, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/pull-request.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/pull-request.jpg" /></a></p>
@@ -2667,7 +2735,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Developers' complaints</title>
+  <title>Shestakov Alex Blog Developers' complaints</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2677,6 +2745,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2693,9 +2762,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Developers' complaints</h1>
-    <article>
+    
+<article>
   <span class="header">
-    January 20, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
+    
+      January 20, 2021 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
   </span>
   <section>
     <p>Совсем недавно мы работали над списком улучшений для одного из проектов, которые собирались “предлагать” заказчику. В качестве предпосылки, имелся список замечаний от команды разработчиков. Есть мнение, что чистого “недовольства” проектом не бывает – это скорее кумулятивное понятие, которое либо озвучивают “только вслух” либо оформляют в виде “улучшений”. Попробуем разобраться в истинных причинах недовольства, рассмотрев список улучшений “от разработчиков”. Постараемся взглянуть на “недовольства” с двух сторон – со стороны разработчиков и со стороны менеджмента и/или заказчика. Ведь часто случается так, что одно и тоже выглядит совершенно по-разному.</p>
@@ -2787,7 +2858,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - When comments are self-explanatory</title>
+  <title>Shestakov Alex Blog When comments are self-explanatory</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2797,6 +2868,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2813,9 +2885,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>When comments are self-explanatory</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December 16, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      December 16, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// This function makes a new password from a plaintext password.</span></span>
@@ -2874,7 +2948,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Nixops deployment of all the bots and services</title>
+  <title>Shestakov Alex Blog Nixops deployment of all the bots and services</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -2884,6 +2958,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -2900,9 +2975,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Nixops deployment of all the bots and services</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December  4, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/nix.html">nix</a> #<a href="../../tags/nixops.html">nixops</a>
+    
+      December  4, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/nix.html">nix</a> #<a href="../../tags/nixops.html">nixops</a>
   </span>
   <section>
     <p><a href="https://github.com/maksar/Nitrax">Nitrax</a> (NIX + ITRAnsition, I suck at naming) is my <a href="https://github.com/maksar/nitrax/blob/master/fleet.nix">nixops configuration</a> to deploy bots and services.</p>
@@ -3011,7 +3088,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Medicine tele-consulting system</title>
+  <title>Shestakov Alex Blog Medicine tele-consulting system</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3021,6 +3098,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3037,9 +3115,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Medicine tele-consulting system</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November 30, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/ruby.html">ruby</a>
+    
+      November 30, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/ruby.html">ruby</a>
   </span>
   <section>
     <p>This is a short description of the project I’ve been working in a previous company. I’ll try to mention all technologically interesting aspects of it without revealing any intellectual property, which belongs to the customer.</p>
@@ -3217,7 +3297,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - JIRA bot to trim whitespaces from field values</title>
+  <title>Shestakov Alex Blog JIRA bot to trim whitespaces from field values</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3227,6 +3307,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3243,9 +3324,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>JIRA bot to trim whitespaces from field values</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November  6, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a>
+    
+      November  6, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/kotlin.html">kotlin</a>
   </span>
   <section>
     <p><a href="https://github.com/maksar/Trimmer">Trimmer</a> is a small bot, which iterates over JIRA issues and trims whitespaces fields values. Without that, human mistakes on copy-paste operations can make automated JIRA statistics collections harder.</p>
@@ -3345,7 +3428,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Passwords complexity</title>
+  <title>Shestakov Alex Blog Passwords complexity</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3355,6 +3438,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3371,9 +3455,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Passwords complexity</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November  3, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      November  3, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>I am a bit tired from such regular expressions to check password complexity.</p>
@@ -3430,7 +3516,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - When there is a hammer in hands</title>
+  <title>Shestakov Alex Blog When there is a hammer in hands</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3440,6 +3526,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3456,9 +3543,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>When there is a hammer in hands</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 30, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      October 30, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="everything-looks-like-a-nail">Everything looks like a nail</h2>
@@ -3515,7 +3604,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - To trim or not to trim</title>
+  <title>Shestakov Alex Blog To trim or not to trim</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3525,6 +3614,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3541,9 +3631,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>To trim or not to trim</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 29, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      October 29, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="that-is-the-question">That is the question!</h2>
@@ -3594,7 +3686,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Wheel wants to be re-invented</title>
+  <title>Shestakov Alex Blog Wheel wants to be re-invented</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3604,6 +3696,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3620,9 +3713,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Wheel wants to be re-invented</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 27, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      October 27, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="over-and-over-again">Over and over again…</h2>
@@ -3685,7 +3780,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Financial software</title>
+  <title>Shestakov Alex Blog Financial software</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3695,6 +3790,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3711,9 +3807,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Financial software</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 13, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 13, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="is-that-expected-for-a-financial-system">Is that expected for a financial system?</h2>
@@ -3767,7 +3865,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Hidden data structure</title>
+  <title>Shestakov Alex Blog Hidden data structure</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3777,6 +3875,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3793,9 +3892,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Hidden data structure</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 12, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 12, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="lurking-in-the-code">Lurking in the code</h2>
@@ -3861,7 +3962,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Ouiii</title>
+  <title>Shestakov Alex Blog Ouiii</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3871,6 +3972,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3887,9 +3989,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Ouiii</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  7, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August  7, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="french-is-not-hard">French is not hard…</h2>
@@ -3940,7 +4044,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Equality for everyone</title>
+  <title>Shestakov Alex Blog Equality for everyone</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -3950,6 +4054,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -3966,9 +4071,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Equality for everyone</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 24, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      May 24, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="measure-seven-times-before-cutting">Measure seven times before cutting</h2>
@@ -4030,7 +4137,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - There is no going back</title>
+  <title>Shestakov Alex Blog There is no going back</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4040,6 +4147,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4056,9 +4164,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>There is no going back</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 20, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      May 20, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="or-is-it..">Or is it?..</h2>
@@ -4110,7 +4220,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - About passwords</title>
+  <title>Shestakov Alex Blog About passwords</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4120,6 +4230,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4136,9 +4247,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>About passwords</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 15, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
+    
+      May 15, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
   </span>
   <section>
     <p>Хранение паролей/токенов любого характера и толка в репозитории – плохая и опасная практика. Несмотря даже на то, что это информация может относиться к изолированному staging или даже локальному окружению. Даже если они “потом будут встроены в итоговый html”. Даже если пароль “явно выглядит как заглушка”. Наличие паролей “от staging-а” может легко привести к компрометации настроек “от prod-а”.</p>
@@ -4202,7 +4315,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - About pull requests</title>
+  <title>Shestakov Alex Blog About pull requests</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4212,6 +4325,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4228,9 +4342,11 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>About pull requests</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 14, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
+    
+      May 14, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
   </span>
   <section>
     <p>Методика разработки через feature branches или pull requests позволяет организовать максимально независимую работу разработчиков – без необходимости частой синхронизации между ними. Большим плюсом этой методики является простота участия всех членов проектной команды в процессе code review, так как каждая новая feature, исправленный дефект, или доставка версии представлены отдельными ветками в репозитории исходного кода. Желательно, чтобы любое вносимое в ПО изменение происходило через создание отдельной ветки и включение ее (после code review) в основной стрим (обычно, ветка master).</p>
@@ -4294,7 +4410,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Size does matter</title>
+  <title>Shestakov Alex Blog Size does matter</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4304,6 +4420,7 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4320,9 +4437,13 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 
   <main role="main">
     <h1>Size does matter</h1>
-    <article>
+    
+<article>
   <span class="header">
-    May 11, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/docker.html">docker</a>
+    
+    <a href="../../series/ldap-bot.html">4 / 5 on ldap-bot</a>
+    
+      May 11, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/kotlin.html">kotlin</a> #<a href="../../tags/docker.html">docker</a>
   </span>
   <section>
     <p>Возможно я в этом не одинок, но меня сильно разочаровывают размеры современных приложений. Сейчас считается нормой создавать сайты, скачивающие десятки мегабайт при первой загрузке, иметь приложения для телефонов размером в несколько сотен мегабайт, базовые образы <code>docker</code> контейнеров занимают гигабайты… Ситуация парадоксальная – “дешевле” не заботиться о размере, так как усилия, потраченные в этом направлении будут стоить компании-разработчику дороже.</p>
@@ -4670,7 +4791,7 @@ Image efficiency score: 100 %</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Not all errors are equal</title>
+  <title>Shestakov Alex Blog Not all errors are equal</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4680,6 +4801,7 @@ Image efficiency score: 100 %</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4696,9 +4818,11 @@ Image efficiency score: 100 %</code></pre>
 
   <main role="main">
     <h1>Not all errors are equal</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April 23, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      April 23, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="some-are-more-equal-then-others">Some are more equal then others</h2>
@@ -4755,7 +4879,7 @@ Image efficiency score: 100 %</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - The shortest anecdote about Spring</title>
+  <title>Shestakov Alex Blog The shortest anecdote about Spring</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4765,6 +4889,7 @@ Image efficiency score: 100 %</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4781,9 +4906,11 @@ Image efficiency score: 100 %</code></pre>
 
   <main role="main">
     <h1>The shortest anecdote about Spring</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 25, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      March 25, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="not-even-funny">Not even funny</h2>
@@ -4834,7 +4961,7 @@ Image efficiency score: 100 %</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Parsing environment variables with reverse tests</title>
+  <title>Shestakov Alex Blog Parsing environment variables with reverse tests</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -4844,6 +4971,7 @@ Image efficiency score: 100 %</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -4860,9 +4988,13 @@ Image efficiency score: 100 %</code></pre>
 
   <main role="main">
     <h1>Parsing environment variables with reverse tests</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 23, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/lens.html">lens</a> #<a href="../../tags/polysemy.html">polysemy</a> #<a href="../../tags/QuickCheck.html">QuickCheck</a>
+    
+    <a href="../../series/ldap-bot.html">3 / 5 on ldap-bot</a>
+    
+      March 23, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/lens.html">lens</a> #<a href="../../tags/polysemy.html">polysemy</a> #<a href="../../tags/QuickCheck.html">QuickCheck</a>
   </span>
   <section>
     <p>Тема сегодняшней статьи – чтение конфигурационных значений из переменных окружения и связанные с этим процессом трудности. В небольших системах, где нет необходимости в полноценном конфигурационном файле, принято брать настройки из переменных окружения, это один из ключевых моментов <a href="https://12factor.net/config">12 factor app</a> манифеста. Это надежный и относительно безопасный способ конфигурации, он отлично поддерживается всеми операционными системами, облачными платформами и средствами контейнеризации.</p>
@@ -5126,7 +5258,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Minimax problem</title>
+  <title>Shestakov Alex Blog Minimax problem</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5136,6 +5268,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5152,9 +5285,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Minimax problem</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 17, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      March 17, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="naming-is-important">Naming is important</h2>
@@ -5224,7 +5359,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Type-safe API for server endpoints and clients</title>
+  <title>Shestakov Alex Blog Type-safe API for server endpoints and clients</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5234,6 +5369,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5250,9 +5386,13 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Type-safe API for server endpoints and clients</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March  9, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/servant.html">servant</a>
+    
+    <a href="../../series/ldap-bot.html">2 / 5 on ldap-bot</a>
+    
+      March  9, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/servant.html">servant</a>
   </span>
   <section>
     <p>Итак - подошло время очередной технической статьи. На этот раз речь пойдет про API-over-HTTP. Вроде банальнейшая вещь, каждый так “сто раз делал” и чего вообще можно было на эту тему необычного придумать… Действительно, практически в любом backend-е есть слой “контроллеров”, который отвечает за то, чтобы функции приложения были доступны извне по протоколу <code>http</code>. Кто-то использует <code>json</code>, кто-то <code>xml</code>, но общий знаменатель всегда - <code>http</code>.</p>
@@ -5401,7 +5541,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Parsing different JSON payloads into a single data structure</title>
+  <title>Shestakov Alex Blog Parsing different JSON payloads into a single data structure</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5411,6 +5551,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5427,9 +5568,13 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Parsing different JSON payloads into a single data structure</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February 27, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/aeson.html">aeson</a>
+    
+    <a href="../../series/ldap-bot.html">1 / 5 on ldap-bot</a>
+    
+      February 27, 2020 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/aeson.html">aeson</a>
   </span>
   <section>
     <p>Что-то давно не видно технических статей, спешу исправиться. В связи с задержкой, “градус гиковости” будет временно значительно повышен. В публикации на прошлой неделе я <a href="../../posts/projects/2020-02-07-ldap-bot.html">рассказал</a> про новый бот для Workplace, который помогает управлять проектными (и не только) группами не прибегая к помощи <code>HelpDesk</code>. Он написан на языке программирования <code>Haskell</code>, что для нашей компании выбор не совсем типичный (хотя с RFX-ами на эту тему к нам обращались). Знаниями надо делиться, так что запланировал несколько статей по мотивам написания этого бота. Статьи будут раскрывать некоторые интересные аспекты реализации, которые, на первый взгляд, могут показаться странными или неочевидными, но все же позволяют по новому взглянуть на типовые задачи, возникающие при разработке ПО.</p>
@@ -5568,7 +5713,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Some things are always true</title>
+  <title>Shestakov Alex Blog Some things are always true</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5578,6 +5723,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5594,9 +5740,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Some things are always true</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February 22, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      February 22, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="there-is-always-some-hope">There is always some hope…</h2>
@@ -5647,7 +5795,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Regularity</title>
+  <title>Shestakov Alex Blog Regularity</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5657,6 +5805,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5673,9 +5822,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Regularity</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February 14, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      February 14, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="i-love-regular-expressions">I love regular expressions…</h2>
@@ -5737,7 +5888,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Rendering collections</title>
+  <title>Shestakov Alex Blog Rendering collections</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5747,6 +5898,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5763,9 +5915,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Rendering collections</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February 11, 2020  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      February 11, 2020  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="no-escape">No escape…</h2>
@@ -5839,7 +5993,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Workplace bot for managing Active Directory groups</title>
+  <title>Shestakov Alex Blog Workplace bot for managing Active Directory groups</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -5849,6 +6003,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -5865,12 +6020,14 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Workplace bot for managing Active Directory groups</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February  7, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a> #<a href="../../tags/aeson.html">aeson</a> #<a href="../../tags/servant.html">servant</a>
+    
+      February  7, 2020 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/projects.html">projects</a> #<a href="../../tags/haskell.html">haskell</a> #<a href="../../tags/polysemy.html">polysemy</a> #<a href="../../tags/aeson.html">aeson</a> #<a href="../../tags/servant.html">servant</a>
   </span>
   <section>
-    <p>Here is a facebook bot (we use facebook’s Workplace product as an intranet collaboration point) to manage AD groups.</p>
+    <p>Here is a facebook bot (we use facebook’s Workplace product as an intranet collaboration point) to manage AD groups. There are number of <a href="../../series/ldap-bot.html">articles</a> about the creation process.</p>
 <!--more-->
 <p><a href="../../images/ldap-bot/1.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/1.png" /></a> <a href="../../images/ldap-bot/2.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/2.png" /></a> <a href="../../images/ldap-bot/3.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/3.png" /></a> <a href="../../images/ldap-bot/4.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/4.png" /></a> <a href="../../images/ldap-bot/5.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/5.jpg" /></a> <a href="../../images/ldap-bot/6.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/ldap-bot/6.jpg" /></a></p>
 <h2 id="history">History</h2>
@@ -6052,7 +6209,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Чеклист для проверки SDLC на проекте</title>
+  <title>Shestakov Alex Blog Чеклист для проверки SDLC на проекте</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -6062,6 +6219,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -6078,9 +6236,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Чеклист для проверки SDLC на проекте</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December 12, 2019 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/git.html">git</a>
+    
+      December 12, 2019 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/git.html">git</a>
   </span>
   <section>
     <p>Опросник составлен с целью определения уровня риска, который вызван несовершенством SDLC процессов, применяемых на проекте. Влияние каждого отрицательного ответа на степень риска различна и будет определятся индивидуально. В том числе зависит от контекста проекта (размер, длительность, технология и т.д.)</p>
@@ -6522,7 +6682,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Security by obscurity</title>
+  <title>Shestakov Alex Blog Security by obscurity</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -6532,6 +6692,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -6548,9 +6709,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>Security by obscurity</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December 12, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      December 12, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="let-me-in">Let me in…</h2>
@@ -6608,7 +6771,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - PHP md5 WAT</title>
+  <title>Shestakov Alex Blog PHP md5 WAT</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -6618,6 +6781,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -6634,9 +6798,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>PHP md5 WAT</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December  5, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      December  5, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/php.png" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/php.png" /></a></p>
@@ -6685,7 +6851,7 @@ Finished in 2.2859 seconds
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - LDAP tips and tricks</title>
+  <title>Shestakov Alex Blog LDAP tips and tricks</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -6695,6 +6861,7 @@ Finished in 2.2859 seconds
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -6711,9 +6878,11 @@ Finished in 2.2859 seconds
 
   <main role="main">
     <h1>LDAP tips and tricks</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 29, 2019 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ldap.html">ldap</a>
+    
+      October 29, 2019 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ldap.html">ldap</a>
   </span>
   <section>
     <p>Я бы хотел продолжить цикл технических статей на Workplace рассказом о том, с какими трудностями можно столкнуться при работе с Active Directory по LDAP протоколу. Полноценной статьей такой рассказ назвать сложно, скорее – сборник рецептов. Стоит заранее оговориться – никаких упоминаний о Windows и PowerShell в статье нет, это тема очень обширна и заслуживает отдельной публикации (а может и нескольких).</p>
@@ -6964,7 +7133,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Commit messages</title>
+  <title>Shestakov Alex Blog Commit messages</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -6974,6 +7143,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -6990,9 +7160,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Commit messages</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September 26, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      September 26, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/commits.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/commits.jpg" /></a></p>
@@ -7041,7 +7213,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Tempus fugit</title>
+  <title>Shestakov Alex Blog Tempus fugit</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7051,6 +7223,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7067,9 +7240,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Tempus fugit</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September 10, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      September 10, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="memento-mori">Memento mori</h2>
@@ -7120,7 +7295,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Line numbers</title>
+  <title>Shestakov Alex Blog Line numbers</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7130,6 +7305,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7146,9 +7322,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Line numbers</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September  5, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      September  5, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/line-numbers.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/line-numbers.jpg" /></a></p>
@@ -7197,7 +7375,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Infiltration</title>
+  <title>Shestakov Alex Blog Infiltration</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7207,6 +7385,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7223,9 +7402,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Infiltration</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 16, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 16, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="pure-counterexample">Pure counterexample</h2>
@@ -7283,7 +7464,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Javascript eval WAT</title>
+  <title>Shestakov Alex Blog Javascript eval WAT</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7293,6 +7474,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7309,9 +7491,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Javascript eval WAT</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 15, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 15, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h1 id="i-can-explain">I can explain…</h1>
@@ -7362,7 +7546,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - IP detective</title>
+  <title>Shestakov Alex Blog IP detective</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7372,6 +7556,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7388,9 +7573,11 @@ result: 0 Success
 
   <main role="main">
     <h1>IP detective</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  6, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August  6, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="ill-find-you">I’ll find you…</h2>
@@ -7461,7 +7648,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - You shell not pass</title>
+  <title>Shestakov Alex Blog You shell not pass</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7471,6 +7658,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7487,9 +7675,11 @@ result: 0 Success
 
   <main role="main">
     <h1>You shell not pass</h1>
-    <article>
+    
+<article>
   <span class="header">
-    July 30, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      July 30, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="she-sells-seashells-on-the-seashore">She sells seashells on the seashore</h2>
@@ -7545,7 +7735,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - The best code I have ever seen</title>
+  <title>Shestakov Alex Blog The best code I have ever seen</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7555,6 +7745,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7571,9 +7762,11 @@ result: 0 Success
 
   <main role="main">
     <h1>The best code I have ever seen</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April  8, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      April  8, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="pure-glory">Pure glory</h2>
@@ -7657,7 +7850,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Hash code</title>
+  <title>Shestakov Alex Blog Hash code</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7667,6 +7860,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7683,9 +7877,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Hash code</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April  1, 2019  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      April  1, 2019  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="hash-date-random">Hash = Date + Random</h2>
@@ -7739,7 +7935,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Code comments</title>
+  <title>Shestakov Alex Blog Code comments</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7749,6 +7945,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7765,9 +7962,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Code comments</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December 27, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      December 27, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="comments-are-reflection-of-the-genius">Comments are reflection of the genius</h2>
@@ -7818,7 +8017,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Культура разработки</title>
+  <title>Shestakov Alex Blog Культура разработки</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7828,6 +8027,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7844,9 +8044,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Культура разработки</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November 26, 2018 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
+    
+      November 26, 2018 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
   </span>
   <section>
     <p>Что такое “культура разработки?” Само слово <a href="https://ru.wikipedia.org/wiki/Культура">культура</a> очень многогранное. В рамках статьи мы поговорим не столько про процесс написания кода, сколько про грамотную работу со вспомогательными инструментами в стремлении сделать итоговый продукт максимально качественным. Мнением на эту тему поделился Александр Шестаков, который рассказал, почему так важна личная заинтересованность каждого сотрудника и какой путь уже проделан компанией в этом направлении.</p>
@@ -7913,7 +8115,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Tic-tac</title>
+  <title>Shestakov Alex Blog Tic-tac</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -7923,6 +8125,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -7939,9 +8142,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Tic-tac</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November 22, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      November 22, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">var</span> sec <span class="op">=</span> <span class="dv">00</span><span class="op">;</span>   <span class="co">// set the seconds</span></span>
@@ -8024,7 +8229,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Date parsing</title>
+  <title>Shestakov Alex Blog Date parsing</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8034,6 +8239,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8050,9 +8256,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Date parsing</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November 12, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      November 12, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="from-mongodb-with-love">From MongoDB with love</h2>
@@ -8109,7 +8317,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Stairway to Heaven</title>
+  <title>Shestakov Alex Blog Stairway to Heaven</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8119,6 +8327,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8135,9 +8344,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Stairway to Heaven</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 20, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      October 20, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><a href="../../images/wat/stairway.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../previews/wat/stairway.jpg" /></a></p>
@@ -8186,7 +8397,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Repetition is a key</title>
+  <title>Shestakov Alex Blog Repetition is a key</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8196,6 +8407,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8212,9 +8424,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Repetition is a key</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 16, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      October 16, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="size-is-indeed-important">Size is indeed important</h2>
@@ -8272,7 +8486,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Некоторые аспекты безопасности в разработке ПО</title>
+  <title>Shestakov Alex Blog Некоторые аспекты безопасности в разработке ПО</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8282,6 +8496,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8298,9 +8513,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Некоторые аспекты безопасности в разработке ПО</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September 22, 2018 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
+    
+      September 22, 2018 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
   </span>
   <section>
     <p>Защита программного обеспечения от уязвимостей – важный аспект для IT-индустрии. При проектировании систем или написании программного кода случаются ошибки, которые потенциально могут стать причиной брешей в безопасности. Они приводят к возможным утечкам строго конфиденциальной информации, потере доверия к программному продукту и финансовым убыткам. Для предотвращения подобных случаев в IT-отрасли регулярно появляются новые инструменты аудита, давно существуют и отлично описаны методики “безопасного” программирования. Казалось бы, следуй правилам и избежишь проблем, однако в процессе разработки ПО всегда существует пресловутый человеческий фактор.</p>
@@ -8368,7 +8585,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Password hashing</title>
+  <title>Shestakov Alex Blog Password hashing</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8378,6 +8595,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8394,9 +8612,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Password hashing</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September 15, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      September 15, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>Hash from a password.</p>
@@ -8462,7 +8682,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Email validations</title>
+  <title>Shestakov Alex Blog Email validations</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8472,6 +8692,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8488,9 +8709,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Email validations</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September  2, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      September  2, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p><img src="../../previews/wat/email.jpg" class="center" /></p>
@@ -8578,7 +8801,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Calendar events</title>
+  <title>Shestakov Alex Blog Calendar events</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8588,6 +8811,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8604,9 +8828,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Calendar events</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 27, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 27, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>What day is it today? The old year is over, the new is the beginning. And I also heard from my grandfather that his grandfather told him that on this day everything in the world happens - just know how to lie in wait and spy.</p>
@@ -8883,7 +9109,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Вежливость в коде</title>
+  <title>Shestakov Alex Blog Вежливость в коде</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8893,6 +9119,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8909,9 +9136,11 @@ result: 0 Success
 
   <main role="main">
     <h1>Вежливость в коде</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 21, 2018 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
+    
+      August 21, 2018 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/code-review.html">code-review</a>
   </span>
   <section>
     <p>Чистота кода – понятие не новое. Все разработчики стремятся к читаемости, поддерживаемости, простоте, отсутствию copy-paste и hardcode. Случается, что в программном коде можно увидеть нецензурную лексику и оскорбления. Своим мнением на эту тему поделился Александр Шестаков, который рассказал, чем чревато использование ругательств и какой опыт компании в этом направлении.</p>
@@ -8971,7 +9200,7 @@ result: 0 Success
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - My favorite type of comments</title>
+  <title>Shestakov Alex Blog My favorite type of comments</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -8981,6 +9210,7 @@ result: 0 Success
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -8997,9 +9227,11 @@ result: 0 Success
 
   <main role="main">
     <h1>My favorite type of comments</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 20, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 20, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>A selection of dearly beloved todos and fixes</p>
@@ -9073,7 +9305,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Proper mapping</title>
+  <title>Shestakov Alex Blog Proper mapping</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -9083,6 +9315,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -9099,9 +9332,11 @@ return TRUE;
 
   <main role="main">
     <h1>Proper mapping</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 18, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 18, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>No comments, just tears.</p>
@@ -9389,7 +9624,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Simple solutions</title>
+  <title>Shestakov Alex Blog Simple solutions</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -9399,6 +9634,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -9415,9 +9651,11 @@ return TRUE;
 
   <main role="main">
     <h1>Simple solutions</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 11, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August 11, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>Do you like “simple” solution just like I do?</p>
@@ -9529,7 +9767,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Security best practices</title>
+  <title>Shestakov Alex Blog Security best practices</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -9539,6 +9777,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -9555,9 +9794,11 @@ return TRUE;
 
   <main role="main">
     <h1>Security best practices</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  5, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August  5, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="i-want-to-know-everything">I want to know everything</h2>
@@ -9696,7 +9937,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Few examples of reading cookie values</title>
+  <title>Shestakov Alex Blog Few examples of reading cookie values</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -9706,6 +9947,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -9722,9 +9964,11 @@ return TRUE;
 
   <main role="main">
     <h1>Few examples of reading cookie values</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August  4, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      August  4, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <p>There are several examples of “how to read cookies”. Which one do you like the most?</p>
@@ -9844,7 +10088,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Development processes</title>
+  <title>Shestakov Alex Blog Development processes</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -9854,6 +10098,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -9870,9 +10115,11 @@ return TRUE;
 
   <main role="main">
     <h1>Development processes</h1>
-    <article>
+    
+<article>
   <span class="header">
-    July  7, 2018  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      July  7, 2018  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <h2 id="proposal-from-the-project-technical-lead-to-improve-development-processes.">Proposal from the project technical lead to improve development processes.</h2>
@@ -9932,7 +10179,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Что такое Dev Meetups?</title>
+  <title>Shestakov Alex Blog Что такое Dev Meetups?</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -9942,6 +10189,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -9958,9 +10206,11 @@ return TRUE;
 
   <main role="main">
     <h1>Что такое Dev Meetups?</h1>
-    <article>
+    
+<article>
   <span class="header">
-    November 23, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
+    
+      November 23, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
   </span>
   <section>
     <p>В марте этого года в компании появилась новая инициатива – открытые митапы для разработчиков, которые проводятся раз в два месяца. Их организаторами выступили Александр Шестаков и Александр Зенькович.</p>
@@ -10040,7 +10290,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Лучшая вещь – это та, которой нет</title>
+  <title>Shestakov Alex Blog Лучшая вещь – это та, которой нет</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -10050,6 +10300,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -10066,9 +10317,11 @@ return TRUE;
 
   <main role="main">
     <h1>Лучшая вещь – это та, которой нет</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September 11, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
+    
+      September 11, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> 
   </span>
   <section>
     <p>Я работаю в текущей компании вот уже 12 лет. Пришел сюда еще на третьем курсе университета. Работал все время в отделе разработки программных систем. Занимался программированием на C#, потом была Java и немножко JavaScript, долгое время работал на Ruby — все, кто меня знают, ассоциируют с этим языком программирования. Ruby я люблю за выразительность, в нем в единице кода помещается больше «смысла». Если, к примеру, на C# принято писать «Войну и мир», то на Ruby — баловаться хокку.</p>
@@ -10142,7 +10395,7 @@ return TRUE;
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Ruby coding guidelines</title>
+  <title>Shestakov Alex Blog Ruby coding guidelines</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -10152,6 +10405,7 @@ return TRUE;
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -10168,9 +10422,11 @@ return TRUE;
 
   <main role="main">
     <h1>Ruby coding guidelines</h1>
-    <article>
+    
+<article>
   <span class="header">
-    June 12, 2017 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/tdd.html">tdd</a>
+    
+      June 12, 2017 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a> #<a href="../../tags/tdd.html">tdd</a>
   </span>
   <section>
     <h2 id="quality-levels">Quality levels</h2>
@@ -10397,7 +10653,7 @@ Offenses:
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Руби в Ruby, или Немного о «магии» программирования</title>
+  <title>Shestakov Alex Blog Руби в Ruby, или Немного о «магии» программирования</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -10407,6 +10663,7 @@ Offenses:
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -10423,9 +10680,11 @@ Offenses:
 
   <main role="main">
     <h1>Руби в Ruby, или Немного о «магии» программирования</h1>
-    <article>
+    
+<article>
   <span class="header">
-    April 26, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
+    
+      April 26, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
   </span>
   <section>
     <p>Cогласно статистике, Ruby входит в десятку наиболее популярных языков программирования. Чем в первую очередь обусловлен этот факт? Мощностью, простотой и выразительностью, которыми обладает язык, а также возможностью быстро получить результат. Сегодня развитие Ruby (я имею в виду количество разработчиков и вакансий на рынке) действительно находится на пике, но был и период упадка.</p>
@@ -10500,7 +10759,7 @@ Offenses:
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Как отрастить «внутреннюю бороду» через инвариантное тестирование</title>
+  <title>Shestakov Alex Blog Как отрастить «внутреннюю бороду» через инвариантное тестирование</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -10510,6 +10769,7 @@ Offenses:
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -10526,9 +10786,11 @@ Offenses:
 
   <main role="main">
     <h1>Как отрастить «внутреннюю бороду» через инвариантное тестирование</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 20, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/elm.html">elm</a> #<a href="../../tags/QuickCheck.html">QuickCheck</a>
+    
+      March 20, 2017 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/elm.html">elm</a> #<a href="../../tags/QuickCheck.html">QuickCheck</a>
   </span>
   <section>
     <p>Современная разработка ПО не обходится без автоматических тестов. Сюда входят базовые Unit и Integration тесты, сложные Performance и Penetration тесты, а также множество других способов проверить программу ещё до отправки тестировщкам. Менеджеры давно перестали спорить о пользе автоматических тестов. Команды, практикующие автоматизацию тестирования, следующие методологиям TDD и BDD, быстрее поставляют работающие системы с меньшим количеством ошибок. Что делает их, в конечном счете, конкурентоспособными на перегретом рынке коммерческой разработки программных систем.</p>
@@ -10787,7 +11049,7 @@ Failed:   0</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - TeamCity bootstrapping</title>
+  <title>Shestakov Alex Blog TeamCity bootstrapping</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -10797,6 +11059,7 @@ Failed:   0</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -10813,9 +11076,11 @@ Failed:   0</code></pre>
 
   <main role="main">
     <h1>TeamCity bootstrapping</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February 21, 2017 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/teamcity.html">teamcity</a>
+    
+      February 21, 2017 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/teamcity.html">teamcity</a>
   </span>
   <section>
     <p>This repository has born as a solution for the repeating and tedious Continuous Integration servers (TeamCity) installation across the company. It provides a way to quickly bootstrap and run TeamCity, automatically integrated with VCS of choice and setup reporting tool for many languages.</p>
@@ -11030,7 +11295,7 @@ Passwords for users:</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Непрерывная интеграция как спасательный круг в организации процесса разработки ПО</title>
+  <title>Shestakov Alex Blog Непрерывная интеграция как спасательный круг в организации процесса разработки ПО</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -11040,6 +11305,7 @@ Passwords for users:</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -11056,9 +11322,11 @@ Passwords for users:</code></pre>
 
   <main role="main">
     <h1>Непрерывная интеграция как спасательный круг в организации процесса разработки ПО</h1>
-    <article>
+    
+<article>
   <span class="header">
-    October 12, 2016 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+    
+      October 12, 2016 &amp;<a href="../../languages/russian.html">russian</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
   </span>
   <section>
     <p>Непрерывная интеграция (continuous integration, CI) – это методология организации процесса разработки программных систем, при которой каждое изменение исходного кода, как и поведение самой системы с внесенным изменением, подвергается набору различных проверок.</p>
@@ -11137,7 +11405,7 @@ Passwords for users:</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Keep calm and kill mutants</title>
+  <title>Shestakov Alex Blog Keep calm and kill mutants</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -11147,6 +11415,7 @@ Passwords for users:</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -11163,9 +11432,11 @@ Passwords for users:</code></pre>
 
   <main role="main">
     <h1>Keep calm and kill mutants</h1>
-    <article>
+    
+<article>
   <span class="header">
-    December 16, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
+    
+      December 16, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
   </span>
   <section>
     <p>Mutants, zombies… Yes, there is an inconsistency between the article’s topic and image to attract attention. But I swear to god it is actually the poster hanging on the wall inside my flat.</p>
@@ -11562,7 +11833,7 @@ Expected:        100.00%</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - How to make software products evolve naturally</title>
+  <title>Shestakov Alex Blog How to make software products evolve naturally</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -11572,6 +11843,7 @@ Expected:        100.00%</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -11588,9 +11860,11 @@ Expected:        100.00%</code></pre>
 
   <main role="main">
     <h1>How to make software products evolve naturally</h1>
-    <article>
+    
+<article>
   <span class="header">
-    September  1, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+    
+      September  1, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
   </span>
   <section>
     <p>To stand the test of time, software products must be built with changes in mind.</p>
@@ -11662,7 +11936,7 @@ Expected:        100.00%</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - How To Leverage Ruby's Functional Programming Capability</title>
+  <title>Shestakov Alex Blog How To Leverage Ruby's Functional Programming Capability</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -11672,6 +11946,7 @@ Expected:        100.00%</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -11688,9 +11963,11 @@ Expected:        100.00%</code></pre>
 
   <main role="main">
     <h1>How To Leverage Ruby's Functional Programming Capability</h1>
-    <article>
+    
+<article>
   <span class="header">
-    August 24, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
+    
+      August 24, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/ruby.html">ruby</a>
   </span>
   <section>
     <p>Ruby is a multi-paradigm programming language. It fully allows writing old-fashioned procedural code, but also provides many useful constructs and features from the functional world.</p>
@@ -11791,7 +12068,7 @@ Expected:        100.00%</code></pre>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - How to stop doing TDD and start getting real value from testing</title>
+  <title>Shestakov Alex Blog How to stop doing TDD and start getting real value from testing</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -11801,6 +12078,7 @@ Expected:        100.00%</code></pre>
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -11817,9 +12095,11 @@ Expected:        100.00%</code></pre>
 
   <main role="main">
     <h1>How to stop doing TDD and start getting real value from testing</h1>
-    <article>
+    
+<article>
   <span class="header">
-    February  6, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
+    
+      February  6, 2015 &amp;<a href="../../languages/english.html">english</a> @<a href="../../categories/code.html">code</a> #<a href="../../tags/tdd.html">tdd</a>
   </span>
   <section>
     <p>In the field of testing, there are many ideas and movements, some of which have formed into schools. But there is really no universally accepted standard for what testing is and how it should be performed.</p>

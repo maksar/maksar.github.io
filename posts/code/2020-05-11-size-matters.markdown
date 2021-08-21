@@ -1,6 +1,7 @@
 ---
 title: Size does matter
 tags: haskell, ruby, kotlin, docker
+series: ldap-bot
 language: russian
 ---
 

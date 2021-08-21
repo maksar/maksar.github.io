@@ -1,6 +1,5 @@
 ---
 title: Optional or null
-language: english
 ---
 
 ## Why bother...

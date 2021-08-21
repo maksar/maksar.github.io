@@ -3,7 +3,9 @@
     <li>
       <span class="header">$language$ $category$ $tags$ % $date$</span>
       <h3><a href="$url$">$title$</a></h3>
-      <i>$summary$</i>
+      $if(summary)$
+        <i>$summary$</i>
+      $endif$
     </li>
   $endfor$
 </ul>

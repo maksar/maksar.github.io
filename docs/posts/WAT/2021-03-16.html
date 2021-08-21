@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shestakov Alex Blog - Incognito mode</title>
+  <title>Shestakov Alex Blog Incognito mode</title>
   <link rel="stylesheet" href="../../css/default.css" />
 
   <script type="text/javascript" src="../../vendor/jquery/jquery-3.6.0.min.js"></script>
@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="../../vendor/highlight/styles/atom-one-dark.min.css">
   <script src="../../vendor/highlight/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../images/favicons/favicon57.png">
 </head>
 
 <body>
@@ -31,9 +32,11 @@
 
   <main role="main">
     <h1>Incognito mode</h1>
-    <article>
+    
+<article>
   <span class="header">
-    March 16, 2021  @<a href="../../categories/WAT.html">WAT</a> 
+    
+      March 16, 2021  @<a href="../../categories/WAT.html">WAT</a> 
   </span>
   <section>
     <div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> emailRegex <span class="op">=</span> <span class="ss">/</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+(?</span><span class="ss">:</span><span class="sc">\.[a-z0-9!#$%&amp;'*+/=?^_`{|}~-]+)*|</span><span class="ss">&quot;</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*</span><span class="ss">&quot;</span><span class="sc">)</span><span class="ss">@</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[a-z0-9](?</span><span class="ss">:</span><span class="sc">[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?</span><span class="ss">:</span><span class="sc">[a-z0-9-]*[a-z0-9])?|\[(?</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">(</span><span class="ss">2</span><span class="sc">(</span><span class="ss">5</span><span class="sc">[0-5]|[0-4][0-9])|</span><span class="ss">1</span><span class="sc">[0-9][0-9]|[1-9]?[0-9]))\.){3}(?</span><span class="ss">:</span><span class="sc">(</span><span class="ss">2</span><span class="sc">(</span><span class="ss">5</span><span class="sc">[0-5]|[0-4][0-9])|</span><span class="ss">1</span><span class="sc">[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]</span><span class="ss">:</span><span class="sc">(?</span><span class="ss">:</span><span class="sc">[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])</span><span class="ss">/g</span></span>

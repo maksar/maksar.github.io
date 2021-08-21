@@ -1,6 +1,5 @@
 ---
 title: Commit messages
-language: english
 ---
 
 <a href="/images/wat/commits.jpg" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/commits.jpg"/></a>

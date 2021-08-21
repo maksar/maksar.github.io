@@ -1,6 +1,7 @@
 ---
 title: Type-safe API for server endpoints and clients
 tags: haskell, servant
+series: ldap-bot
 language: russian
 ---
 

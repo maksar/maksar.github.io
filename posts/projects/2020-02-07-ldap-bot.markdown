@@ -4,7 +4,7 @@ tags: haskell, polysemy, aeson, servant
 language: english
 ---
 
-Here is a facebook bot (we use facebook's Workplace product as an intranet collaboration point) to manage AD groups.
+Here is a facebook bot (we use facebook's Workplace product as an intranet collaboration point) to manage AD groups. There are number of [articles](/series/ldap-bot.html) about the creation process.
 
 <!--more-->
 

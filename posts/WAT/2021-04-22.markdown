@@ -1,6 +1,5 @@
 ---
 title: TODOs
-language: english
 ---
 
 ## Famous last words

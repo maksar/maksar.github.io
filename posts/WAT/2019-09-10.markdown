@@ -1,6 +1,5 @@
 ---
 title: Tempus fugit
-language: english
 ---
 
 ## Memento mori

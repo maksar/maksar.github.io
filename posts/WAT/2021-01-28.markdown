@@ -1,6 +1,5 @@
 ---
 title: No comments
-language: english
 ---
 
 ```php

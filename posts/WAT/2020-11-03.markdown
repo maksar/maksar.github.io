@@ -1,6 +1,5 @@
 ---
 title: Passwords complexity
-language: english
 ---
 
 I am a bit tired from such regular expressions to check password complexity.

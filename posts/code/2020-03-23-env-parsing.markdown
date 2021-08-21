@@ -1,6 +1,7 @@
 ---
 title: Parsing environment variables with reverse tests
 tags: haskell, lens, polysemy, QuickCheck
+series: ldap-bot
 language: russian
 ---
 

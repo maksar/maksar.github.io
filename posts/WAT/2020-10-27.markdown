@@ -1,6 +1,5 @@
 ---
 title: Wheel wants to be re-invented
-language: english
 ---
 
 ## Over and over again...

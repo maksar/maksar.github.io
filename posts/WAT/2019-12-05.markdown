@@ -1,6 +1,5 @@
 ---
 title: PHP md5 WAT
-language: english
 ---
 
 <a href="/images/wat/php.png" class="fresco center" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/wat/php.png"/></a>

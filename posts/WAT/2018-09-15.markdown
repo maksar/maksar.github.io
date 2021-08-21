@@ -1,6 +1,5 @@
 ---
 title: Password hashing
-language: english
 ---
 
 Hash from a password.
