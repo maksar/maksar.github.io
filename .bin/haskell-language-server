@@ -1,0 +1,1 @@
+exec /nix/store/24ks25lrrksiq9rqhj85lg1ry0jv7hnr-haskell-language-server-1.2.0.0/bin/haskell-language-server $@

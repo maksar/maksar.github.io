@@ -46,7 +46,7 @@ main = do
           <> "'"
 ```
 
-I used the [same](/posts/projects/2020-02-07-ldap-bot.html) ldap-client library for LDAP communication, but this time utilized text-ldap for parsing DNs from ldap into proper data structures instead of treating results like strings. Envy library with some sprinkles of template-haskell magic allowed me to read configuration properties from environment variables. Servant-client again proved to be very handy to "talk" to the external HTTP API. Template haskell was [used](@gh(maksar):coorish/commit/d961d01763ad66c113abf9551315b5f1b5a4f2dd#diff-31b2976c7d81ff33a9d0115c0b39c980023862d7bad0cef4e20fda15fa2bb863R91-R97) for one more thing – embedding configuration values into `FromJSON` instances – I didn't know how to parametrize them in an elegant way.
+I used the [same](/posts/projects/2020-02-07-ldap-bot) ldap-client library for LDAP communication, but this time utilized text-ldap for parsing DNs from ldap into proper data structures instead of treating results like strings. Envy library with some sprinkles of template-haskell magic allowed me to read configuration properties from environment variables. Servant-client again proved to be very handy to "talk" to the external HTTP API. Template haskell was [used](@gh(maksar):coorish/commit/d961d01763ad66c113abf9551315b5f1b5a4f2dd#diff-31b2976c7d81ff33a9d0115c0b39c980023862d7bad0cef4e20fda15fa2bb863R91-R97) for one more thing – embedding configuration values into `FromJSON` instances – I didn't know how to parametrize them in an elegant way.
 
 ```haskell
 data Config = Config

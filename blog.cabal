@@ -10,6 +10,7 @@ executable blog
     , blaze-html
     , containers
     , extra
+    , filepath
     , hakyll
     , hakyll-favicon
     , hakyll-images

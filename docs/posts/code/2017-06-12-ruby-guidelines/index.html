@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Ruby coding guidelines</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Ruby coding guidelines</h1>
+    
+<article>
+  <span class="header">
+    
+      June 12, 2017 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/ruby">ruby</a> #<a href="../../../tags/tdd">tdd</a>
+  </span>
+  <section>
+    <h2 id="quality-levels">Quality levels</h2>
+<p>The following table summarizes certain levels of Ruby code quality levels, we distinguish:</p>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;"></th>
+<th style="text-align: center;">Unacceptable</th>
+<th style="text-align: center;">Acceptable</th>
+<th style="text-align: center;">Good</th>
+<th style="text-align: center;">Great</th>
+<th style="text-align: center;">Excellent</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>Style</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Coverage</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>Complexity</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>Mutation</strong></td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">❌</td>
+<td style="text-align: center;">✅</td>
+</tr>
+</tbody>
+</table>
+<p>For any Pull Request, at least code style should be OK. Decent test coverage is highly recommended, passing complexity and mutation tests are optional.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">RSpec</span><span class="at">.describe</span> <span class="dt">CodeStyle</span> <span class="cf">do</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'code style is RuboCop compliant'</span> <span class="cf">do</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    it <span class="vs">'is OK to create a Pull Request'</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  it <span class="vs">'gives additional bonus points'</span> <span class="cf">if</span> coverage <span class="kw">==</span> <span class="dv">100</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">next</span> <span class="vs">'thing to do'</span> is<span class="at">.to</span> satisfy(<span class="dt">Reek</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  μυτατε(code)<span class="at">.and</span> <span class="fu">raise</span> quality<span class="at">.to</span> <span class="dt">Level</span><span class="at">.new</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<h2 id="style">Style</h2>
+<p>The <a href="https://github.com/rubocop/ruby-style-guide">Ruby Style Guide</a> is a main document to be considered for using on all projects.</p>
+<p>In addition, <a href="https://github.com/bbatsov/rubocop">RuboCop</a> tool is engaged for enforcement of following these rules. The default RuboCop ruleset is used, with several minor exceptions:</p>
+<ul>
+<li><a href="https://www.rubydoc.info/gems/rubocop/RuboCop/Cop/Layout/LineLength">LineLength</a> is set to 120 characters, since 80 doesn’t make sense with wide monitors and high DPI values.</li>
+<li><a href="http://wiki.c2.com/?AbcMetric">AbcSize</a> is set to 25. Ruby is pretty expressive language and it’s very possible to have high AbcSize metric on small methods (10 lines maximum is the RuboCop default) without sacrificing readability.</li>
+<li>Documentation rule is disabled. Despite it’s critical for public projects to have it (for some languages documentation is required, otherwise library cannot be published), we prefer another approach: because of other RuboCop rules, the code is split to small methods and classes, has low cyclomatic complexity and self-documented, thus it’s clear and easy to understand. So formal documentation on classes and method is usually not required (but still appreciated).</li>
+</ul>
+<p>Most controversial rules like ‘max. 10 lines per method’ and ‘max. 100 lines per class’ – are not changed. Arguments about large case statements or long hash definitions should be refused. Large case statement can always be converted to the data structure. Having long hash definitions in the code also usually signals about hidden data structure. Thanks to Ruby’s ‘block magic’ ©, it is possible to easily reuse code parts, extracted to the small, properly named, separate method.</p>
+<p>Working on legacy code, which wasn’t developed with full style guide compliance can be hard and tedious. Fortunately, there is a script, aimed to help. Being executed with –branch flag – it checks only lines, written by developer in current branch (committed or not) without touching legacy code. That is handy tool to check the code, before creating a pull request.</p>
+<p>If you have following folder structure:</p>
+<pre class="console"><code>$  tree -L 1 -A -C
+.
+├── admin-area
+├── ...
+├── env_setup.sh
+└── patched_rubocop.rb
+
+9 directories, 2 files</code></pre>
+<p>Before creating pull request you should inspect and fix style violations:</p>
+<pre class="console"><code>$ ./pacthed_rubocop.rb --branch
+Inspecting 4 files
+W.CC
+Offenses:
+....
+4 files inspected, 11 offenses detected</code></pre>
+<h2 id="test-coverage">Test Coverage</h2>
+<p>There are test coverage tools out there for almost every language. But most of them collect statistics only about source code lines, whether particular line of source code was executed or not (and how many times). But in fact, there is more than just line coverage: just look at this <a href="http://www.slideshare.net/hiroppie/test-coverage">slide</a>.</p>
+<ul>
+<li><strong>C1</strong> is intended to track code branches execution. Each source code line can potentially contain more than one code branch. Think about conditions, loops, early returns and nasty things like try operator. To satisfy <strong>C1</strong> coverage, tests should contain at least two cases, one for each of the execution branch. Otherwise, some branches may remain un-visited having, however, <strong>C0</strong> coverage on this particular line satisfied.</li>
+<li><strong>C2</strong> is called condition coverage. If condition expression consists of more than one sub-expressions (for example: <code>if a == 2 || b.nil?</code>), it ensures that each sub-expression gets evaluated to true and false at least once.</li>
+</ul>
+<p><a href="https://github.com/colszowka/simplecov">SimpleCov</a> is used to check test coverage. It generates nice-looking reports, like this:</p>
+<p><img src="../../../images/ruby-guidelines/coverage.png" class="center" /></p>
+<p>Test coverage is not about TDD (which is about code design, not tests) or system quality. Having 100% <strong>C0</strong> test coverage does not even guarantee, that code is free of typos.</p>
+<p>But it definitely helps to:</p>
+<ul>
+<li>improve code design (poorly designed code is hard to test)</li>
+<li>ensure, that code works (with sane amount of mocking)</li>
+<li>protect from refactoring errors (we are people, we all make mistakes)</li>
+</ul>
+<p>SimpleCov reports are collected automatically on running RSpec and stored in coverage folder of the project.</p>
+<h2 id="complexity">Complexity</h2>
+<p><a href="https://github.com/troessner/reek">Reek</a> (belongs to the <a href="https://github.com/metricfu/metric_fu">MetricFu</a> toolset) is a tool that examines Ruby classes, modules, methods and reports any <a href="https://github.com/troessner/reek/blob/master/docs/Code-Smells.md">Code Smells</a> it finds.</p>
+<p>In general, the default ruleset is used, with some exceptions:</p>
+<ul>
+<li><a href="https://github.com/troessner/reek/blob/2b9cc78fe51456e184370da698f6230c982efb02/docs/Utility-Function.md">UtilityFunction</a> is enabled for public methods only. Most controversial rule <a href="https://github.com/troessner/reek/blob/2b9cc78fe51456e184370da698f6230c982efb02/docs/Nil-Check.md">NillCheck</a> is still enabled. Be patient and listen what reek is trying to say: <a href="https://en.wikipedia.org/wiki/Law_of_Demeter">Law of Demeter</a> violation or maybe absence of <a href="https://en.wikipedia.org/wiki/Null_Object_pattern">Null Object</a>?</li>
+</ul>
+<h2 id="mutation-coverage">Mutation Coverage</h2>
+<p><a href="https://en.wikipedia.org/wiki/Mutation_testing">Mutation testing</a> technique is based on quite a simple idea. Say, you have a bunch of code and a number of tests to verify its correctness. Doesn’t matter how those tests were born: using techniques like <a href="https://en.wikipedia.org/wiki/Test-driven_development">TDD</a> or written afterwards. Mutation testing allows to verify that your test suite is full. By ‘full’ it means – there is no code (code execution path, to be precisely correct) that is not covered with at least one test case.</p>
+<p>There are plenty or <a href="https://github.com/mbj/mutant#blog-posts">articles</a> and <a href="https://github.com/mbj/mutant#presentations">presentations</a> explaining what is mutation testing and <a href="https://github.com/mbj/mutant">mutant</a> itself. If you are not familiar – it’s definitely worth to check.</p>
+<p>Running mutant is pretty easy:</p>
+<pre class="console"><code>$ RAILS_ENV=test bundle exec mutant -I . -I spec --use rspec -j 1 --fail-fast &quot;PaylocityParams#person&quot;</code></pre>
+<p>Last arguments is – name of the class and method you want to mutate and check whether the tests are still green or not.</p>
+<h2 id="protection">Protection</h2>
+<p>In order to protect from accidental mistakes and enforce high code style consistency and adhere to the coding standards, VCS commit hooks are used (both in form of CI checks and on local development machines).</p>
+<p>On development machines it is recommended to aggregate all checks in a commit hook tool like <a href="https://github.com/sds/overcommit">Overcommit</a>, which allows to configure and validate numerous checks before push or commit. Here is an example of configuration file:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">PrePush</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">Brakeman</span><span class="kw">:</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">PreCommit</span><span class="kw">:</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ALL</span><span class="kw">:</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">problem_on_unmodified_line</span><span class="kw">:</span><span class="at"> warn</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">requires_files</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">required</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">quiet</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">parallelize</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ErbLint</span><span class="kw">:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;erblint&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;.&quot;</span><span class="kw">]</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RubySyntax</span><span class="kw">:</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">[</span><span class="st">&quot;ruby&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;-e&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;ARGV.each { |applicable_file| ruby_c_output = `ruby -W:no-experimental -c #{applicable_file}`; puts ruby_c_output unless $?.success? }&quot;</span><span class="kw">]</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RuboCop</span><span class="kw">:</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;rubocop&quot;</span><span class="kw">]</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RSpec</span><span class="kw">:</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;rspec&quot;</span><span class="kw">]</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">DatabaseConsistency</span><span class="kw">:</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">quiet</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">&quot;bundle&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;exec&quot;</span><span class="kw">,</span><span class="at"> </span><span class="st">&quot;database_consistency&quot;</span><span class="kw">]</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">BundleCheck</span><span class="kw">:</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">BundleAudit</span><span class="kw">:</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">TrailingWhitespace</span><span class="kw">:</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">YamlSyntax</span><span class="kw">:</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">AuthorEmail</span><span class="kw">:</span></span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">pattern</span><span class="kw">:</span><span class="at"> </span><span class="st">'[a-z][a-z0-9.\-][a-z]+@example\.com'</span></span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">AuthorName</span><span class="kw">:</span></span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="fu">CommitMsg</span><span class="kw">:</span></span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">RussianNovel</span><span class="kw">:</span></span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">TextWidth</span><span class="kw">:</span></span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">enabled</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max_subject_width</span><span class="kw">:</span><span class="at"> </span><span class="dv">80</span></span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">max_body_width</span><span class="kw">:</span><span class="at"> </span><span class="dv">80</span></span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

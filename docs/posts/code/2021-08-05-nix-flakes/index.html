@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Migrating to the nix flakes for macbook setup</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Migrating to the nix flakes for macbook setup</h1>
+    
+<article>
+  <span class="header">
+    
+      August  5, 2021 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/nix">nix</a>
+  </span>
+  <section>
+    <p>For the long time, I’ve been using <a href="https://github.com/LnL7/nix-darwin">nix-darwin</a> and <a href="https://github.com/nix-community/home-manager">home-manager</a> to configure and and keep my laptop configuration up-to-date. Today I had a little bit of spare time and decided to finally migrate towards using nix flakes.</p>
+<!--more-->
+<p>There are several reasons:</p>
+<ul>
+<li>Purity. Being pure, flakes are forcing you to keep external dependencies in the outer layer (in <code>flake.nix</code> file).</li>
+<li>Speed. Without <code>fetchGit</code> in random places, evaluation (and activation) times are much smaller.</li>
+<li>Control. Since there are no channels, your setup is easier to reproduce.</li>
+</ul>
+<h2 id="purity">Purity</h2>
+<p>nix flakes forbids your derivations to depend on local state (file on local filesystem). Due to that limitation, you are forced to:</p>
+<ul>
+<li>have everything nix needs in git</li>
+<li>have all your dependencies to be publicly available in git</li>
+</ul>
+<p>You can no longer <code>import</code> a file from your local filesystem (or a predefined channel), which increases reproducibility and robustness. As an example: I had such <code>neovim</code> setup beforehand:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="ex">config,</span> pkgs, ... }:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="bu">let</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">envy</span> = builtins.fetchGit {</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">url</span> = <span class="st">&quot;https://github.com/Shados/envy&quot;</span><span class="kw">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ref</span> = <span class="st">&quot;master&quot;</span><span class="kw">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">};</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="er">in</span> <span class="kw">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">imports</span> = [ <span class="er">(</span><span class="ex">import</span> <span class="st">&quot;</span><span class="va">${envy}</span><span class="st">/home-manager.nix&quot;</span> { }<span class="kw">)</span> <span class="ex">]</span><span class="kw">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
+<p>Since <code>builtins.fetchGit</code> isn’t allowed in nix flakes, I was forced to convert <a href="https://github.com/Shados:envy/envy">envy</a> to the dependency of my configuration flake:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">inputs</span> = {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">envy</span> = { url = <span class="st">&quot;github:Shados/envy&quot;</span><span class="kw">;</span> <span class="ex">flake</span> = false<span class="kw">;</span> <span class="er">}</span><span class="kw">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">homeManagerModules</span> = {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">vim-envy</span> = import <span class="st">&quot;</span><span class="va">${envy}</span><span class="st">/home-manager.nix&quot;</span> {}<span class="kw">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span></code></pre></div>
+<p>As a result, there is no need for <code>darwin-rebuild</code> to fetch a master branch from <a href="https://github.com/Shados:envy/envy">envy</a> each time I do <code>switch</code> operation.</p>
+<h2 id="control">Control</h2>
+<p>Since there are no dependencies for the local state, it is quite possible to check the consistency of the whole configuration on Github CI.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to bootstrap config</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nix</span> build .#darwinConfigurations.bootstrap.system</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./result/sw/bin/darwin-rebuild</span> switch <span class="at">--flake</span> .#bootstrap</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to full config</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">/run/current-system/sw/bin/zsh</span> <span class="at">-c</span> <span class="st">'./result/sw/bin/darwin-rebuild switch --flake .#githubCI'</span></span></code></pre></div>
+<p>Furthermore, Github CI can perform dependencies update for me every week <code>nix flake update</code> and even push the results to the <a href="https://app.cachix.org/cache/maksar">cachix</a>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> If scheduled, update inputs</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">if</span><span class="kw">:</span><span class="at"> ${{ github.event_name == 'schedule' &amp;&amp; success() }}</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">  run</span><span class="kw">: </span><span class="ch">|</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    nix flake update</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">...</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co">- name: If scheduled, push commit with updated inputs</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">  if: ${{ github.event_name == 'schedule' &amp;&amp; success() }}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">  run: |</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co">    git config user.name github-actions</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co">    git config user.email github-actions@github.com</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="co">    git add .</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="co">    git commit &quot;Update inputs&quot;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="co">    git push</span></span></code></pre></div>
+<p>My nix configuration, which was inspired by excellent <a href="https://github.com/malob/dotfiles">repo</a> of <a href="https://twitter.com/m_bourgon">Malo Bourgon</a>, is available <a href="https://github.com/maksar/dotfiles">here</a>.</p>
+<h2 id="speed">Speed</h2>
+<p>This one is pretty much speaks for itself. Whole configuration switch, with all <a href="https://brew.sh">homebrew</a> update cycle (yeah, not everything is still in nix) takes up to 13 seconds!</p>
+<pre class="console"><code>$ time darwin-rebuild switch --flake .#macbook
+
+building the system configuration...
+user defaults...
+setting up user launchd services...
+Homebrew bundle...
+Using homebrew/cask
+Using homebrew/cask-versions
+Using homebrew/cask-drivers
+Using microsoft/mssql-release
+Using rkaippully/tools
+Using unixodbc
+Using msodbcsql17
+Using nmap
+Using gamgee
+Using mas
+Using logitech-options
+Using skype
+Using slack
+Using viber
+Using telegram
+Using zoom
+Using microsoft-teams
+Using miro
+Using obs
+Using dropbox
+Using 1password
+Using alfred
+Using unshaky
+Using openvpn-connect
+Using firefox
+Using google-chrome
+Using vivaldi
+Using safari-technology-preview
+Using transmission
+Using tunnelbear
+Using docker
+Using sourcetree
+Using charles
+Using virtualbox
+Using jetbrains-toolbox
+Using typora
+Using steam
+Using vlc
+Using postman
+Using Amphetamine
+Using Excel
+Using Pages
+Using PowerPoint
+Using RemoteDesktop
+Using Word
+Using XCode
+Homebrew Bundle complete! 46 Brewfile dependencies now installed.
+setting up pam...
+setting up groups...
+setting up users...
+setting up ~/Applications...
+applying patches...
+setting up /etc...
+system defaults...
+setting up launchd services...
+configuring networking...
+configuring fonts...
+Activating home-manager configuration for maksar
+Starting home manager activation
+Activating checkFilesChanged
+Activating checkLinkTargets
+Activating writeBoundary
+Activating copyFonts
+Activating installPackages
+replacing old 'home-manager-path'
+installing 'home-manager-path'
+Activating linkGeneration
+Cleaning up orphan links from /Users/maksar
+No change so reusing latest profile generation 230
+Creating home file links in /Users/maksar
+Activating onFilesChange
+
+4.10s user 4.16s system 64% cpu 12.800 total</code></pre>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

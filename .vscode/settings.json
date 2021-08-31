@@ -1,0 +1,6 @@
+{
+  // "haskell.serverExecutablePath": "${workspaceRoot}/.bin/haskell-language-server",
+  // "haskell.hlint.executablePath": "${workspaceRoot}/.bin/hlint",
+  "terminal.integrated.automationShell.linux": "nix-shell",
+  "nixEnvSelector.nixFile": "${workspaceRoot}/default.nix"
+}

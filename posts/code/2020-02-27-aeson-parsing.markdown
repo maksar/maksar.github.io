@@ -5,7 +5,7 @@ series: ldap-bot
 language: russian
 ---
 
-Что-то давно не видно технических статей, спешу исправиться. В связи с задержкой, "градус гиковости" будет временно значительно повышен. В публикации на прошлой неделе я [рассказал](/posts/projects/2020-02-07-ldap-bot.html) про новый бот для Workplace, который помогает управлять проектными (и не только) группами не прибегая к помощи `HelpDesk`. Он написан на языке программирования `Haskell`, что для нашей компании выбор не совсем типичный (хотя с RFX-ами на эту тему к нам обращались). Знаниями надо делиться, так что запланировал несколько статей по мотивам написания этого бота. Статьи будут раскрывать некоторые интересные аспекты реализации, которые, на первый взгляд, могут показаться странными или неочевидными, но все же позволяют по новому взглянуть на типовые задачи, возникающие при разработке ПО.
+Что-то давно не видно технических статей, спешу исправиться. В связи с задержкой, "градус гиковости" будет временно значительно повышен. В публикации на прошлой неделе я [рассказал](/posts/projects/2020-02-07-ldap-bot) про новый бот для Workplace, который помогает управлять проектными (и не только) группами не прибегая к помощи `HelpDesk`. Он написан на языке программирования `Haskell`, что для нашей компании выбор не совсем типичный (хотя с RFX-ами на эту тему к нам обращались). Знаниями надо делиться, так что запланировал несколько статей по мотивам написания этого бота. Статьи будут раскрывать некоторые интересные аспекты реализации, которые, на первый взгляд, могут показаться странными или неочевидными, но все же позволяют по новому взглянуть на типовые задачи, возникающие при разработке ПО.
 
 <!--more-->
 
@@ -21,11 +21,11 @@ language: russian
 
 План статей пока выходит примерно такой:
 
-* [Parsing different JSON payloads into a single data structure](/posts/code/2020-02-27-aeson-parsing.html)
-* [Type-safe API for server endpoints and clients](/posts/code/2020-03-09-servant.html)
-* [Parsing environment variables with reverse tests](/posts/code/2020-03-23-env-parsing.html)
-* [First-class Effects with pure testing](/posts/code/2021-02-04-effect-systems.html)
-* [Static linking and Dockerize application](/posts/code/2020-05-11-size-matters.html)
+* [Parsing different JSON payloads into a single data structure](/posts/code/2020-02-27-aeson-parsing)
+* [Type-safe API for server endpoints and clients](/posts/code/2020-03-09-servant)
+* [Parsing environment variables with reverse tests](/posts/code/2020-03-23-env-parsing)
+* [First-class Effects with pure testing](/posts/code/2021-02-04-effect-systems)
+* [Static linking and Dockerize application](/posts/code/2020-05-11-size-matters)
 
 ## Parsing different JSON payloads into a single data structure
 

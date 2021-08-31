@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Medicine tele-consulting system</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Medicine tele-consulting system</h1>
+    
+<article>
+  <span class="header">
+    
+      November 30, 2020 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/projects">projects</a> #<a href="../../../tags/ruby">ruby</a>
+  </span>
+  <section>
+    <p>This is a short description of the project I’ve been working in a previous company. I’ll try to mention all technologically interesting aspects of it without revealing any intellectual property, which belongs to the customer.</p>
+<!--more-->
+<h2 id="auto-start">Auto-start</h2>
+<p>Deployment script, among other things, exports a <code>Profile</code> of the application as a set of systemd services, so that operating system becomes responsible on (re-)starting everything.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>namespace <span class="wa">:foreman</span> <span class="cf">do</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  task <span class="wa">:setup</span> <span class="cf">do</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    invoke :<span class="st">&quot;foreman:export&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    invoke :<span class="st">&quot;foreman:enable&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  desc <span class="st">&quot;Export the Procfile&quot;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  task <span class="wa">:export</span> <span class="cf">do</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    on roles <span class="wa">:app</span> <span class="cf">do</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>      within release_path <span class="cf">do</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>        execute <span class="wa">:rbenv</span>, <span class="st">&quot;exec&quot;</span>, <span class="st">&quot;bundle&quot;</span>, <span class="st">&quot;exec&quot;</span>, <span class="st">&quot;foreman&quot;</span>, <span class="st">&quot;export&quot;</span>, <span class="st">&quot;systemd&quot;</span>, fetch(<span class="wa">:foreman_sites_dir</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                <span class="kw">[</span><span class="st">&quot;--app=</span><span class="sc">#{</span>fetch(<span class="wa">:application</span>)<span class="sc">}</span><span class="st">&quot;</span>, <span class="st">&quot;--log=</span><span class="sc">#{</span><span class="dt">File</span><span class="at">.join</span>(shared_path, <span class="vs">'log'</span>)<span class="sc">}</span><span class="st">&quot;</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>                 <span class="st">&quot;--procfile=</span><span class="sc">#{</span><span class="dt">File</span><span class="at">.join</span>(current_path, <span class="st">&quot;Procfile.</span><span class="sc">#{</span>fetch(<span class="wa">:rails_env</span>)<span class="sc">}</span><span class="st">&quot;</span>)<span class="sc">}</span><span class="st">&quot;</span><span class="kw">]</span><span class="at">.join</span>(<span class="st">&quot; &quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      execute <span class="wa">:sudo</span>, <span class="wa">:systemctl</span>, :<span class="st">&quot;daemon-reload&quot;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<h2 id="zero-configuration">Zero-configuration</h2>
+<p>Application is also able to read all of the configuration values out of <code>AWS SSM</code> parameters. That is very convenient on <code>AWS EC2</code> nodes, which can utilize <code>IAM Instance Profiles</code> feature (to access <code>SSM</code> without credentials) and achieve “zero configuration” mode for launching the system.</p>
+<p>To separate environments (<code>staging</code>, <code>production</code>) from each other (in case of same region is used), each <code>SSM</code> variable has a <code>/ENVIRONMENT/</code> prefix, which application trims off while reading configuration values. If application is unable to use <code>SSM</code> as configuration source, it falls back to environmental variables. Actually, application converts all <code>SSM</code> parameters to become environment variables on start, so that it is indistinguishable for the rest of the system where values come from.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span><span class="ot"> %w[</span><span class="st">staging production</span><span class="ot">]</span><span class="at">.include?</span>(<span class="cn">ENV</span><span class="kw">[</span><span class="st">&quot;RAILS_ENV&quot;</span><span class="kw">]</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span> <span class="st">&quot;aws/instmd&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span> <span class="st">&quot;aws-sdk-ssm&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Aws</span><span class="kw">::</span><span class="cn">SSM</span><span class="kw">::</span><span class="dt">Client</span><span class="at">.new</span>(<span class="wa">region: </span><span class="cn">AWS</span><span class="kw">::</span><span class="dt">InstMD</span><span class="at">.meta_data.placement.region</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                  <span class="at">.get_parameters_by_path</span>(<span class="wa">path: </span><span class="st">&quot;/</span><span class="sc">#{</span><span class="cn">ENV</span><span class="kw">[</span><span class="vs">'RAILS_ENV'</span><span class="kw">]</span><span class="sc">}</span><span class="st">&quot;</span>, <span class="wa">with_decryption: </span><span class="dv">true</span>)<span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>list<span class="kw">|</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    list<span class="at">.parameters.each</span> <span class="cf">do</span> <span class="kw">|</span>parameter<span class="kw">|</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="cn">ENV</span><span class="kw">[</span>parameter<span class="at">.name.split</span>(<span class="st">&quot;/&quot;</span>)<span class="at">.last</span><span class="kw">]</span> <span class="kw">=</span> parameter<span class="at">.value</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">else</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">require</span> <span class="st">&quot;dotenv&quot;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">Dotenv</span><span class="at">.load</span>(<span class="st">&quot;.env.</span><span class="sc">#{</span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="vs">'RAILS_ENV'</span>, <span class="vs">'development'</span>)<span class="sc">}</span><span class="st">&quot;</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<h2 id="upload-procedure">Upload procedure</h2>
+<p>According to the requirements, application should be able to receive uploaded images, documents and videos (which can be quite large in size). To avoid all the burden of related to upload process: dealing with slow connections (which can drain total workers pool), rate limiting (to protect from DDoS attacks), multipart uploads, etc. – I decided to offload all the work to the AWS S3 service. It is possible to create a pre-signed upload url, which will be available to utilize during some time. So, main application’s backend prepares such upload urls and delivers it to either mobile application or a browser. So the whole upload process is happening between upload client (Mobile app or a Web browser) and AWS S3. After successful upload, AWS S3 will generate an event to the AWS SQS service, which backend system monitors.</p>
+<p><img src="../../../images/safet/upload.png" class="center full" /></p>
+<p>The process in details:</p>
+<ol type="1">
+<li>Mobile app requests from Web API list of pre-signed URLs to use for image (documents) upload. PreSigned URL allows Mobile app to one-time upload any content directly to S3 without “knowing” access credentials (which a mobile app shouldn’t know). PreSigned URL is a “promise”, a reserved space in S3 bucket, waiting for something to be uploaded there. PreSigned URLs are secure to use, auto-expire after usage or by timeout.</li>
+<li>Web API instructs S3 to create buckets if needed (first request for URLs in the Case). Web API also executes AWS API call to configure S3 to send notification to the SQS queue whenever new object appears in the bucket (if that wan’t done before).</li>
+<li>Web API saves an Attachments record to the database, marking it’s status as “generated”. Each Attachment record will already contain object_id of an S3 file object, as guid for itself.</li>
+<li>Web API returns list of generated PreSigned URLs for the Mobile app to utilize. Number of URLs is configurable in system’s config, 20 for now. Mobile app will request more if: a) list of non-utilized URLs drops below 5 b) upload to S3 fails with error (URL expiration), c) Mobile app “knows for sure”, that URL is already expired, judging by its expiration time field.</li>
+<li>Mobile app uploads picture or scanned document to S3.</li>
+<li>Attachments worker gets a message from SQS queue, which contains meta-information about upload (hash-sum, date-time, etc). It retrieves Attachment from database by object_id (it is unique GUID value).</li>
+<li>Attachments worker updates status of Attachment record from “generated” to “uploaded” to be accessible by images screen in Web Portal.</li>
+<li>Attachments worker also notifies the TeleSANE’s live pictures view with WebSockets connection to be displayed without page reload (that can also be done with long-polling from live view).</li>
+</ol>
+<h2 id="storage-backups">Storage backups</h2>
+<p>Application creates AWS S3 buckets on-demand. So it is important to specify all required bits and pieces upon creation. Code below takes care of:</p>
+<ul>
+<li>blocking all unwanted public access to the bucket</li>
+<li>setting up CORS headers to allow PUT uploads from everywhere (assuming that uploader have a pre-signed URL)</li>
+<li>configuring encryption of the data at rest</li>
+<li>enabling versioning for all of the data being uploaded (just in case)</li>
+<li>turning on replication configuration, so that each item it replicated to the AWS S3 Glassier storage for long-term backup</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">class</span> <span class="dt">CreateBucketInteraction</span> <span class="kw">&lt;</span> <span class="dt">BaseInteraction</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="cn">ON</span> <span class="kw">=</span> <span class="st">&quot;Enabled&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="cn">OFF</span> <span class="kw">=</span> <span class="st">&quot;Disabled&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cn">BLOCK_CONFIGURATION</span> <span class="kw">=</span> <span class="kw">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="wa">block_public_acls: </span><span class="dv">true</span>, <span class="wa">ignore_public_acls: </span><span class="dv">true</span>, <span class="wa">block_public_policy: </span><span class="dv">true</span>, <span class="wa">restrict_public_buckets: </span><span class="dv">true</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span><span class="at">.freeze</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="cn">CORS_CONFIGURATION</span> <span class="kw">=</span> <span class="kw">{</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="wa">cors_rules: </span><span class="kw">[{</span> <span class="wa">allowed_methods: </span><span class="kw">[</span><span class="st">&quot;PUT&quot;</span><span class="kw">]</span>, <span class="wa">allowed_origins: </span><span class="kw">[</span><span class="st">&quot;*&quot;</span><span class="kw">]</span>, <span class="wa">allowed_headers: </span><span class="kw">[</span><span class="st">&quot;*&quot;</span><span class="kw">]</span> <span class="kw">}]</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span><span class="at">.freeze</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="cn">ENCRYPTION_CONFIGURATION</span> <span class="kw">=</span> <span class="kw">{</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    <span class="wa">rules: </span><span class="kw">[{</span> <span class="wa">apply_server_side_encryption_by_default: </span><span class="kw">{</span> <span class="wa">sse_algorithm: </span><span class="st">&quot;AES256&quot;</span> <span class="kw">}</span> <span class="kw">}]</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span><span class="at">.freeze</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="cn">VERSIONING_CONFIGURATION</span> <span class="kw">=</span> <span class="kw">{</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="wa">status: </span><span class="cn">ON</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span><span class="at">.freeze</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="cn">REPLICATION_CONFIGURATION</span> <span class="kw">=</span> <span class="kw">{</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="wa">role: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AWS_IAM_REPLICATION_ROLE_ARN&quot;</span>),</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    <span class="wa">rules: </span><span class="kw">[{</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>      <span class="wa">id: </span><span class="st">&quot;replication&quot;</span>,</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>      <span class="wa">priority: </span><span class="dv">0</span>,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>      <span class="wa">filter: </span><span class="kw">{</span> <span class="wa">prefix: </span><span class="st">&quot;&quot;</span> <span class="kw">}</span>,</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>      <span class="wa">status: </span><span class="cn">ON</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>      <span class="wa">destination: </span><span class="kw">{</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="wa">bucket: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AWS_S3_REPLICATION_BUCKET_ARN&quot;</span>),</span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>        <span class="wa">storage_class: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AWS_S3_REPLICATION_MODE&quot;</span>),</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>        <span class="wa">encryption_configuration: </span><span class="kw">{</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>          <span class="wa">replica_kms_key_id: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AWS_KMS_REPLICATION_KEY_ARN&quot;</span>)</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        <span class="kw">}</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>      <span class="kw">}</span>,</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>      <span class="wa">delete_marker_replication: </span><span class="kw">{</span> <span class="wa">status: </span><span class="cn">OFF</span> <span class="kw">}</span>,</span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>      <span class="wa">source_selection_criteria: </span><span class="kw">{</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>        <span class="wa">sse_kms_encrypted_objects: </span><span class="kw">{</span> <span class="wa">status: </span><span class="cn">ON</span> <span class="kw">}</span>,</span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>        <span class="wa">replica_modifications: </span><span class="kw">{</span> <span class="wa">status: </span><span class="cn">ON</span> <span class="kw">}</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>      <span class="kw">}</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">}]</span></span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span><span class="at">.freeze</span></span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a>  <span class="cn">CALLS</span> <span class="kw">=</span> <span class="kw">{</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a>    <span class="wa">public_access_block: </span><span class="kw">{</span> <span class="wa">public_access_block_configuration: </span><span class="cn">BLOCK_CONFIGURATION</span> <span class="kw">}</span>,</span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a>    <span class="wa">bucket_cors: </span><span class="kw">{</span> <span class="wa">cors_configuration: </span><span class="cn">CORS_CONFIGURATION</span> <span class="kw">}</span>,</span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a>    <span class="wa">bucket_encryption: </span><span class="kw">{</span> <span class="wa">server_side_encryption_configuration: </span><span class="cn">ENCRYPTION_CONFIGURATION</span> <span class="kw">}</span>,</span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a>    <span class="wa">bucket_versioning: </span><span class="kw">{</span> <span class="wa">versioning_configuration: </span><span class="cn">VERSIONING_CONFIGURATION</span> <span class="kw">}</span>,</span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a>    <span class="wa">bucket_replication: </span><span class="kw">{</span> <span class="wa">replication_configuration: </span><span class="cn">REPLICATION_CONFIGURATION</span> <span class="kw">}</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span><span class="at">.freeze</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a>  object <span class="wa">:bucket</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a>  <span class="cf">def</span> execute</span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a>    client<span class="at">.create_bucket</span>(<span class="wa">bucket: </span>bucket)</span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    <span class="cn">CALLS</span><span class="at">.each</span> <span class="cf">do</span> <span class="kw">|</span>call, configuration<span class="kw">|</span></span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a>      client<span class="at">.method</span>(:<span class="st">&quot;put_</span><span class="sc">#{</span>call<span class="sc">}</span><span class="st">&quot;</span>)<span class="at">.call</span>(configuration<span class="at">.merge</span>(<span class="wa">bucket: </span>bucket))</span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<h2 id="development-processes">Development processes</h2>
+<p>Here is a screenshot of running a pre-commit hook on my latest RoR project.</p>
+<p><a href="../../../images/safet/3.png" class="fresco" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../images/safet/3.png" class="center full" /></a></p>
+<p>Screenshots of running RSpec tests and a test coverage report. I know only several examples of such coverage level (branch coverage, not just line coverage) in my company and all of them were written with me as a lead.</p>
+<p><a href="../../../images/safet/5.png" class="fresco" data-fresco-group="tests" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../images/safet/5.png" class="center full" /></a> <a href="../../../images/safet/2.png" class="fresco" data-fresco-group="tests" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../images/safet/2.png" class="center full" /></a></p>
+<p>Screenshot of executing a <a href="https://github.com/rubocop/rubocop">rubocop</a> (linter for ruby) and <a href="https://github.com/presidentbeef/brakeman">brakeman</a>) (security vulnerability scanner) is integrated with a push hook as well as bundler-audit (tool to search CVEs in dependencies) – security is one of my passions ;)</p>
+<p><a href="../../../images/safet/1.png" class="fresco" data-fresco-group="tests" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../images/safet/1.png" class="center full" /></a> <a href="../../../images/safet/4.png" class="fresco" data-fresco-group="tests" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../images/safet/4.png" class="center full" /></a></p>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

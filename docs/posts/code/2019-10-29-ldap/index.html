@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog LDAP tips and tricks</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>LDAP tips and tricks</h1>
+    
+<article>
+  <span class="header">
+    
+      October 29, 2019 &amp;<a href="../../../languages/russian">russian</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/ldap">ldap</a>
+  </span>
+  <section>
+    <p>Я бы хотел продолжить цикл технических статей на Workplace рассказом о том, с какими трудностями можно столкнуться при работе с Active Directory по LDAP протоколу. Полноценной статьей такой рассказ назвать сложно, скорее – сборник рецептов. Стоит заранее оговориться – никаких упоминаний о Windows и PowerShell в статье нет, это тема очень обширна и заслуживает отдельной публикации (а может и нескольких).</p>
+<!--more-->
+<p><img src="../../../previews/ldap/logo.jpg" class="center" /></p>
+<h2 id="дата-и-время">Дата и время</h2>
+<p>Первое, что бросается в глаза – это незнакомый формат даты-времени. Даже не формат, а форматы – их несколько. Бывают записи вида <code>whenChanged: 20191028073233.0Z</code> с очевидным форматом, но есть еще и записи вида <code>pwdLastSet: 132119732272806390</code> о сути которых лучше меня расскажет <a href="https://www.epochconverter.com/ldap">страница</a>. Приходится писать свои parser/emitter-ы для этих форматов, так как в поставку библиотек он редко входят. Дата и время – очень обширная тема, приглашаю послушать Kovsh Dmitry на предстоящем <a href="https://itransition.workplace.com/events/537058783541251/">Itransition Development Meetup #10</a>.</p>
+<h2 id="we-need-to-go-deeper">We need to go deeper</h2>
+<p>Как правило, объекты в AD (группы, отделы, пользователи) имеют древовидную структуру, напоминающую (или повторяющую) иерархию реальных организаций. Наша – не исключение (<a href="https://ru.wikipedia.org/wiki/Закон_Конвея">закон Конвея</a>, как-никак). Классические утилиты для работы с AD и, тем более, API – позволяют осуществлять поиск только на один уровень вглубь. Рассмотрим на примере – существует группа RFX Digest Readers, в состав которой входят как пользовательские учетные записи, так и другие группы</p>
+<pre class="console"><code>member: CN=Tech Coordinators,OU=Groups
+member: CN=Marketing,OU=Groups
+member: CN=Departments Managers,OU=Groups
+member: CN=Syomkin, Andrey,OU=Active,OU=Users
+member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
+<p>Наивное решение для поиска всех людей в этой группе – такое:</p>
+<pre class="console"><code>ldapsearch -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; displayName</code></pre>
+<p>Однако результат предсказуем – нашлись только два человека:</p>
+<pre class="console"><code>member: CN=Syomkin, Andrey,OU=Active,OU=Users
+member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
+<p>Для того, чтобы найти всех, необходимо прибегнуть к “особой Microsoft магии” – специальным <a href="https://docs.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax">префиксам</a>. Например префикс :1.2.840.113556.1.4.1941: (значение именно такое, по <del>иторическим причинам</del> легенде такое значение соответствовало ключу <code>LDAP_MATCHING_RULE_IN_CHAIN</code> в header файлах) позволяет “искать вглубь”. Такой поиск вернет все необходимые записи.</p>
+<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; displayName | grep displayName: | wc -l
+
+=&gt; 113</code></pre>
+<h2 id="синхронизация">Синхронизация</h2>
+<p>Если изменение только-только произошло – не спешите стремглав выполнять поиск по AD, в друг там несколько серверов с репликацией и они еще не синхронизировались… О способах и времени синхронизации отдельных серверов в AD ходят легенды. Мой совет – работайте на запись всегда только с одним, конкретным сервером, если возможно. Совет вредный, но рабочий. Буду раз услышать в комментариях совет полезный, но пока так ;)</p>
+<h2 id="tls-соединение">TLS соединение</h2>
+<p>“Общаться” с AD лучше по защищенному соединению. LDAP поддерживает как несколько режимов аутентификации – kerberos, simple, так и несколько способов шифровать соединение – TLS, START_TLS. Я использую kerberos для работы через консольную утилиту ldapsearch, так как это очень удобно – единожды получив “тикет” (через kinit) можно не утруждаться вводом логина/пароля при каждом поиске. Поддержка kerberos традиционно сильна в Java мире (где NTLM не очень популярен), так что я этот метод так же использую в своих Kotlin приложениях. Simple аутентификация пригодится там, где нет возможности пользоваться развесистыми библиотеками – например в ruby. Но стоит себя дополнительно обезопасить, применив TLS шифрование:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">@ldap</span> <span class="kw">=</span> <span class="dt">Net</span><span class="kw">::</span><span class="cn">LDAP</span><span class="at">.new</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="wa">host: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AD_ADDRESS&quot;</span>), <span class="wa">port: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AD_PORT&quot;</span>)<span class="at">.to_i</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="wa">auth: </span><span class="kw">{</span> <span class="wa">method: :simple</span>, <span class="wa">username: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AD_USERNAME&quot;</span>), <span class="wa">password: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AD_PASSWORD&quot;</span>) <span class="kw">}</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="wa">encryption: </span><span class="kw">{</span> <span class="wa">method: :simple_tls</span>, <span class="wa">tls_options: </span><span class="kw">{</span> <span class="wa">ca_file: </span><span class="cn">ENV</span><span class="at">.fetch</span>(<span class="st">&quot;AD_CERTIFICATE&quot;</span>), <span class="wa">verify_mode: </span><span class="dt">OpenSSL</span><span class="kw">::</span><span class="cn">SSL</span><span class="kw">::</span><span class="cn">VERIFY_PEER</span> <span class="kw">}</span> <span class="kw">}</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>)<span class="at">.tap</span>(<span class="kw">&amp;</span><span class="wa">:bind</span>)</span></code></pre></div>
+<p>До того как я прозрел про <code>LDAP_MATCHING_RULE_IN_CHAIN</code>, моя реализация поиска в глубину была такой (до сих пор трудится внутри <a href="https://git.itransition.com/projects/IA/repos/gitman/browse">gitman</a>-а):</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> group_members(name, base <span class="kw">=</span> <span class="cn">PROJECT_GROUPS_DN</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  group <span class="kw">=</span> find(name, base, <span class="kw">[</span><span class="st">&quot;member&quot;</span><span class="kw">]</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="kw">[]</span> <span class="cf">unless</span> attribute(group, <span class="wa">:member</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  group<span class="at">.member.map</span>(<span class="kw">&amp;</span>method(<span class="wa">:dn</span>))<span class="at">.flat_map</span> <span class="cf">do</span> <span class="kw">|</span>member<span class="kw">|</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> member<span class="at">.include?</span>(<span class="st">&quot;, &quot;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>      user(member, <span class="st">&quot;dn&quot;</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      group_members(member, base)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span><span class="at">.compact.uniq</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
+<h2 id="постраничный-доступ">Постраничный доступ</h2>
+<p>При получении большого количества результатов – ldapsearch по умолчанию выдает только первую 1000 штук. Заставить его “выдать всех” можно используя аргумент <code>-E pr=2147483647/noprompt</code>. Он заставит ldapsearch установить очень большой размер “страницы” и не спрашивать “продлевать будете?” при достижении ее границы. При работе из кода (Java, Kotlin), удобно пользоваться createStreamFromIterator из StreamUtils, он позволяет преобразовывать последовательность вызовов next() итератора в удобный для работы поток:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="fu">loadAll</span><span class="op">(</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="va">ldapName</span><span class="op">:</span> <span class="dt">Name</span><span class="op">,</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">filter</span><span class="op">:</span> <span class="dt">AbstractFilter</span><span class="op">,</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">attributeClass</span><span class="op">:</span> <span class="dt">KClass</span>&lt;<span class="kw">out</span> <span class="va">LDAPAttribute</span>&gt;<span class="op">,</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">mapper</span><span class="op">:</span> <span class="op">(</span><span class="dt">Attributes</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="dt">T</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="op">):</span> <span class="dt">List</span><span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">attributes</span> <span class="op">=</span> attributeClass<span class="op">.</span>sealedSubclasses<span class="op">.</span>map <span class="op">{</span> it<span class="op">.</span>objectInstance<span class="op">!!</span> <span class="op">}</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">processor</span> <span class="op">=</span> PagedResultsDirContextProcessor<span class="op">(</span>LDAP_PAGE_SIZE<span class="op">)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">return</span> StreamUtils<span class="op">.</span>createStreamFromIterator<span class="op">(</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">object</span> <span class="op">:</span> <span class="dt">Iterator</span><span class="op">&lt;</span><span class="dt">List</span><span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;&gt;</span> <span class="op">{</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="kw">override</span> <span class="kw">fun</span> <span class="fu">hasNext</span><span class="op">()</span> <span class="op">=</span> processor<span class="op">.</span>hasMore<span class="op">()</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="kw">override</span> <span class="kw">fun</span> <span class="fu">next</span><span class="op">()</span> <span class="op">=</span> LdapTemplate<span class="op">(</span>contextSource<span class="op">).</span>search<span class="op">(</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>                ldapName<span class="op">,</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>                filter<span class="op">.</span>encode<span class="op">(),</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>                searchControls<span class="op">(</span>attributes<span class="op">),</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>                AttributesMapper <span class="op">{</span> mapper<span class="op">(</span>it<span class="op">)</span> <span class="op">},</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                processor</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>            <span class="op">)</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    <span class="op">).</span>flatMap <span class="op">{</span> it<span class="op">.</span>stream<span class="op">()</span> <span class="op">}.</span>toList<span class="op">()</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>К сожалению, мне не известен простой/удобный способ загружать данные параллельно, в постраничном режиме из AD. Как правило, этого не требуется – запросы достаточно быстро выполняются, задержками можно пренебречь. Чего не скажешь про Atlassian JIRA, запросы к которой могут занимать минуты. Но как известно, на любую хитрую гайку…</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;</span> <span class="fu">loadIssues</span><span class="op">(</span><span class="va">fields</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="va">query</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="va">mapper</span><span class="op">:</span> <span class="op">(</span><span class="dt">Issue</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="dt">T</span><span class="op">):</span> <span class="dt">List</span><span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;</span> <span class="op">=</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    jiraClient<span class="op">.</span>searchIssues<span class="op">(</span>query<span class="op">,</span> fields<span class="op">,</span> <span class="dv">1</span><span class="op">).</span>total<span class="op">.</span>let <span class="op">{</span> total <span class="op">-&gt;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">val</span> <span class="va">chunkSize</span> <span class="op">=</span> max<span class="op">(</span><span class="dv">1</span><span class="op">,</span> total <span class="op">/</span> JIRA_CHUNK_COUNT<span class="op">)</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        IntStream<span class="op">.</span>iterate<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">{</span> it <span class="op">+</span> chunkSize <span class="op">}.</span>limit<span class="op">((</span>total <span class="op">/</span> chunkSize<span class="op">)</span> <span class="op">+</span> <span class="dv">1L</span><span class="op">).</span>toList<span class="op">().</span>map <span class="op">{</span> start <span class="op">-&gt;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            DatabaseContext<span class="op">.</span>supplyAsync <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>                Failsafe<span class="op">.</span>with<span class="op">(</span>RetryPolicy<span class="op">&lt;</span>List<span class="op">&lt;</span>T<span class="op">&gt;&gt;().</span>handle<span class="op">(</span>RestException<span class="op">::</span><span class="kw">class</span>.java).withMaxRetries<span class="op">(</span>3<span class="op">)</span>).<span class="kw">get</span> <span class="op">{</span> <span class="op">-&gt;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                    jiraClient<span class="op">.</span>searchIssues<span class="op">(</span>query<span class="op">,</span> fields<span class="op">,</span> chunkSize<span class="op">,</span> start<span class="op">).</span>issues<span class="op">.</span>map<span class="op">(</span>mapper<span class="op">)</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                <span class="op">}</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="op">}.</span>map <span class="op">{</span> it<span class="op">.</span><span class="kw">get</span><span class="op">()</span> <span class="op">}.</span>flatten<span class="op">()</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<h2 id="примеры-запросов">Примеры запросов</h2>
+<p>Запросы в AD могут быть весьма сложными, так сказать write-only. Приведу, один такой пример.</p>
+<pre class="console"><code>(&amp;(objectClass=person)(|
+(memberOf:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(managedObjects:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(memberOf:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(managedObjects:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(managedObjects:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
+(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)))</code></pre>
+<p>На человеческом языке запрос звучит достаточно просто: все HelpDesk Operator-ы, а так же члены групп <code>IT</code> и <code>VECTOR.Development</code>. Из этой безобидности запрос превращается в “ужас на крыльях ночи” благодаря: - обсуждаемому выше магическому префиксу для поиска “в глубину” - наличию не только членов группы (memberOf), но и ее владельцев (managedObjects) - кроме очевидного способа найти владельцев группы, существует еще и Exchange-way управлять составом групп, так что приходится учитывать поле <code>msExchCoManagedObjectsBL</code></p>
+<p>Предыдущий запрос используется в конфигурационном файле <code>nginx</code> для контроля доступа к страницам при помощи <a href="https://github.com/kvspb/nginx-auth-ldap">nginx-auth-ldap</a> плагина. Такое решение может оказаться эффективнее, чем встраивать аутентификацию внутрь защищаемой системы. Если вам это необходимо – скорее всего придется собрать модуль самостоятельно</p>
+<pre class="docker"><code>RUN git clone https://github.com/kvspb/nginx-auth-ldap.git &amp;&amp; wget -qO- http://nginx.org/download/nginx-1.17.3.tar.gz | tar -xvzf -
+
+RUN cd nginx-1.17.3 &amp;&amp; ./configure  --user=nginx \
+                                    --group=nginx \
+                                    --prefix=/etc/nginx \
+                                    --sbin-path=/usr/sbin/nginx \
+                                    --conf-path=/etc/nginx/nginx.conf \
+                                    --pid-path=/var/run/nginx.pid \
+                                    --lock-path=/var/run/nginx.lock \
+                                    --error-log-path=/var/log/nginx/error.log \
+                                    --http-log-path=/var/log/nginx/access.log \
+                                    --with-http_gzip_static_module \
+                                    --with-http_ssl_module \
+                                    --with-pcre \
+                                    --add-module=/nginx-auth-ldap/ \
+                                    --with-debug &amp;&amp; make &amp;&amp; make install &amp;&amp; rm -rf /nginx-1.17.3 &amp;&amp; rm -rf /nginx-auth-ldap</code></pre>
+<h2 id="аутентификация-в-teamcity">Аутентификация в TeamCity</h2>
+<p>Множество систем поддерживает интеграцию с AD в качестве источника пользователей. Вот рецепт (содержимое необходимо поместить в <code>teamcity_server/datadir/config/ldap-config.properties</code> файл) того, как это можно сделать в TeamCity, чтобы члены проектной команды могли логиниться под доменными учетными записями. Доступ будет автоматически пропадать при покидании проекта. Все что для этого понадобится – служебная учетная запись (для доступа к самому AD).</p>
+<pre class="properties"><code>java.naming.provider.url=ldap://ldap.itransition.corp:389
+java.naming.security.principal=CN=vector,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp
+java.naming.security.credentials=PASSWORD_WAS_HERE
+
+teamcity.users.login.filter=(&amp;(sAMAccountName=$capturedLogin$)(memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp))
+
+teamcity.options.users.synchronize=true
+teamcity.users.filter=(&amp;(objectClass=person)(memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp))
+
+teamcity.users.base=OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp
+teamcity.users.username=sAMAccountName
+teamcity.users.property.displayName=displayName
+teamcity.users.property.email=mail
+
+teamcity.options.createUsers=true
+teamcity.options.deleteUsers=true</code></pre>
+<p>Подробный рассказ о TeamCity и то, как его правильно готовить от Panfilenok Aleksandr вас ждет на предстоящем <a href="https://itransition.workplace.com/events/537058783541251/">Itransition Development Meetup #10</a>.</p>
+<h2 id="утилиты-командной-строки">Утилиты командной строки</h2>
+<p>Используя ldapseach можно легко (для тех кто любит терминал) строить полезные запросы к AD. Например – список людей, в интересующей вас комнате:</p>
+<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))&quot; | grep displayName:
+
+=&gt;
+displayName: Shestakov, Aleksandr
+displayName: Pupkin, Andrey</code></pre>
+<p>Список проектных групп вашего проекта (результат зависит от консистентности названия групп):</p>
+<pre class="console"><code>ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b &quot;OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; &quot;name=ILLIS*&quot; dn | grep CN=
+
+=&gt;
+dn: CN=ILLIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.ILLIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp
+dn: CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</code></pre>
+<p>Список переговорных на Кульман 1 с окнами:</p>
+<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))&quot; dn | grep CN= | cut -d , -f 1
+
+=&gt;
+dn: CN=Room K1-101
+dn: CN=Room K1-117
+dn: CN=Room K1-119
+dn: CN=Room K1-202
+dn: CN=Room K1-208
+dn: CN=Room K1-421</code></pre>
+<p>Или без окон:</p>
+<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))&quot; dn | grep CN= | cut -d , -f 1
+
+=&gt;
+dn: CN=Room K1-112
+dn: CN=Room K1-217
+dn: CN=Room K1-224
+dn: CN=Room K1-301a-Manicure
+dn: CN=Room K1-301a-Massage
+dn: CN=Room K1-313a-1
+dn: CN=Room K1-315
+dn: CN=Room K1-316
+dn: CN=Room K1-410
+dn: CN=Room K1-411
+dn: CN=Room K1-419</code></pre>
+<p>Список <em>однофамильцев</em> рабочих станций:</p>
+<pre class="console"><code>ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b &quot;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=shestakova*)(!(name=shestakova-a)))&quot; managedBy
+
+=&gt;
+# extended LDIF
+#
+# LDAPv3
+# base &lt;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&gt; with scope subtree
+# filter: (&amp;(name=shestakova*)(!(name=shestakova-a)))
+# requesting: managedBy
+#
+
+# SHESTAKOVAV, Workstations, Itransition, itransition.corp
+dn: CN=SHESTAKOVAV,OU=Workstations,OU=Itransition,DC=itransition,DC=corp
+managedBy: CN=Shestakova\, Vitalina,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp
+
+# search result
+search: 5
+result: 0 Success
+
+# numResponses: 2
+# numEntries: 1</code></pre>
+<h2 id="занимательные-флаги">Занимательные флаги</h2>
+<p>При работе с утилитой командной строки ldapsearch необходимо быть внимательным – она любит делать text-wrap, перенося окончания длинных CN на следующую строку. Для того, чтобы этого избежать – удобно пользоваться опцией <code>-o ldif-wrap=no</code>.</p>
+<p>Знаете первое правило real estate бизнеса – <a href="https://www.thebalance.com/what-location-means-in-real-estate-1798766">Location, Location и еще раз Location</a>. Так вот ldapsearch тоже о нем в курсе ;) Для того, чтобы избавиться от надоедливых header-ов (иначе не удобно обрабатывать вывод другими утилитами), необходимо передавать флаги <code>-L -L -L</code>, о чем заботливо упоминается в документации: <em>A single -L restricts the output to LDIFv1. A second -L disables comments. A third -L disables printing of the LDIF version.</em></p>
+<p>Флаг <code>-Q</code> тоже полезен, он “глушит” вывод SASL/GSSAPI библиотеки (реализация kerberos) в потоке вывода.</p>
+<p>Внимательный читатель заметил символ экранирования – обратный slash, который ldapsearch вставляет при печати результатов поиска (причем в комментариях иным способом: <code># Shestakov\2C Aleksandr</code>). Дело в том, что запятая – “разделитель пути” в DN (distinguishable name – уникальный идентификатор объекта в AD). Так что при обработке вывода ldapseach лучше использовать другие поля, например displayName. Это бывает полезно еще и по причине того, что displayName может не совпадать по написанию с DN – так бывает, если пользователь очень-пре-очень хочет, чтобы в корпоративных системах его имя или фамилия имели отличное от принятого стандарта транслитерации.</p>
+<p>Ну вот и все, спасибо за внимание ;) Выражаю благодарность Neskoromny Nikolay за идею статьи, Sovetkin Maksim за ревью.</p>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

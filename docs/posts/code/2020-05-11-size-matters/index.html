@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Size does matter</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Size does matter</h1>
+    
+<article>
+  <span class="header">
+    
+    <a href="../../../series/ldap-bot">4 / 5 on ldap-bot</a>
+    
+      May 11, 2020 &amp;<a href="../../../languages/russian">russian</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/ruby">ruby</a> #<a href="../../../tags/kotlin">kotlin</a> #<a href="../../../tags/docker">docker</a>
+  </span>
+  <section>
+    <p>Возможно я в этом не одинок, но меня сильно разочаровывают размеры современных приложений. Сейчас считается нормой создавать сайты, скачивающие десятки мегабайт при первой загрузке, иметь приложения для телефонов размером в несколько сотен мегабайт, базовые образы <code>docker</code> контейнеров занимают гигабайты… Ситуация парадоксальная – “дешевле” не заботиться о размере, так как усилия, потраченные в этом направлении будут стоить компании-разработчику дороже.</p>
+<!--more-->
+<p><img src="../../../previews/size-matters/logo.jpg" class="center" /></p>
+<p>Возможно это действительно так, проверить достаточно сложно. А может быть все как раз наоборот, просто не представляется возможным точно подсчитать сколько на <strong>самом деле</strong> средств тратится на трафик и “ожидания” с “простоями”. А уж как большой размер скачиваемых артефактов влияет на customer и/или developer satisfaction и говорить нечего. “Современный подход” во мне пробуждает неоднозначные чувства и заставляет, в меру сил, <em>бороться</em> с ситуацией.</p>
+<h2 id="минутка-истории">Минутка истории</h2>
+<p>Компилируемые в бинарный код языки существовали еще до <a href="https://ru.wikipedia.org/wiki/Unix-время">начала времен</a>. В эпоху контейнеризации преимущества “бинарников” раскрылись с новой, неожиданной стороны. Для чего вообще нужна контейнеризация? Изоляция, воспроизводимость, удобство развертывания и безопасность. Программа, представляющая собой один единственный исполняемый файл – что может быть удобнее для развертывания? Изоляцию, в какой-то мере, может предоставить операционная система. А воспроизводимость (с точки зрения сборки) и вовсе решается без использования контейнеров. Что с безопасностью? Необходимо отметить, тут есть “проблемы”. Возможно вы не застали времена <a href="https://en.wikipedia.org/wiki/CGI">CGI</a> скриптов, но в начале развития интернета, серверные приложения были обычными бинарниками, которые запускались web серверами через CGI интерфейс. И если в такой программе была ошибка/уязвимость – атакующий мог получить доступ ко всему серверу – ведь бинарник исполнялся, как правило, от пользователя под которым работал web сервер. А с учетом того, что сервера раньше виртуальными были редко – на одном и том же хосте располагались данные (почта, файлы и т.д.) многих пользователей – компрометации подвергалось все.</p>
+<p>Сейчас CGI используется крайне редко, все чаще программы сами предоставляют <code>http</code> интерфейс для взаимодействия с собой, а web сервер выступает в роли <code>proxy</code>. Да и компилируемые в бинарный код языки для web используются все реже. Засилье виртуальных машин да интерпретаторов. Почему это не очень хорошо с точки зрения безопасности? Исполняемый файл можно назначить “точкой входа” <code>docker</code> контейнера, убрав из файловой системы все лишнее (кроме необходимых для работы приложения библиотек). В этом случае, даже если злоумышленник и обнаружит <a href="https://www.exploit-db.com/docs/english/42593-command-injection---shell-injection.pdf">shell injection</a> в программе, ничего страшного не случится – никакого командного интерпретатора внутри контейнера нет, “внедрять” вредоносный код попросту некуда.</p>
+<h2 id="ruby">Ruby</h2>
+<p>Если задуматься, такой трюк можно провернуть не только с системами, представляющими собой бинарный файл, но и со скриптовыми языками. Это несколько сложнее, но все-же возможно. Давайте попробуем разобраться на примере приложения, написанного на <code>ruby</code>.</p>
+<p>В начале все более-менее стандартно – берем за основу официальный образ для <code>ruby</code> и устанавливаем зависимости из <code>Gemfile.lock</code> при помощи <code>bundler</code>-а. Библиотеки в <code>ruby</code> поставляются в виде исходников, складываем их в <code>/app/vendor/bundle</code> папку, рядом с самим приложением.</p>
+<pre class="docker"><code>FROM ruby:2.7.0 as ruby
+
+WORKDIR /app
+COPY Gemfile* /app/
+RUN bundle config --local deployment 'true'
+RUN bundle config --local frozen 'true'
+RUN bundle config --local no-cache 'true'
+RUN bundle config --local clean 'true'
+RUN bundle config --local without 'development'
+RUN bundle config --local path 'vendor/bundle'
+RUN bundle install
+RUN mkdir .bundle &amp;&amp; cp /usr/local/bundle/config .bundle/config
+RUN rm -rf vendor/bundle/ruby/2.7.0/cache vendor/bundle/ruby/2.7.0/bin</code></pre>
+<p>Далее, в этом же много-<code>stage</code>-евом <code>Dockerfile</code> берем за основу <code>distroless</code> образ (без командного интерпретатора) и копируем из предыдущего шага библиотеки, необходимые для работы интерпретатора <code>ruby</code>. Как понять какие именно библиотеки нужны? Спрашивать у <code>ldd</code> (или <code>otool -L</code> в случае <code>llvm</code>) особого смысла нет – интерпретатор все равно кое-что загружает динамически. При помощи серии экспериментов, удается выявить, что для работы нашей программы, достаточно <code>libz</code>, <code>libyaml</code> и <code>libgmp</code>. Копируем библиотеки и сам интерпретатор в <code>distroless</code> образ.</p>
+<pre class="docker"><code>FROM gcr.io/distroless/base-debian10 as distroless
+
+COPY --from=ruby /lib/x86_64-linux-gnu/libz.so.* /lib/x86_64-linux-gnu/
+COPY --from=ruby /usr/lib/x86_64-linux-gnu/libyaml* /usr/lib/x86_64-linux-gnu/
+COPY --from=ruby /usr/lib/x86_64-linux-gnu/libgmp* /usr/lib/x86_64-linux-gnu/
+COPY --from=ruby /usr/local/lib /usr/local/lib
+COPY --from=ruby /usr/local/bin/ruby /usr/local/bin/ruby
+COPY --from=ruby /usr/local/bin/bundle /usr/local/bin/bundle</code></pre>
+<p>Цель достигнута, образ не содержит командного интерпретатора и другой шелухи (<code>man</code> страниц, файлов настроек операционной системы и т.д.). Но мы на этом на остановимся и следующим шагом соберем образ буквально <code>FROM scratch</code>. <code>scratch</code> – это образ “без ничего”, он пуст. Так что мы смеем надеяться, что ничего лишнего (не жизненно необходимого для работы приложения) в итоговом образе не будет. Кроме самого приложения (набора <code>*.rb</code> файлов) понадобиться еще файл с корневыми сертификатами, без которого не обойтись при общении с внешними сервисами по <code>https</code>.</p>
+<pre class="docker"><code>FROM scratch
+
+COPY --from=ruby /app /app
+
+COPY --from=distroless /lib /lib
+COPY --from=distroless /lib64 /lib64
+COPY --from=distroless /usr/local /usr/local
+COPY --from=distroless /usr/lib/ssl /usr/lib/ssl
+COPY --from=distroless /usr/lib/x86_64-linux-gnu/lib* /usr/lib/x86_64-linux-gnu/
+COPY --from=distroless /etc/ssl /etc/ssl
+COPY --from=distroless /home /home
+
+WORKDIR /app
+COPY dialogs /app/dialogs/
+COPY services /app/services/
+COPY *.rb /app/
+
+ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+ENV RUBYOPT -W:no-deprecated -W:no-experimental
+
+CMD [&quot;bundle&quot;, &quot;exec&quot;, &quot;ruby&quot;, &quot;server.rb&quot;]</code></pre>
+<p>Итоговый размер образа – <strong>61 мегабайт</strong>. Уверен, можно было бы еще десяток сбросить при помощи утилиты <a href="https://github.com/wagoodman/dive">dive</a> (крайне рекомендую к использованию), удалив неиспользуемые части стандартной библиотеки языка и зависимостей <code>ruby</code> программы. Но вот эту часть, уже можно считать экономически нецелесообразной…</p>
+<p>Если бы мы ставили перед собой цель максимально уменьшить размер приложения, то, скорее всего, воспользовались бы <a href="https://alpinelinux.org">alpine linux</a> образом, который славится малым начальным размером а так же схлопнули бы все слои <code>docker</code> образа в один (чтобы избавиться от удаленных файлов в нижних слоях). В этом случае, размер получившего образа мог быть даже меньше, однако преимуществ безопасности мы бы не достигли.</p>
+<p>Кроме преимуществ, у такого подхода есть и недостатки. К примеру, больше нельзя подключиться к работающему контейнеру и “посмотреть” логи, их просто нечем выводить, да и некуда – ни <code>bash</code> ни <code>cat</code> в образе нет. Вот он, микро-сервис во всей красе – пишет логи в <code>stdout</code>.</p>
+<h2 id="kotlin">Kotlin</h2>
+<p>Буквально на днях познакомился с <a href="https://www.graalvm.org">GraalVM</a> и он меня покорил. Одной из функций <code>GraalVM</code> является сборка <code>native</code> бинарников из <code>jar</code> файлов. Да, именно так: вы можете взять свое приложение, собрать его в обычный <code>fat jar</code> (с зависимостями), а затем “скомпилировать” в исполняемый бинарь.</p>
+<p>У меня есть маленькая <a href="../../../posts/projects/2020-11-06-trimmer">поделка</a> для “причесывания” названий ресурсных и проектных карт. Дело в том. что в процессе создания, иногда в начале или в конце <code>title</code>-а оставляют пробелы, что мешает потом эффективно работать с такими картами. Очень давно я написал программу, чтобы автоматизировать процесс <code>trim</code>-а. Целью было, конечно, не это, а исследование возможностей библиотеки <code>("com.github.rcarz", "jira-client", "master")</code> для доступа к <code>JIRA</code> через <em>приятный</em> <code>DSL</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>const <span class="kw">val</span> <span class="va">RESOURCE_CARDS</span> <span class="op">=</span> <span class="st">&quot;RESCARD&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>const <span class="kw">val</span> <span class="va">PROJECT_CARDS</span> <span class="op">=</span> <span class="st">&quot;PROJCARD&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>const <span class="kw">val</span> <span class="va">PAGINATION_SIZE</span> <span class="op">=</span> <span class="dv">999</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> <span class="va">dotenv</span> <span class="op">=</span> DotEnv<span class="op">.</span>load<span class="op">()</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> <span class="va">jira</span> <span class="op">=</span> JiraClient<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_URL&quot;</span><span class="op">],</span> BasicCredentials<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_USERNAME&quot;</span><span class="op">],</span> dotenv<span class="op">[</span><span class="st">&quot;JIRA_PASSWORD&quot;</span><span class="op">]))</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="fu">makeQuery</span><span class="op">(</span><span class="va">block</span><span class="op">:</span> <span class="dt">JqlQueryBuilder</span>.(<span class="op">)</span> -&gt; <span class="fu">Unit</span>) <span class="op">:</span> <span class="dt">String</span> <span class="op">=</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        JqlStringSupportImpl<span class="op">(</span>DefaultJqlQueryParser<span class="op">()).</span>generateJqlString<span class="op">(</span>newBuilder<span class="op">().</span>also <span class="op">{</span> block<span class="op">(</span>it<span class="op">)</span> <span class="op">}.</span>buildQuery<span class="op">())</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="fu">trim</span><span class="op">(</span><span class="va">project</span> <span class="op">:</span> <span class="dt">String</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    println<span class="op">(</span><span class="st">&quot;Searching for issues in </span><span class="ss">${</span>project<span class="ss">}</span><span class="st">.&quot;</span><span class="op">)</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    jira<span class="op">.</span>searchIssues<span class="op">(</span>makeQuery <span class="op">{</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">where</span><span class="op">().</span>project<span class="op">(</span>project<span class="op">)</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>        orderBy<span class="op">().</span>createdDate<span class="op">(</span>ASC<span class="op">)</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">},</span> SUMMARY<span class="op">,</span> PAGINATION_SIZE<span class="op">).</span>iterator<span class="op">().</span>asSequence<span class="op">().</span>toList<span class="op">().</span>filter <span class="op">{</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>        it<span class="op">.</span>summary<span class="op">.</span>trim<span class="op">()</span> <span class="op">!=</span> it<span class="op">.</span>summary</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}.</span>also <span class="op">{</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>it<span class="op">.</span>count<span class="op">()</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>            println<span class="op">(</span><span class="st">&quot;No issues in </span><span class="ss">${</span>project<span class="ss">}</span><span class="st">, that needs to be trimmed was found.&quot;</span><span class="op">)</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>            println<span class="op">(</span><span class="st">&quot;Found </span><span class="ss">${</span>it<span class="op">.</span>count<span class="op">()</span><span class="ss">}</span><span class="st"> issues in </span><span class="ss">${</span>project<span class="ss">}</span><span class="st">, that needs to be trimmed.&quot;</span><span class="op">)</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">}.</span>forEach <span class="op">{</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>        println<span class="op">(</span><span class="st">&quot;Trimming </span><span class="ss">${</span>it<span class="op">.</span>key<span class="ss">}</span><span class="st"> with summary '</span><span class="ss">${</span>it<span class="op">.</span>summary<span class="ss">}</span><span class="st">'.&quot;</span><span class="op">)</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>        it<span class="op">.</span>update<span class="op">().</span>field<span class="op">(</span>SUMMARY<span class="op">,</span> it<span class="op">.</span>summary<span class="op">.</span>trim<span class="op">()).</span>execute<span class="op">()</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="fu">main</span><span class="op">(</span><span class="va">args</span><span class="op">:</span> <span class="dt">Array</span>&lt;<span class="va">String</span>&gt;<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    MockComponentWorker<span class="op">().</span>init<span class="op">()</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    listOf<span class="op">(</span>RESOURCE_CARDS<span class="op">,</span> PROJECT_CARDS<span class="op">).</span>forEach<span class="op">(::</span>trim<span class="op">)</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Для построения <code>JQL</code> запроса (не строкой, а при помощи <code>DSL</code>) к <code>JIRA</code> я использовал библиотеки самого <code>Atlassian</code>-а (библиотека для тестов необходима для инициализации <code>core</code>, в тестовом режиме, в противном случае <code>core</code> остается очень недоволен тем, что запущен вне контекста <code>JIRA</code>):</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>implementation<span class="op">(</span><span class="st">&quot;com.atlassian.jira&quot;</span><span class="op">,</span> <span class="st">&quot;jira-core&quot;</span><span class="op">,</span> <span class="st">&quot;8.8.1&quot;</span><span class="op">)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>implementation<span class="op">(</span><span class="st">&quot;com.atlassian.jira&quot;</span><span class="op">,</span> <span class="st">&quot;jira-tests&quot;</span><span class="op">,</span> <span class="st">&quot;8.8.1&quot;</span><span class="op">)</span></span></code></pre></div>
+<p>Собрав <code>fat jar</code> с этими и еще некоторыми прямыми (сам <code>kotlin</code>, библиотека для работы с переменными окружения, etc.) и косвенными зависимостями (только представьте сколько зависимостей за собой “тянет” <code>jira-core</code>) получаем <code>trimmer-1.0-all.jar</code> размером в <strong>112 мегабайт</strong> – такова цена за <code>code-reuse</code>. Настало время для <code>GraalVM</code> – попробуем преобразовать <code>jar</code> файл в обычный исполняемый файл, в надежде избавиться от главной зависимости – виртуальной <code>java</code> машины.</p>
+<pre class="console"><code>$ native-image -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               -H:+ReportUnsupportedElementsAtRuntime
+               --allow-incomplete-classpath</code></pre>
+<p>Попытка “в лоб” заканчивается неудачей, логи полны сообщений вида:</p>
+<pre class="console"><code>Error: Classes that should be initialized at run time got initialized during image building:
+org.apache.log4j.spi.LoggingEvent was unintentionally initialized at build time.
+org.apache.http.HttpEntity was unintentionally initialized at build time.
+...
+Error: Image build request failed with exit status 1</code></pre>
+<p>Не отчаиваемся и просим <code>GraalVM</code> пытаться инициализировать это все на этапе сборки образа:</p>
+<pre class="console"><code>$ native-image --no-server
+               --enable-https
+               --allow-incomplete-classpath
+               -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               --initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging</code></pre>
+<p>Успех, на выходе имеем <code>trimer-exe</code> файл, размером всего в <strong>6.5 мегабайт</strong>. Упакуем его дополнительно замечательной утилитой <a href="https://upx.github.io">upx</a>, которая знакома всем еще со времен <code>DOS</code> и недостатка места на диске. Результат изумителен – <strong>1.8 мегабайт</strong>! Да только вот нас немного обманули… <code>GraalVM</code>, по умолчанию, строит образы, которые хоть и являются исполняемыми, но они не в состоянии работать без установленной на компьютере <code>java</code> виртуальной машины. При попытке построить “настоящий” независимый образ (опция <code>--no-fallback</code>), сталкиваемся с рядом сложностей.</p>
+<p>Во-первых – <code>Warning: Aborting stand-alone image build. Detected a FileDescriptor in the image heap</code> появляющийся из-за статической инициализации поля <code>org.apache.log4j.LogManager.repositorySelector</code>. Дело в том, что в глубинах зависимостей нашего приложения есть части, инициализирующиеся на этапе загрузки классов – а именно – это код в блоках <code>static</code> и статические члены классов в <code>java</code>. В основном – это <code>logging framework</code>-и (их по дереву зависимостей наберется несколько штук), которые требуют указания <code>class</code>-а для создания logger объекта. Они обладают возможностью ленивой инициализации при первом использовании, при помощи <code>reflection</code> загружая подходящую реализацию, от чего <code>GraalVM</code> становится дурно (действительно, сохранить открытый <code>FileDescriptor</code> в дампе памяти – невыполнимая задача), он отчаянно требует помощи. Попробуем заглушить инициализацию <code>log4j</code>, мы ведь им и не пользуемся даже: добавляем в начале <code>main</code> строку <code>LogManager.setRepositorySelector(DefaultRepositorySelector(NOPLoggerRepository()), null)</code>, а в момент сборки образа добавляем опцию <code>-Dlog4j.defaultInitOverride=true</code>. Как до этого “дойти”? Исключительно чтением исходных текстов библиотеки. Сложно недооценить количество знаний и понимания внутреннего устройства систем, получаемых таким образом – не бойтесь заглядывать под капот используемым библиотекам!</p>
+<p>К слову, еще до использования <code>GraalVM</code> я замечал, что при запуске приложения создается папка <code>target</code> (хоть я и использую <code>gradle</code>, который все <em>кладет</em> в папку <code>build</code>) с пустым файлом <code>unit-tests.log</code> в ней. Подозрения пали на <code>com.atlassian.jira:jira-tests</code> зависимость, в недрах которой обнаружился <code>log4j.properties</code> файл с незатейливым содержимым:</p>
+<pre class="properties"><code>log4j.appender.console=org.apache.log4j.FileAppender
+log4j.appender.console.File=target/unit-tests.log</code></pre>
+<p>Разработчики из <code>Atlassian</code> подумали, что это отличная идея – перенаправить все что должно выводиться на консоль – в файл. Хорошая это идея или кошмарная – каждый решает за себя, но вот делать это “втихую”, просто из-за наличия зависимости – верх эгоизма.</p>
+<p>За одно отключим еще один <code>logging framework</code> – <code>slf4j</code>. Для этого добавим в начало <code>main</code> <del>грязный хак</del>строку:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>LoggerFactory<span class="op">::</span><span class="kw">class</span>.java.getDeclaredField<span class="op">(</span>&quot;<span class="va">INITIALIZATION_STATE</span>&quot;<span class="op">)</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  .also <span class="op">{</span> it<span class="op">.</span>isAccessible <span class="op">=</span> <span class="kw">true</span> <span class="op">}</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">.</span><span class="kw">set</span><span class="op">(</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    LoggerFactory<span class="op">::</span><span class="kw">class</span>, LoggerFactory<span class="op">:</span>:<span class="kw">class</span>.java.getDeclaredField<span class="op">(</span>&quot;<span class="va">NOP_FALLBACK_INITIALIZATION</span>&quot;<span class="op">)</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      .also <span class="op">{</span> it<span class="op">.</span>isAccessible <span class="op">=</span> <span class="kw">true</span> <span class="op">}</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span><span class="kw">get</span><span class="op">(</span>LoggerFactory<span class="op">::</span><span class="kw">class</span>)</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    )</span></code></pre></div>
+<p>Она заставит <code>slf4j</code> пропустить инициализацию и не заниматься <code>reflection</code>-ом во время старта приложения. А статическую инициализацию одного из наших полей, сделаем отложенной (чтобы “трюк” из <code>main</code> успел выполниться вовремя):</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> <span class="va">jira</span> <span class="op">=</span> lazy <span class="op">{</span> JiraClient<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_URL&quot;</span><span class="op">],</span> BasicCredentials<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_USERNAME&quot;</span><span class="op">],</span> dotenv<span class="op">[</span><span class="st">&quot;JIRA_PASSWORD&quot;</span><span class="op">]))</span> <span class="op">}</span></span></code></pre></div>
+<p>Кстати, именно из-за статической инициализации приложения на <code>java</code> так медленно стартуют, а при старте иногда можно видеть в консоли строки:</p>
+<pre class="console"><code>log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.PoolingClientConnectionManager).
+log4j:WARN Please initialize the log4j system properly.
+log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.</code></pre>
+<p><code>GraalVM</code> как раз и славится тем, что позволяет сократить время запуска приложений, так как вся статическая инициализация происходит на этапе “сборки”, в готовый исполняемый файл, вместе со встраиваемой виртуальной машиной, попадают “замороженные” версии классов, с уже выполненным шагом статической инициализации.</p>
+<pre class="console"><code>$ native-image --no-fallback
+               --allow-incomplete-classpath
+               --enable-https
+               --no-server
+               -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
+               -Dlog4j.defaultInitOverride=true</code></pre>
+<p>Следующая беда “вылазит” уже не на этапе сборки, а после запуска собранного приложения:</p>
+<pre class="console"><code>Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: java.lang.Class
+  at net.sf.json.AbstractJSON.class$(AbstractJSON.java:53)
+  ...
+  at net.rcarz.jiraclient.RestClient.request(RestClient.java:165)
+  ...</code></pre>
+<p>Общение с <code>JIRA</code> происходит при помощи <code>JSON</code>-а, а его разбор в <code>java</code> большинством библиотек происходит через <code>reflection</code>, возможности которого в <code>GraalVM</code> несколько ограничены. <code>GraalVM</code> понимает, что необходимо “встроить” нужные вызовы к <code>reflection</code> <code>API</code> в итоговый образ, если они происходят на этапе статической инициализации, но вот к вызовам <code>reflection</code> во время исполнения его “никто не готовил”. Создадим файл <code>config.json</code> с таким содержимым:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span> <span class="fu">:</span> <span class="st">&quot;java.lang.String&quot;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;name&quot;</span> <span class="fu">:</span> <span class="st">&quot;java.lang.Class&quot;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
+<p>Заставим <code>GraalVM</code> обратить на него внимание:</p>
+<pre class="console"><code>$ native-image --no-fallback
+               --allow-incomplete-classpath
+               --enable-https
+               --no-server
+               -cp ./build/libs/trimmer-1.0-all.jar
+               -H:Name=trimer-exe
+               -H:Class=TrimmerKt
+               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
+               -Dlog4j.defaultInitOverride=true
+               -H:ReflectionConfigurationFiles=./config.json</code></pre>
+<p>В итоге, собранная программа работает как положено. Итоговый размер – <strong>28 мегабайт</strong>, а будучи упакованным при помощи <code>upx</code> – <strong>7.1 мегабайт</strong>. Не удивительно, ведь <code>GraalVM</code> пришлось включить в исполняемый файл <code>Substrate VM</code> виртуальную машину для того, чтобы бинарный файл стал независим от системного <code>JRE</code>. Обещания, которые давал <code>GraalVM</code> он выполнил – один исполняемый файл, независимость от системного <code>JRE</code>. К слову, время старта приложения значительно сократилось – разница заметна даже невооруженным взглядом:</p>
+<pre class="console"><code>$ time java -jar build/libs/trimmer-1.0-all.jar --dry-run
+0.30s user 0.05s system 181% cpu 0.195 total
+$ time ./trimer-exe --dry-run
+0.00s user 0.00s system 70% cpu 0.010 total</code></pre>
+<h2 id="haskell">Haskell</h2>
+<p>Напоследок, попробуем получить преимущества от статической линковки программы на <code>Haskell</code>, бота <a href="../../../posts/projects/2020-02-07-ldap-bot">Group Manager</a>. Сборка программ на <code>Haskell</code> внутри <code>docker</code>-а происходит примерно так же как и на <code>golang</code>. В первом <code>stage</code>-е устанавливаются все необходимые зависимости, собирается бинарный исполняемый файл. Затем он из этого <code>stage</code>-а копируется в “чистовой” контейнер, не содержащий компилятора и других <code>development</code> зависимостей.</p>
+<p>Самая первая версия бота так и собиралась, итоговый бинарный файл имел размер <strong>26 мегабайт</strong>, а <code>docker</code> образ (на основе того же <code>distroless</code>) – <strong>46 мегабайт</strong>.</p>
+<pre class="docker"><code>FROM haskell:8.6.5 as haskell
+
+RUN mkdir /app
+WORKDIR /app
+
+ADD stack.yaml .
+ADD stack.yaml.lock .
+ADD package.yaml .
+
+RUN mkdir src
+RUN mkdir app
+RUN mkdir test
+
+RUN stack setup
+RUN stack build || true
+
+ADD . .
+
+RUN stack install
+
+FROM gcr.io/distroless/base
+COPY --from=haskell /lib/x86_64-linux-gnu/libz* /lib/x86_64-linux-gnu/
+COPY --from=haskell /usr/lib/x86_64-linux-gnu/libgmp* /usr/lib/x86_64-linux-gnu/
+
+COPY --from=haskell /root/.local/bin/ldabot-exe /app
+
+ENTRYPOINT [&quot;/app&quot;]</code></pre>
+<p>В принципе, не так и плохо, но можно лучше! Если добавить опции для статической сборки и использовать <code>scratch</code> в качестве базового образа (никакие библиотеки ведь теперь не нужны), получается исполняемый файл размером <strong>28 мегабайт</strong> и такого же размера <code>docker</code> образ (состоит он, по сути, из одного единственного файла).</p>
+<pre class="docker"><code>FROM haskell:8.6.5 as haskell
+
+RUN mkdir /app
+WORKDIR /app
+
+ADD stack.yaml .
+ADD stack.yaml.lock .
+ADD package.yaml .
+
+RUN mkdir src
+RUN mkdir app
+RUN mkdir test
+
+RUN stack setup
+RUN stack build || true
+
+ADD . .
+
+RUN sed -i &quot;s/    ghc-options:/    cc-options: -static\n    ld-options: -static -pthread\n    ghc-options:\n    - -O2\n    - -static/g&quot; package.yaml
+
+RUN stack install --executable-stripping
+RUN strip /root/.local/bin/ldabot-exe
+
+FROM scratch
+
+COPY --from=haskell /root/.local/bin/ldabot-exe /app
+
+ENTRYPOINT [&quot;/app&quot;]</code></pre>
+<p>Стоит ли останавливаться на достигнутом? Конечно же нет! Существует такая штука как <code>musl</code> – альтернативная реализация <code>libc</code> библиотеки, которая славится малым размером (кроме других своих достоинств). Именно благодаря ей <code>alpine linux</code> имеет такой скромный размер. Мир полон добрых людей, существуют сборка компилятора <code>GHC 8.6.5</code> “под” <code>musl</code> – <code>utdemir/ghc-musl:v4-libgmp-ghc865</code>, ей мы и воспользуемся.</p>
+<pre class="docker"><code>FROM utdemir/ghc-musl:v4-libgmp-ghc865 as haskell
+
+RUN mkdir /app
+WORKDIR /app
+
+RUN cabal update
+ADD ldabot.cabal .
+RUN cabal build || true
+
+ADD . .
+RUN cabal new-install
+RUN strip --strip-all /root/.cabal/bin/ldabot-prod
+
+FROM alpine as upx
+
+RUN apk add -u upx
+
+COPY --from=haskell /root/.cabal/bin/ldabot-prod /app
+RUN upx --best /app
+
+FROM scratch
+
+COPY --from=gcr.io/distroless/base /etc/ssl /etc/ssl
+COPY --from=upx /app /app
+
+ENTRYPOINT [&quot;/app&quot;]</code></pre>
+<p>Благодаря <code>musl</code> (и, конечно, <code>upx</code>) удалось добиться бинарника размером <strong>5.9 мегабайт</strong>. <code>docker</code> образ, при этом, стал чуть больше – <strong>6.1 мегабайт</strong>, так как дополнительно пришлось копировать <code>SSL</code> сертификаты для работы (исходный код к этому времени стал обращаться к внешним сервисам по <code>https</code>).</p>
+<p>Текущая версия бота собирается чуть иначе. Причина этому – использование более новой версии компилятора <code>GHC 8.8.3</code>. Того требует одна из зависимостей <code>polysemy</code> – is a library for writing high-power, low-boilerplate, zero-cost, domain specific languages, о которой я постараюсь вскоре рассказать. Для <code>GHC 8.8.3</code>, на момент создания бота, поддержки <code>musl</code> еще “на завезли”. Сборка работает при помощи <code>stack</code> (это как <code>gradle</code> для <code>java</code>), который “из коробки” умеет исполнять команды сборки внутри контейнера. Необходимо только указать базовый образ и запустить сборку при помощи команды <code>stack build --docker</code></p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">docker</span><span class="kw">:</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">image</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;fpco/stack-build-small:latest&quot;</span></span></code></pre></div>
+<p><code>Dockerfile</code> при этом выглядит необычно – внутри не происходит никакой сборки, только сжатие <code>upx</code>-ом и копирование библиотек.</p>
+<pre class="docker"><code>FROM alpine as upx
+
+COPY .stack-work/docker/_home/.local/bin/ldabot-prod /app
+RUN apk add -u upx
+RUN upx --best --ultra-brute /app
+
+FROM scratch
+
+COPY --from=gcr.io/distroless/base /etc/ssl /etc/ssl
+COPY --from=upx /app /app
+COPY --from=fpco/stack-build:lts-14.25 /lib/x86_64-linux-gnu/ld-linux* /lib/x86_64-linux-gnu/libc.* /lib/x86_64-linux-gnu/libnss_dns.* /lib/x86_64-linux-gnu/libresolv.* /lib/
+
+ENTRYPOINT [&quot;/app&quot;]</code></pre>
+<p>Постойте, какие библиотеки, речь же шла о статической линковке… Дело в том, что <code>libc</code>, в отличие от <code>musl</code> не может быть полностью “влинкован” в приложение. Причин несколько, но для обывателя их можно сформулировать как “так получилось”. Обратите внимание на то, какие именно библиотеки мы копируем – <code>libnss_dns</code> и <code>libresolv</code> (ну и еще <code>ld-linux</code> для возможности динамической загрузки последних). Это библиотеки для работы с <code>DNS</code>, а инфраструктура <a href="https://en.wikipedia.org/wiki/Name_Service_Switch">NSS</a> предоставляет много backend-ов для работы с <code>DNS</code> (вплоть до чтения из файла). Так как нет возможности на этапе сборки указать какой именно backend использовать, <code>libc</code> всегда загружает их динамически, заставляя “тянуть” еще и себя, кроме необходимых <code>NSS</code> плагинов. С таким положением дел все до сих пор мирятся (убеждая окружающих, что статическая линковка “не нужна”, ведь все равно придется “тянуть” с собой <code>libc</code>), периодически “сбегая” в лагерь <code>musl</code>, если нужна “действительно” статическая линковка.</p>
+<p>В итоге, вышел компромиссный вариант (из-за невозможности использовать <code>musl</code>) – статическая линковка (размер исполняемого файла <strong>4.6 мегатайта</strong>), вместе с <code>libc</code> и библиотеками для <code>DNS</code>, сделали размер образа не таким большим – всего <strong>7.2 мегабайта</strong>. Цель по уменьшению размера итогово образа и обеспечению дополнительной безопасности можно считать достигнутой. Особенно греет душу мысль о том, что бот в состоянии покоя занимает в оперативной памяти всего <strong>812 килобайт</strong>!</p>
+<pre class="console"><code>Cmp   Size  Command
+4.6 MB  ├── app
+246 kB  ├── etc
+246 kB  │   └── ssl
+235 kB  │       ├── certs
+235 kB  │       │   └── ca-certificates.crt
+ 11 kB  │       └── openssl.cnf
+2.3 MB  └── lib
+171 kB      ├── ld-linux-x86-64.so.2
+2.0 MB      ├── libc.so.6
+ 27 kB      ├── libnss_dns.so.2
+101 kB      └── libresolv.so.2
+
+Total Image size: 7.2 MB
+Potential wasted space: 0 B
+Image efficiency score: 100 %</code></pre>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

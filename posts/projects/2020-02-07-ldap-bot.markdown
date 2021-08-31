@@ -4,7 +4,7 @@ tags: haskell, polysemy, aeson, servant
 language: english
 ---
 
-Here is a facebook bot (we use facebook's Workplace product as an intranet collaboration point) to manage AD groups. There are number of [articles](/series/ldap-bot.html) about the creation process.
+Here is a facebook bot (we use facebook's Workplace product as an intranet collaboration point) to manage AD groups. There are number of [articles](/series/ldap-bot) about the creation process.
 
 <!--more-->
 
@@ -179,4 +179,4 @@ successCommandRegistry commandAction requesterGroupKnowledge accountGroupKnowled
 
 Code gets built by nix and deployed via `nixops` as a `systemd` service. First implementation of tests used [validity](@hackage) and [genvalidity](@hackage) libraries from [Tom Sydney Kerckhove](https://cs-syd.eu) (super nice Haskeller, met him on the [conference](https://cs-syd.eu/posts/2020-02-27-talk-writing-a-text-editor-in-haskell-with-brick)), but then switched to [QuickCheck](@hackage) and [hspec](@hackage), since I don't have a lot of data types to generate `Validity` (`Arbitrary` in `QuichCheck`'s terms) instances for.
 
-Along the way of implementing and supporting that bot I wrote a number of [articles](/posts/code/2020-02-27-aeson-parsing.html) about it (also Haskell and FP in general). Unfortunately, the articles are in russian and have no version: my auditory was all russian speaking employees, so there was no point in doing so. I still think it would be beneficial to include them into the story: you can still squint on it and try to see the idea or maybe you do have a friend or colleague, who can understand it ;)
+Along the way of implementing and supporting that bot I wrote a number of [articles](/posts/code/2020-02-27-aeson-parsing) about it (also Haskell and FP in general). Unfortunately, the articles are in russian and have no version: my auditory was all russian speaking employees, so there was no point in doing so. I still think it would be beneficial to include them into the story: you can still squint on it and try to see the idea or maybe you do have a friend or colleague, who can understand it ;)

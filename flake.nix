@@ -91,15 +91,15 @@
             zlib
             imagemagick
 
-            haskell-language-server
+            haskellPackages.haskell-language-server
+            haskellPackages.cabal-fmt
             haskellPackages.cabal-fmt
             pre-commit-hooks.checks.${system}.ormolu
             pre-commit-hooks.checks.${system}.hlint
             pre-commit-hooks.checks.${system}.nixpkgs-fmt
-            cabal-install
+            haskellPackages.cabal-install
             haskellPackages.stan
           ])
-        ).envFunc { }).overrideAttrs
-          (f: { inherit (self.checks.${system}.pre-commit-check) shellHook; });
+        ).envFunc { }).overrideAttrs (f: { inherit (self.checks.${system}.pre-commit-check) shellHook; });
       });
 }

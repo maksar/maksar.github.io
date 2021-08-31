@@ -5,7 +5,7 @@ series: ldap-bot
 language: russian
 ---
 
-С большим опозданием, продолжаю цикл статей про [Workplace бота](/posts/projects/2020-02-07-ldap-bot.html). Ссылки на предыдущие части: [1](/posts/code/2020-02-27-aeson-parsing.html), [2](/posts/code/2020-03-09-servant.html), [3](/posts/code/2020-03-23-env-parsing.html) и [4](/posts/code/2020-05-11-size-matters.html). Сегодня, впрочем как обычно, речь пойдет про очедную функциональную дичь ;).
+С большим опозданием, продолжаю цикл статей про [Workplace бота](/posts/projects/2020-02-07-ldap-bot). Ссылки на предыдущие части: [1](/posts/code/2020-02-27-aeson-parsing), [2](/posts/code/2020-03-09-servant), [3](/posts/code/2020-03-23-env-parsing) и [4](/posts/code/2020-05-11-size-matters). Сегодня, впрочем как обычно, речь пойдет про очедную функциональную дичь ;).
 
 <!--more-->
 

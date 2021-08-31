@@ -1,0 +1,1 @@
+exec /nix/store/pk56g1vb3w5xa1xjsvximb3jcghkk5ka-hlint-3.2.7/bin/hlint $@

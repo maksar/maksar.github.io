@@ -4,6 +4,7 @@ module Main where
 
 import Categories
 import Config
+import Data.List
 import qualified Data.Set as S
 import Feed
 import Hakyll
@@ -12,6 +13,7 @@ import Hakyll.ShortcutLinks
 import Languages
 import Series
 import Static
+import System.FilePath
 import Tags
 
 deriving instance Eq a => Eq (Item a)
@@ -21,16 +23,18 @@ main = hakyllWith config $ do
   staticRules
   feedRules
 
-  tags <- buildTags "posts/**" (fromCapture "tags/*.html")
-  categories <- buildCategories "posts/**" (fromCapture "categories/*.html")
-  languages <- buildLanguages "posts/**" (fromCapture "languages/*.html")
-  series <- buildSeries "posts/**" (fromCapture "series/*.html")
+  tags <- buildTags "posts/**" (fromCapture "tags/*/index.html")
+  categories <- buildCategories "posts/**" (fromCapture "categories/*/index.html")
+  languages <- buildLanguages "posts/**" (fromCapture "languages/*/index.html")
+  series <- buildSeries "posts/**" (fromCapture "series/*/index.html")
   empty <- buildTags "" (const "")
   let context = postCtxWithTags tags categories languages series
 
   match "about.markdown" $ do
-    route $ setExtension "html"
-    compile $ allShortcutLinksCompiler >>= defaultCompiler context
+    route cleanRoute
+    compile $
+      allShortcutLinksCompiler
+        >>= defaultCompiler context
 
   tagsRules tags $ \tag pat -> do
     route idRoute
@@ -73,7 +77,7 @@ main = hakyllWith config $ do
         >>= defaultCompiler ctx
 
   match "posts/**" $ do
-    route $ setExtension "html"
+    route cleanRoute
     compile $ do
       allShortcutLinksCompiler
         >>= saveSnapshot blogSnapshot
@@ -108,9 +112,29 @@ blogSnapshot :: Snapshot
 blogSnapshot = "blogSnapshot"
 
 defaultCompiler :: Context a -> Item a -> Compiler (Item String)
-defaultCompiler ctx item = loadAndApplyTemplate "templates/default.html" ctx item >>= relativizeUrls
+defaultCompiler ctx item =
+  loadAndApplyTemplate "templates/default.html" ctx item
+    >>= relativizeUrls
+    >>= cleanIndexUrls
 
 postsField :: [Item a] -> Context a -> Context b
 postsField posts ctx = listField "posts" ctx (return posts)
 
 loadPosts pat = recentFirst =<< loadAll pat
+
+cleanRoute :: Routes
+cleanRoute = customRoute $ \iden -> takeDirectory (toFilePath iden) </> takeBaseName (toFilePath iden) </> takeFileName indexHtml
+
+cleanIndexUrls :: Item String -> Compiler (Item String)
+cleanIndexUrls = pure . fmap (withUrls cleanIndex)
+
+cleanIndexHtmls :: Item String -> Compiler (Item String)
+cleanIndexHtmls = pure . fmap (replaceAll indexHtml (const ""))
+
+cleanIndex :: String -> String
+cleanIndex url
+  | indexHtml `isSuffixOf` url = take (length url - length indexHtml) url
+  | otherwise = url
+
+indexHtml :: String
+indexHtml = "/index.html"

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog JIRA bot to trim whitespaces from field values</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>JIRA bot to trim whitespaces from field values</h1>
+    
+<article>
+  <span class="header">
+    
+      November  6, 2020 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/projects">projects</a> #<a href="../../../tags/kotlin">kotlin</a>
+  </span>
+  <section>
+    <p><a href="https://github.com/maksar/Trimmer">Trimmer</a> is a small bot, which iterates over JIRA issues and trims whitespaces fields values. Without that, human mistakes on copy-paste operations can make automated JIRA statistics collections harder.</p>
+<!--more-->
+<p>I’d like to demonstrate two different approaches to handle “paging” problem in Atlassian REST APIs. Atlassian REST endpoints usually allows to perform search queries with <code>perPage</code> and <code>start</code> parameters. Common solution to this problem (implemented in this <a href="https://github.com/maksar/trimmer">trimmer</a>) is to iterate sequentially, increasing <code>start</code> parameter along the way. Code below demonstrates the idea.</p>
+<p>Sequential iteration can be easily abstracted away from the main code by introducing a custom <code>iterator</code> instance, which <code>yield</code>s search results page-by-page.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> IssuesIterator<span class="op">(</span><span class="kw">private</span> <span class="kw">val</span> <span class="va">jql</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">private</span> <span class="kw">val</span> <span class="va">perPage</span><span class="op">:</span> <span class="dt">Int</span><span class="op">,</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">private</span> <span class="kw">val</span> <span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt;<span class="op">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>                     <span class="kw">private</span> <span class="kw">val</span> <span class="va">client</span><span class="op">:</span> <span class="dt">SearchRestClient</span><span class="op">)</span> <span class="op">:</span> <span class="dt">Sequence</span><span class="op">&lt;</span><span class="dt">Issue</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">override</span> <span class="kw">fun</span> <span class="fu">iterator</span><span class="op">():</span> <span class="dt">Iterator</span><span class="op">&lt;</span><span class="dt">Issue</span><span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> iterator <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">var</span> <span class="va">currentIndex</span> <span class="op">=</span> <span class="op">-</span>perPage</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">do</span> <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>                currentIndex <span class="op">+=</span> perPage</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>                print<span class="op">(</span><span class="st">&quot;.&quot;</span><span class="op">)</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>                <span class="kw">val</span> <span class="va">currentResult</span> <span class="op">=</span> fetch<span class="op">(</span>currentIndex<span class="op">)</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>                yieldAll<span class="op">(</span>currentResult<span class="op">.</span>issues<span class="op">)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span> <span class="cf">while</span> <span class="op">(</span>currentIndex <span class="op">+</span> perPage <span class="op">&lt;</span> currentResult<span class="op">.</span>total<span class="op">)</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">fun</span> <span class="fu">fetch</span><span class="op">(</span><span class="va">start</span><span class="op">:</span> <span class="dt">Int</span><span class="op">):</span> <span class="dt">SearchResult</span> <span class="op">{</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="kw">return</span> client<span class="op">.</span>searchJql<span class="op">(</span>jql<span class="op">,</span> perPage<span class="op">,</span> start<span class="op">,</span> fields<span class="op">).</span><span class="kw">get</span><span class="op">()</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>However, this approach makes it impossible to execute search requests in parallel. In order to overcome such limitation, I am using the following trick:</p>
+<ul>
+<li>Execute first dummy search request with <code>pageSize</code> equal to <code>1</code> and <code>start</code> equal to <code>0</code>. Result will give us access to the <code>total</code> parameter in a search response.</li>
+<li>Read <code>total</code> value from search response and create a range of integers from <code>0</code> to <code>total</code> with <code>step</code> equal to desired page size.</li>
+<li>Schedule background jobs (using <code>Flow</code> or any other concurrent library) to perform search requests with already known <code>pageSize</code> and <code>start</code> parameters.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">private</span> <span class="kw">fun</span> <span class="fu">search</span><span class="op">(</span><span class="va">start</span><span class="op">:</span> <span class="dt">Int</span><span class="op">,</span> <span class="va">per</span><span class="op">:</span> <span class="dt">Int</span><span class="op">,</span> <span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt; <span class="op">=</span> setOf<span class="op">()):</span> <span class="dt">SearchResult</span> <span class="op">=</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  jiraClient<span class="op">.</span>searchClient<span class="op">.</span>searchJql<span class="op">(</span><span class="st">&quot;project = </span><span class="ss">${</span>env<span class="op">[</span>PERSONER_JIRA_PROJECT<span class="op">]</span><span class="ss">}</span><span class="st">&quot;</span><span class="op">,</span> per<span class="op">,</span> start<span class="op">,</span> MINIMUM_SET_OF_FIELDS<span class="op">.</span>plus<span class="op">(</span>fields<span class="op">)).</span><span class="kw">get</span><span class="op">()</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>suspend <span class="kw">fun</span> <span class="fu">projectCards</span><span class="op">(</span><span class="va">fields</span><span class="op">:</span> <span class="dt">Set</span>&lt;<span class="va">String</span>&gt;<span class="op">)</span> <span class="op">=</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  search<span class="op">(</span><span class="dv">0</span><span class="op">,</span> <span class="dv">1</span><span class="op">).</span>total<span class="op">.</span>let <span class="op">{</span> total <span class="op">-&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    rangeUntil<span class="op">(</span><span class="dv">0</span><span class="op">,</span> total<span class="op">,</span> env<span class="op">[</span>PERSONER_PAGE_SIZE<span class="op">]).</span>asFlow<span class="op">()</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span>concurrentFlatMap <span class="op">{</span> start <span class="op">-&gt;</span> search<span class="op">(</span>start<span class="op">,</span> env<span class="op">[</span>PERSONER_PAGE_SIZE<span class="op">],</span> fields<span class="op">).</span>issues <span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="op">.</span>toList<span class="op">()</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<p>Since it is unlikely that number of search results will change during parallel fetching process – the solution can be considered as “robust enough”.</p>
+<p>If your project isn’t ready for modern <code>Flow</code> framework in Kotlin, you can implement the same idea using <code>CompletableFuture</code>s. Retries are very possible too with <a href="https://github.com/failsafe-lib/failsafe">Failsafe</a> library.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">fun</span> <span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;</span> <span class="fu">loadIssues</span><span class="op">(</span><span class="va">fields</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="va">query</span><span class="op">:</span> <span class="dt">String</span><span class="op">,</span> <span class="va">mapper</span><span class="op">:</span> <span class="op">(</span><span class="dt">Issue</span><span class="op">)</span> <span class="op">-&gt;</span> <span class="dt">T</span><span class="op">):</span> <span class="dt">List</span><span class="op">&lt;</span><span class="dt">T</span><span class="op">&gt;</span> <span class="op">=</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  jiraClient<span class="op">.</span>searchIssues<span class="op">(</span>query<span class="op">,</span> fields<span class="op">,</span> <span class="dv">1</span><span class="op">).</span>total<span class="op">.</span>let <span class="op">{</span> total <span class="op">-&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">chunkSize</span> <span class="op">=</span> max<span class="op">(</span><span class="dv">1</span><span class="op">,</span> total <span class="op">/</span> JIRA_CHUNK_COUNT<span class="op">)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    IntStream<span class="op">.</span>iterate<span class="op">(</span><span class="dv">0</span><span class="op">)</span> <span class="op">{</span> it <span class="op">+</span> chunkSize <span class="op">}.</span>limit<span class="op">((</span>total <span class="op">/</span> chunkSize<span class="op">)</span> <span class="op">+</span> <span class="dv">1L</span><span class="op">).</span>toList<span class="op">().</span>map <span class="op">{</span> start <span class="op">-&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>      DatabaseContext<span class="op">.</span>supplyAsync <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        Failsafe<span class="op">.</span>with<span class="op">(</span>RetryPolicy<span class="op">&lt;</span>List<span class="op">&lt;</span>T<span class="op">&gt;&gt;().</span>handle<span class="op">(</span>RestException<span class="op">::</span><span class="kw">class</span>.java).withMaxRetries<span class="op">(</span>3<span class="op">)</span>).<span class="kw">get</span> <span class="op">{</span> <span class="op">-&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>          jiraClient<span class="op">.</span>searchIssues<span class="op">(</span>query<span class="op">,</span> fields<span class="op">,</span> chunkSize<span class="op">,</span> start<span class="op">).</span>issues<span class="op">.</span>map<span class="op">(</span>mapper<span class="op">)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="op">}.</span>map <span class="op">{</span> it<span class="op">.</span><span class="kw">get</span><span class="op">()</span> <span class="op">}.</span>flatten<span class="op">()</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>
