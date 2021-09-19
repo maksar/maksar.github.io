@@ -58,7 +58,7 @@ As a result, there is no need for `darwin-rebuild` to fetch a master branch from
 
 Since there are no dependencies for the local state, it is quite possible to check the consistency of the whole configuration on Github CI.
 
-```bash
+```sh
 # Build and switch to bootstrap config
 nix build .#darwinConfigurations.bootstrap.system
 ./result/sw/bin/darwin-rebuild switch --flake .#bootstrap
@@ -91,7 +91,7 @@ My nix configuration, which was inspired by excellent [repo](@gh(malob):dotfiles
 
 This one is pretty much speaks for itself. Whole configuration switch, with all [homebrew](https://brew.sh) update cycle (yeah, not everything is still in nix) takes up to 13 seconds!
 
-```console
+```sh
 $ time darwin-rebuild switch --flake .#macbook
 
 building the system configuration...
@@ -172,3 +172,36 @@ Activating onFilesChange
 
 4.10s user 4.16s system 64% cpu 12.800 total
 ```
+
+## Linux
+
+After a while, I extended configuration to have a Linux support also:
+
+Adding following lines to the `flake.nix` file:
+
+```nix
+# Build and activate with `nix build .#cloudVM.activationPackage; ./result/activate`
+cloudVM = home-manager.lib.homeManagerConfiguration {
+  system = "x86_64-linux";
+  stateVersion = "21.05";
+  homeDirectory = "/home/maksar";
+  username = "maksar";
+  configuration = {
+    os = "linux";
+    imports = [ homeManagerCommonConfig ];
+    nixpkgs = nixpkgsConfig;
+  };
+};
+```
+
+Allows to configure by linux boxes in absolutely the same way as I do on my macbook.
+
+```sh
+nix build .#cloudVM.activationPackage
+./result/activate
+```
+
+Wonderful `zsh-powerlevel10k` nix package allows my terminal (`kitty`) to look awesome in any OS
+
+<a href="/images/flakes/darwin.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/flakes/darwin.png"/></a>
+<a href="/images/flakes/linux.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/flakes/linux.png"/></a>

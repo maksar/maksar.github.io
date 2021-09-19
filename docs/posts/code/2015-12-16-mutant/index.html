@@ -142,7 +142,7 @@
 <p><img src="../../../images/mutant/coverage.png" class="center full" /></p>
 <h2 id="mutation-testing">Mutation testing</h2>
 <p>This is where the story might end for a mediocre developer. One would think that since coverage indicates we are good, there is no work left to do. Well, let’s not be in a hurry, <a href="https://github.com/mbj/mutant">mutant</a> to the rescue!</p>
-<pre class="console"><code>$ mentat git:(master) mutant -I . -r version_1/workflow_spec.rb --use rspec 'Workflow'</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mentat git:<span class="er">(</span><span class="ex">master</span><span class="kw">)</span> <span class="ex">mutant</span> <span class="at">-I</span> . <span class="at">-r</span> version_1/workflow_spec.rb <span class="at">--use</span> rspec <span class="st">'Workflow'</span></span></code></pre></div>
 <p><a href="https://asciinema.org/a/31217" target="_blank"><img src="https://asciinema.org/a/31217.svg" class="center full" /></a></p>
 <p>What? Only <strong>64.71%</strong>? It sounds very… sobering. Let’s see what just happened. We specified mutation target (<code>'Workflow'</code> string in the command line), mutant detected 7 mutation subjects (methods) in that class. For each subject, it has constructed an <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a> (Abstract Syntax Tree) of the code and tried to apply different <em>mutations</em> to it. Mutations are small code changes, for example: flipping a condition to its opposite, removing a whole line of code, changing constant value, etc. Mutations are easier to deal with working with AST instead of plain text, and that’s why mutant parses your code, applies mutation (new Mutant is born) and then converts AST back to code and inserts it into your VM, to let <code>rspec</code> execute tests against it (attempt to kill the Mutant). If all tests are passed, Mutant remains alive. Think about it: someone just deleted a whole line from your code, and tests are still passing… That basically means that a test suite does not contain enough examples to cover all execution branches.</p>
 <p>On the screenshot above, mutant claims that if we remove condition check inside <code>vote</code> method, tests will continue to work. Hard to believe? Let’s verify:</p>
@@ -151,11 +151,11 @@
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  increment</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Code is changed, running specs:</p>
-<pre class="console"><code>$ mentat git:(master) rspec version_1/workflow_spec.rb -f p
-.
-
-Finished in 0.00144 seconds (files took 0.08017 seconds to load)
-1 example, 0 failures</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mentat git:<span class="er">(</span><span class="ex">master</span><span class="kw">)</span> <span class="ex">rspec</span> version_1/workflow_spec.rb <span class="at">-f</span> p</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.00144 seconds <span class="er">(</span><span class="ex">files</span> took 0.08017 seconds to load<span class="kw">)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">1</span> example, 0 failures</span></code></pre></div>
 <p>Zero failures! It surprises me every time… After staring at other alive Mutants I finally realized how stupid I was, thinking that one test case proves correctness or can protect me from regressions. OK, enough being dumb, we can do better! This time I tried to write a very extensive test suite, covering every business feature one by one:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>describe <span class="dt">Workflow</span> <span class="cf">do</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'empty workflow'</span> <span class="cf">do</span></span>
@@ -250,24 +250,24 @@ Finished in 0.00144 seconds (files took 0.08017 seconds to load)
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>)<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> raise_error</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>It predictably fails with old good <code>NotMethodError</code>:</p>
-<pre class="console"><code>Workflow
-  empty workflow
-    should not raise error on inconsistent configuration (FAILED - 1)
-
-Failures:
-
-  1) Workflow empty workflow should not raise error on inconsistent configuration
-     Failure/Error: expect { Workflow.new([]).approve(User.new([VOTE])) }.not_to raise_error
-
-       expected no Exception, got #&lt;NoMethodError: undefined method `&lt;&lt;' for nil:NilClass&gt; with backtrace:
-         # ./version_2/workflow.rb:36:in `vote'
-         # ./version_2/workflow.rb:15:in `approve'
-         # ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'
-         # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-     # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-
-Finished in 0.00971 seconds (files took 0.08025 seconds to load)
-1 example, 1 failure</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Workflow</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">empty</span> workflow</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">should</span> not raise error on inconsistent configuration <span class="er">(</span><span class="ex">FAILED</span> <span class="at">-</span> 1<span class="kw">)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Failures:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">1</span><span class="er">)</span> <span class="ex">Workflow</span> empty workflow should not raise error on inconsistent configuration</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Failure/Error:</span> expect { Workflow.new<span class="er">(</span><span class="ex">[]</span><span class="kw">)</span><span class="ex">.approve</span><span class="er">(</span><span class="ex">User.new</span><span class="er">(</span><span class="ex">[VOTE]</span><span class="kw">))</span> <span class="er">}</span><span class="ex">.not_to</span> raise_error</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>       <span class="ex">expected</span> no Exception, got <span class="co">#&lt;NoMethodError: undefined method `&lt;&lt;' for nil:NilClass&gt; with backtrace:</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:36:in `vote'</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:15:in `approve'</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>     <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.00971 seconds <span class="er">(</span><span class="ex">files</span> took 0.08025 seconds to load<span class="kw">)</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="ex">1</span> example, 1 failure</span></code></pre></div>
 <p>What can we do about it? Let’s actually try to apply the change, suggested by mutant. The <code>vote</code> method now looks like this:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> vote(actor)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="at">.fetch</span>(<span class="ot">@current_step</span>) <span class="kw">&lt;&lt;</span> actor</span>
@@ -275,25 +275,25 @@ Finished in 0.00971 seconds (files took 0.08025 seconds to load)
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  increment <span class="cf">if</span> <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span><span class="at">.size</span> <span class="kw">&gt;=</span> <span class="ot">@steps_config</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Running tests again results in a different <code>IndexError</code> error:</p>
-<pre class="console"><code>Workflow
-  empty workflow
-    should not raise error on inconsistent configuration (FAILED - 1)
-
-Failures:
-
-  1) Workflow empty workflow should not raise error on inconsistent configuration
-     Failure/Error: expect { Workflow.new([]).approve(User.new([VOTE])) }.not_to raise_error
-
-       expected no Exception, got #&lt;IndexError: index 0 outside of array bounds: 0...0&gt; with backtrace:
-         # ./version_2/workflow.rb:36:in `fetch'
-         # ./version_2/workflow.rb:36:in `vote'
-         # ./version_2/workflow.rb:15:in `approve'
-         # ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'
-         # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-     # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-
-Finished in 0.01043 seconds (files took 0.0895 seconds to load)
-1 example, 1 failure</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Workflow</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">empty</span> workflow</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">should</span> not raise error on inconsistent configuration <span class="er">(</span><span class="ex">FAILED</span> <span class="at">-</span> 1<span class="kw">)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Failures:</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">1</span><span class="er">)</span> <span class="ex">Workflow</span> empty workflow should not raise error on inconsistent configuration</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Failure/Error:</span> expect { Workflow.new<span class="er">(</span><span class="ex">[]</span><span class="kw">)</span><span class="ex">.approve</span><span class="er">(</span><span class="ex">User.new</span><span class="er">(</span><span class="ex">[VOTE]</span><span class="kw">))</span> <span class="er">}</span><span class="ex">.not_to</span> raise_error</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>       <span class="ex">expected</span> no Exception, got <span class="co">#&lt;IndexError: index 0 outside of array bounds: 0...0&gt; with backtrace:</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:36:in `fetch'</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:36:in `vote'</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:15:in `approve'</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>     <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.01043 seconds <span class="er">(</span><span class="ex">files</span> took 0.0895 seconds to load<span class="kw">)</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="ex">1</span> example, 1 failure</span></code></pre></div>
 <p>This one is actually much better to work with. The code blows up exactly where it should, on the code containing accessing error, not later. In the previous run, it failed on <code>&lt;&lt;</code> operator, which in real world examples may be far away from the place containing an error.</p>
 <p>OK, we learned something useful, let’s not waste time on actually fixing it properly. Instead, I’ll just pretend <code>IndexError</code> is the desired behavior and replace all hash and array accessing methods to be <code>fetch</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>) <span class="kw">}</span></span>
@@ -365,24 +365,24 @@ Finished in 0.01043 seconds (files took 0.0895 seconds to load)
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.approve</span>(voter<span class="at">.call</span>) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Now, when all Mutants have been killed, mutant happily reports 100% mutation coverage.</p>
-<pre class="console"><code>Mutant configuration:
-Matcher:         #&lt;Mutant::Matcher::Config match_expressions: [Workflow]&gt;
-Integration:     Mutant::Integration::Rspec
-Expect Coverage: 100.00%
-Jobs:            8
-Includes:        [&quot;.&quot;]
-Requires:        [&quot;version_6/workflow_spec.rb&quot;]
-Subjects:        7
-Mutations:       316
-Results:         316
-Kills:           316
-Alive:           0
-Runtime:         8.57s
-Killtime:        33.80s
-Overhead:        -74.66%
-Mutations/s:     36.89
-Coverage:        100.00%
-Expected:        100.00%</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Mutant</span> configuration:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Matcher:</span>         <span class="co">#&lt;Mutant::Matcher::Config match_expressions: [Workflow]&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Integration:</span>     Mutant::Integration::Rspec</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Expect</span> Coverage: 100.00%</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Jobs:</span>            8</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Includes:</span>        [<span class="st">&quot;.&quot;</span>]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Requires:</span>        [<span class="st">&quot;version_6/workflow_spec.rb&quot;</span>]</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Subjects:</span>        7</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Mutations:</span>       316</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Results:</span>         316</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Kills:</span>           316</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Alive:</span>           0</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="ex">Runtime:</span>         8.57s</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Killtime:</span>        33.80s</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Overhead:</span>        <span class="at">-74.66%</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Mutations/s:</span>     36.89</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Coverage:</span>        100.00%</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Expected:</span>        100.00%</span></code></pre></div>
 <h2 id="conclusion">Conclusion</h2>
 <p>Traditional coverage tools only highlights code which was executed by running a test suite. Let’s run a little thought experiment: squint for a second, blink twice and imagine all assertion checks from your test suite have just disappeared. Will that affect coverage?.. It’s very refreshing to realize it will not. Furthermore, even having full branch coverage does not guarantee you are safe. See <a href="http://pitest.org/weak_tests/">here</a> for examples. Ask yourself a very simple question: are you still sure that the test suite you have is actually able to detect failures in the code?</p>
 <p>Besides branch coverage, mutation testing is intended to ensure that code is <em>meaningfully</em> tested, giving your test suite powers to weed broken code out. However, no formal guarantees can be given, it’s a <strong>way</strong> to perfection, not ideal itself.</p>

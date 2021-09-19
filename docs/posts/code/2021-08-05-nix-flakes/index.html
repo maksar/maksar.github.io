@@ -79,7 +79,7 @@
 <p>As a result, there is no need for <code>darwin-rebuild</code> to fetch a master branch from <a href="https://github.com/Shados:envy/envy">envy</a> each time I do <code>switch</code> operation.</p>
 <h2 id="control">Control</h2>
 <p>Since there are no dependencies for the local state, it is quite possible to check the consistency of the whole configuration on Github CI.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to bootstrap config</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to bootstrap config</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nix</span> build .#darwinConfigurations.bootstrap.system</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./result/sw/bin/darwin-rebuild</span> switch <span class="at">--flake</span> .#bootstrap</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to full config</span></span>
@@ -102,85 +102,105 @@
 <p>My nix configuration, which was inspired by excellent <a href="https://github.com/malob/dotfiles">repo</a> of <a href="https://twitter.com/m_bourgon">Malo Bourgon</a>, is available <a href="https://github.com/maksar/dotfiles">here</a>.</p>
 <h2 id="speed">Speed</h2>
 <p>This one is pretty much speaks for itself. Whole configuration switch, with all <a href="https://brew.sh">homebrew</a> update cycle (yeah, not everything is still in nix) takes up to 13 seconds!</p>
-<pre class="console"><code>$ time darwin-rebuild switch --flake .#macbook
-
-building the system configuration...
-user defaults...
-setting up user launchd services...
-Homebrew bundle...
-Using homebrew/cask
-Using homebrew/cask-versions
-Using homebrew/cask-drivers
-Using microsoft/mssql-release
-Using rkaippully/tools
-Using unixodbc
-Using msodbcsql17
-Using nmap
-Using gamgee
-Using mas
-Using logitech-options
-Using skype
-Using slack
-Using viber
-Using telegram
-Using zoom
-Using microsoft-teams
-Using miro
-Using obs
-Using dropbox
-Using 1password
-Using alfred
-Using unshaky
-Using openvpn-connect
-Using firefox
-Using google-chrome
-Using vivaldi
-Using safari-technology-preview
-Using transmission
-Using tunnelbear
-Using docker
-Using sourcetree
-Using charles
-Using virtualbox
-Using jetbrains-toolbox
-Using typora
-Using steam
-Using vlc
-Using postman
-Using Amphetamine
-Using Excel
-Using Pages
-Using PowerPoint
-Using RemoteDesktop
-Using Word
-Using XCode
-Homebrew Bundle complete! 46 Brewfile dependencies now installed.
-setting up pam...
-setting up groups...
-setting up users...
-setting up ~/Applications...
-applying patches...
-setting up /etc...
-system defaults...
-setting up launchd services...
-configuring networking...
-configuring fonts...
-Activating home-manager configuration for maksar
-Starting home manager activation
-Activating checkFilesChanged
-Activating checkLinkTargets
-Activating writeBoundary
-Activating copyFonts
-Activating installPackages
-replacing old 'home-manager-path'
-installing 'home-manager-path'
-Activating linkGeneration
-Cleaning up orphan links from /Users/maksar
-No change so reusing latest profile generation 230
-Creating home file links in /Users/maksar
-Activating onFilesChange
-
-4.10s user 4.16s system 64% cpu 12.800 total</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time darwin-rebuild switch <span class="at">--flake</span> .#macbook</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">building</span> the system configuration...</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">user</span> defaults...</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up user launchd services...</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Homebrew</span> bundle...</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> homebrew/cask</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> homebrew/cask-versions</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> homebrew/cask-drivers</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> microsoft/mssql-release</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> rkaippully/tools</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> unixodbc</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> msodbcsql17</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> nmap</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> gamgee</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> mas</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> logitech-options</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> skype</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> slack</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> viber</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> telegram</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> zoom</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> microsoft-teams</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> miro</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> obs</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> dropbox</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> 1password</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> alfred</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> unshaky</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> openvpn-connect</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> firefox</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> google-chrome</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> vivaldi</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> safari-technology-preview</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> transmission</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> tunnelbear</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> docker</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> sourcetree</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> charles</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> virtualbox</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> jetbrains-toolbox</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> typora</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> steam</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> vlc</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> postman</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Amphetamine</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Excel</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Pages</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> PowerPoint</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> RemoteDesktop</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Word</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> XCode</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="ex">Homebrew</span> Bundle complete! 46 Brewfile dependencies now installed.</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up pam...</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up groups...</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up users...</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up ~/Applications...</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="ex">applying</span> patches...</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up /etc...</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="ex">system</span> defaults...</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up launchd services...</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="ex">configuring</span> networking...</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="ex">configuring</span> fonts...</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> home-manager configuration for maksar</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a><span class="ex">Starting</span> home manager activation</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> checkFilesChanged</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> checkLinkTargets</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> writeBoundary</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> copyFonts</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> installPackages</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="ex">replacing</span> old <span class="st">'home-manager-path'</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="ex">installing</span> <span class="st">'home-manager-path'</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> linkGeneration</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="ex">Cleaning</span> up orphan links from /Users/maksar</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a><span class="ex">No</span> change so reusing latest profile generation 230</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> home file links in /Users/maksar</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> onFilesChange</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="ex">4.10s</span> user 4.16s system 64% cpu 12.800 total</span></code></pre></div>
+<h2 id="linux">Linux</h2>
+<p>After a while, I extended configuration to have a Linux support also:</p>
+<p>Adding following lines to the <code>flake.nix</code> file:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and activate with `nix build .#cloudVM.activationPackage; ./result/activate`</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cloudVM</span> = home-manager.lib.homeManagerConfiguration {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">system</span> = <span class="st">&quot;x86_64-linux&quot;</span><span class="kw">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">stateVersion</span> = <span class="st">&quot;21.05&quot;</span><span class="kw">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">homeDirectory</span> = <span class="st">&quot;/home/maksar&quot;</span><span class="kw">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">username</span> = <span class="st">&quot;maksar&quot;</span><span class="kw">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">configuration</span> = {</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">os</span> = <span class="st">&quot;linux&quot;</span><span class="kw">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">imports</span> = [ homeManagerCommonConfig ]<span class="kw">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">nixpkgs</span> = nixpkgsConfig<span class="kw">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="er">}</span><span class="kw">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span></code></pre></div>
+<p>Allows to configure by linux boxes in absolutely the same way as I do on my macbook.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nix</span> build .#cloudVM.activationPackage</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./result/activate</span></span></code></pre></div>
+<p>Wonderful <code>zsh-powerlevel10k</code> nix package allows my terminal (<code>kitty</code>) to look awesome in any OS</p>
+<p><a href="../../../images/flakes/darwin.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/darwin.png" /></a> <a href="../../../images/flakes/linux.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/linux.png" /></a></p>
   </section>
 </article>
 

@@ -110,21 +110,21 @@
 <p>Most controversial rules like ‘max. 10 lines per method’ and ‘max. 100 lines per class’ – are not changed. Arguments about large case statements or long hash definitions should be refused. Large case statement can always be converted to the data structure. Having long hash definitions in the code also usually signals about hidden data structure. Thanks to Ruby’s ‘block magic’ ©, it is possible to easily reuse code parts, extracted to the small, properly named, separate method.</p>
 <p>Working on legacy code, which wasn’t developed with full style guide compliance can be hard and tedious. Fortunately, there is a script, aimed to help. Being executed with –branch flag – it checks only lines, written by developer in current branch (committed or not) without touching legacy code. That is handy tool to check the code, before creating a pull request.</p>
 <p>If you have following folder structure:</p>
-<pre class="console"><code>$  tree -L 1 -A -C
-.
-├── admin-area
-├── ...
-├── env_setup.sh
-└── patched_rubocop.rb
-
-9 directories, 2 files</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>  tree <span class="at">-L</span> 1 <span class="at">-A</span> <span class="at">-C</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> admin-area</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> ...</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> env_setup.sh</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> patched_rubocop.rb</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">9</span> directories, 2 files</span></code></pre></div>
 <p>Before creating pull request you should inspect and fix style violations:</p>
-<pre class="console"><code>$ ./pacthed_rubocop.rb --branch
-Inspecting 4 files
-W.CC
-Offenses:
-....
-4 files inspected, 11 offenses detected</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./pacthed_rubocop.rb <span class="at">--branch</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Inspecting</span> 4 files</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">W.CC</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Offenses:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">....</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">4</span> files inspected, 11 offenses detected</span></code></pre></div>
 <h2 id="test-coverage">Test Coverage</h2>
 <p>There are test coverage tools out there for almost every language. But most of them collect statistics only about source code lines, whether particular line of source code was executed or not (and how many times). But in fact, there is more than just line coverage: just look at this <a href="http://www.slideshare.net/hiroppie/test-coverage">slide</a>.</p>
 <ul>
@@ -151,7 +151,7 @@ Offenses:
 <p><a href="https://en.wikipedia.org/wiki/Mutation_testing">Mutation testing</a> technique is based on quite a simple idea. Say, you have a bunch of code and a number of tests to verify its correctness. Doesn’t matter how those tests were born: using techniques like <a href="https://en.wikipedia.org/wiki/Test-driven_development">TDD</a> or written afterwards. Mutation testing allows to verify that your test suite is full. By ‘full’ it means – there is no code (code execution path, to be precisely correct) that is not covered with at least one test case.</p>
 <p>There are plenty or <a href="https://github.com/mbj/mutant#blog-posts">articles</a> and <a href="https://github.com/mbj/mutant#presentations">presentations</a> explaining what is mutation testing and <a href="https://github.com/mbj/mutant">mutant</a> itself. If you are not familiar – it’s definitely worth to check.</p>
 <p>Running mutant is pretty easy:</p>
-<pre class="console"><code>$ RAILS_ENV=test bundle exec mutant -I . -I spec --use rspec -j 1 --fail-fast &quot;PaylocityParams#person&quot;</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> RAILS_ENV=test bundle exec mutant <span class="at">-I</span> . <span class="at">-I</span> spec <span class="at">--use</span> rspec <span class="at">-j</span> 1 <span class="at">--fail-fast</span> <span class="st">&quot;PaylocityParams#person&quot;</span></span></code></pre></div>
 <p>Last arguments is – name of the class and method you want to mutate and check whether the tests are still green or not.</p>
 <h2 id="protection">Protection</h2>
 <p>In order to protect from accidental mistakes and enforce high code style consistency and adhere to the coding standards, VCS commit hooks are used (both in form of CI checks and on local development machines).</p>

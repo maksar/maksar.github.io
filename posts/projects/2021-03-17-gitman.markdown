@@ -298,7 +298,7 @@ end
 
 Unlike classic approach with integration testing, this one does not require any network communication with external world and is executed extremely fast:
 
-```console
+```sh
 $ rspec
 .......................................
 

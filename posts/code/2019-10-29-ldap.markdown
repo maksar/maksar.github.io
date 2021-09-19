@@ -17,7 +17,7 @@ language: russian
 ## We need to go deeper
 Как правило, объекты в AD (группы, отделы, пользователи) имеют древовидную структуру, напоминающую (или повторяющую) иерархию реальных организаций. Наша – не исключение ([закон Конвея](https://ru.wikipedia.org/wiki/Закон_Конвея), как-никак). Классические утилиты для работы с AD и, тем более, API – позволяют осуществлять поиск только на один уровень вглубь. Рассмотрим на примере – существует группа RFX Digest Readers, в состав которой входят как пользовательские учетные записи, так и другие группы
 
-```console
+```sh
 member: CN=Tech Coordinators,OU=Groups
 member: CN=Marketing,OU=Groups
 member: CN=Departments Managers,OU=Groups
@@ -27,20 +27,20 @@ member: CN=Chernikov, Yury,OU=Active,OU=Users
 
 Наивное решение для поиска всех людей в этой группе – такое:
 
-```console
+```sh
 ldapsearch -h ldap.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp" displayName
 ```
 
 Однако результат предсказуем – нашлись только два человека:
 
-```console
+```sh
 member: CN=Syomkin, Andrey,OU=Active,OU=Users
 member: CN=Chernikov, Yury,OU=Active,OU=Users
 ```
 
 Для того, чтобы найти всех, необходимо прибегнуть к "особой Microsoft магии" – специальным [префиксам](https://docs.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax). Например префикс :1.2.840.113556.1.4.1941: (значение именно такое, по ~~иторическим причинам~~ легенде такое значение соответствовало ключу `LDAP_MATCHING_RULE_IN_CHAIN` в header файлах) позволяет "искать вглубь". Такой поиск вернет все необходимые записи.
 
-```console
+```sh
 ldapsearch -Q -h ldap.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp" displayName | grep displayName: | wc -l
 
 => 113
@@ -128,7 +128,7 @@ fun <T> loadIssues(fields: String, query: String, mapper: (Issue) -> T): List<T>
 
 Запросы в AD могут быть весьма сложными, так сказать write-only. Приведу, один такой пример.
 
-```console
+```sh
 (&(objectClass=person)(|
 (memberOf:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
 (managedObjects:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
@@ -196,7 +196,7 @@ teamcity.options.deleteUsers=true
 
 Используя ldapseach можно легко (для тех кто любит терминал) строить полезные запросы к AD. Например – список людей, в интересующей вас комнате:
 
-```console
+```sh
 ldapsearch -Q -h ldap.itransition.corp -b "OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))" | grep displayName:
 
 =>
@@ -206,7 +206,7 @@ displayName: Pupkin, Andrey
 
 Список проектных групп вашего проекта (результат зависит от консистентности названия групп):
 
-```console
+```sh
 ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b "OU=Groups,OU=Itransition,DC=itransition,DC=corp" "name=ILLIS*" dn | grep CN=
 
 =>
@@ -225,7 +225,7 @@ dn: CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
 
 Список переговорных на Кульман 1 с окнами:
 
-```console
+```sh
 ldapsearch -Q -h ldap.itransition.corp -b "OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))" dn | grep CN= | cut -d , -f 1
 
 =>
@@ -239,7 +239,7 @@ dn: CN=Room K1-421
 
 Или без окон:
 
-```console
+```sh
 ldapsearch -Q -h ldap.itransition.corp -b "OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp" "(&(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))" dn | grep CN= | cut -d , -f 1
 
 =>
@@ -258,7 +258,7 @@ dn: CN=Room K1-419
 
 Список _однофамильцев_ рабочих станций:
 
-```console
+```sh
 ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b "OU=Workstations,OU=Itransition,DC=itransition,DC=corp" "(&(name=shestakova*)(!(name=shestakova-a)))" managedBy
 
 =>

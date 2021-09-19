@@ -1,0 +1,151 @@
+---
+title: Using nix to manage vscode extensions
+tags: nix
+language: english
+---
+
+I'm using vscode for a long time, but only recently appreciated how cool Remote set of extensions is. It allows you to run `vscode-server` on remote host or inside a container while utilizing local UI `vscode` window for all operations.
+
+<!--more-->
+
+<img src="/previews/vscode/logo.png" class="center" />
+
+Why to use so complex setup? Reasons may vary... In my particular case there are several:
+
+* Antivirus software (required by employer) is killing performance and feedback loop speed becomes unbearable
+* Performance of the local machine can be not enough for productive work or long compilation-intensive workloads
+* Linux has better `nix` support, some tools or dependencies aren't available on darwin (if you ever worked with `MSSQL` from MacOS's terminal, you know...)
+
+I tried many _candidates_ for a remote host worker role: beefy AWS EC2 machine, own linux desktop, but stopped on a virtual machine inside VmWare Fusion, running on the same apple macbook. Such setup is performant enough (3 times faster compilation then on host machine) and has a benefit of _being not really remote_. In future I might switch over towards using real cloud server (which is trivial to do with nix and my [home-manager](@gh(maksar):dotfiles/tree/master/home) setup).
+
+My typical project setup includes `nix` (usually `nix flake` based). `vscode` doesn't play nice with it by default. Being launched not from inside `nix-shell` (with `code .` command), it fails to _see_ all the tools configured by nix inside your project (language servers, formatters, linters, etc.). To overcome this – there is a [Nix Environment Selector](https://marketplace.visualstudio.com/items?itemName=arrterian.nix-env-selector) plugin, which activates `nix-shell` before all other plugins are loaded. With that done, all the useful tools and utilities become visible for `vscode`.
+
+If your project is already fully migrated towards using `flake.nix`, you'd need to create a wrapper `shell.nix` file, which loads current project's flake and grabs a shell derivation out of it:
+
+```nix
+(builtins.getFlake (toString ./.)).devShell.${builtins.currentSystem}
+```
+
+After connecting to the external host by SSH, Visual Studio Code will install `vscode-server` (based on `nodejs` 😞 of course) and perform all the required preparations. Unfortunately, it doesn't install all the plugins that you had on a host machine. In addition, latest version of `vscode` has a bug, which prevents to install extensions on a remote host manually. But we are going to fix this.
+
+I was already using `home-manager`'s [configuration](@gh(maksar):dotfiles/blob/master/home/vscode/default.nix) to manage `vscode` extensions:
+
+```nix
+{ config, pkgs, ... }: {
+
+  home.packages = [ pkgs.nixfmt pkgs.curl pkgs.jq ];
+
+  programs.vscode = {
+    enable = true;
+    userSettings = {
+      "editor.renderWhitespace" = "all";
+      "files.autoSave" = "onFocusChange";
+      "editor.rulers" = [ 80 120 ];
+      "telemetry.enableTelemetry" = false;
+      "telemetry.enableCrashReporter" = false;
+      "editor.tabSize" = 2;
+      "files.exclude" = { "**/node_modules/**" = true; };
+      "editor.formatOnSave" = false;
+      "breadcrumbs.enabled" = true;
+      "editor.useTabStops" = false;
+      "editor.fontFamily" = "PragmataPro Liga";
+      "editor.fontSize" = 16;
+      "editor.fontLigatures" = true;
+      "editor.lineHeight" = 20;
+      "workbench.fontAliasing" = "antialiased";
+      "files.trimTrailingWhitespace" = true;
+      "editor.minimap.enabled" = false;
+      "workbench.colorTheme" = "Atom One Dark";
+      "workbench.editor.enablePreview" = false;
+      "workbench.iconTheme" = "vscode-icons-mac";
+      "terminal.integrated.fontFamily" = "PragmataPro Liga";
+    };
+
+    keybindings = [{
+      key = "shift+cmd+d";
+      command = "editor.action.copyLinesDownAction";
+      when = "editorTextFocus && !editorReadonly";
+    }];
+
+    extensions = pkgs.vscode-utils.extensionsFromVscodeMarketplace
+      (import ./extensions.nix).extensions;
+  };
+}
+```
+
+With help of this line it was easy to convince `vscode-server` to install all the same extensions on a remote host on reconnect:
+
+```nix
+"remote.SSH.defaultExtensions" = map (e: "${e.publisher}.${e.name}") (import ./extensions.nix).extensions;
+```
+
+`./extensions.nix` is generated automatically with a small [wrapper](@gh(NixOS):nixpkgs/blob/master/pkgs/misc/vscode-extensions/update_installed_exts.sh) script, which I run whenever needed.
+
+```nix
+{ extensions = [
+  {
+    name = "terraform";
+    publisher = "4ops";
+    version = "0.2.2";
+    sha256 = "1f62sck05gvjp7bb6zv34mdbk57y0c9h1av9kp62vjfqggv4zdpf";
+  }
+  {
+    name = "vscode-theme-onedark";
+    publisher = "akamud";
+    version = "2.2.3";
+    sha256 = "1m6f6p7x8vshhb03ml7sra3v01a7i2p3064mvza800af7cyj3w5m";
+  }
+...
+```
+
+With such setup, `vscode-server` will be started with all required arguments and you'll get ready to work `vscode` instance out of the box:
+
+```sh
+$ ps -Af | grep node | head -1
+maksar     20102   20095  1 08:53 ?        00:00:43 /home/maksar/.vscode-server/bin/83bd43bc519d15e50c4272c6cf5c1479df196a4d/node /home/maksar/.vscode-server/bin/83bd43bc519d15e50c4272c6cf5c1479df196a4d/out/vs/server/main.js --start-server --host=127.0.0.1 --enable-remote-auto-shutdown --disable-telemetry --port=0 --install-extension 4ops.terraform --install-extension akamud.vscode-theme-onedark --install-extension arrterian.nix-env-selector --install-extension bbenoist.Nix --install-extension berberman.vscode-cabal-fmt --install-extension bibhasdn.unique-lines --install-extension brettm12345.nixfmt-vscode --install-extension bung87.rails --install-extension bung87.vscode-gemfile --install-extension donjayamanne.githistory --install-extension eamodio.gitlens --install-extension hashicorp.terraform --install-extension haskell.haskell --install-extension hoovercj.haskell-linter --install-extension justusadam.language-haskell --install-extension mathiasfrohlich.Kotlin --install-extension mogeko.haskell-extension-pack --install-extension ms-vscode-remote.remote-ssh --install-extension ms-vscode-remote.remote-ssh-edit --install-extension rebornix.ruby --install-extension sianglim.slim --install-extension syler.sass-indented --install-extension wayou.vscode-icons-mac --install-extension will-wow.vscode-alternate-file --install-extension wingrunr21.vscode-ruby --connection-secret /home/maksar/.vscode-server/.83bd43bc519d15e50c4272c6cf5c1479df196a4d.token
+```
+
+It might be a good idea to also provide list of extensions _recommended_ for the project's developers in `.vscode/extensions.json` file. For example:
+
+```json
+{
+  "recommendations": [
+    "brettm12345.nixfmt-vscode",
+    "bbenoist.Nix",
+  ],
+}
+```
+
+I am also a user of [direnv](https://direnv.net), which automatically activates a `nix-shell` (both regular and `flake` flavours are supported). Super handy in terminal, but also helpful in `vscode`'s built-in Terminal window. Since `direnv` works on shell level and `vscode` just uses user's shell (locally or on a remote host) – you'll get exactly the same shell experience as in your favorite terminal emulator (colors can be different, though).
+
+<a href="/images/vscode/terminal.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/vscode/terminal.png"/></a>
+<a href="/images/vscode/vscode.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="/previews/vscode/vscode.png"/></a>
+
+With the following contents of the `.envrc` file, `direnv` will load and activate the shell derivation from `flake.nix` file and extend your current shell with it.
+
+```sh
+use flake
+watch_file blog.project
+```
+
+Doing so is better than starting `nix-shell` manually, because you will still be using your current shell, prompt remains unchanged, etc. `direnv` has other features, which I quite enjoy, especially loading environment variables from a file (I usually name it `.env.development`).
+
+As for this blog – I do also write and support it on a remote linux host with help of `vscode`'s Remote – SSH extension. Port forwarding is easy to configure in project settings:
+
+```json
+"remote.SSH.defaultForwardedPorts": [{"name": "Blog", "localPort": 8000, "remotePort": 8000}]
+```
+
+Of course, this is not the only setting there is inside `.vscode/settings.json` file. Among other things, it is possible to configure embedded terminal a bit:
+
+```json
+  "terminal.integrated.automationShell.linux": "nix-shell",
+  "terminal.integrated.defaultProfile.linux": "zsh",
+  "terminal.integrated.cursorBlinking": true,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.cursorWidth": 2,
+  "terminal.integrated.enableBell": true,
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.lineHeight": 1.1,
+  "terminal.integrated.scrollback": 5000,
+```

@@ -116,7 +116,7 @@ interpreter = runIO . runTime . runConsole
 
 Применив получившийся интерпретатор `interpreter` к программе `measure greeting`, получим:
 
-```console
+```sh
 => What is your name?
 <= Alex
 => Hello Alex

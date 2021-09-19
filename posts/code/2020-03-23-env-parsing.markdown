@@ -186,7 +186,7 @@ Config
 
 Работает! Теперь полиморфная функция `forAll`, обладающая типом `forAll :: (Show a, Testable prop) => Gen a -> (a -> prop) -> Property` может принимать на вход "генератор конфигов" и проверять `Property` (по сути, чуть-чуть более хитрый предикат, где вместо `==` используется `===`).
 
-```console
+```sh
 Env
   environment reading
     reads config from complete environment
@@ -197,7 +197,7 @@ Env
 
 Строка `+++ OK, passed 100 tests.` говорит о том, что было сгенерировано 100 случайных `Config`-ов для проверки инварианта – конвертации "окружение" и обратно. Количество тестов всегда можно задать аргументом командной строки при запусте тестов.
 
-```console
+```sh
 $ stack test --test-arguments --qc-max-success=10000
 
 Env

@@ -138,7 +138,7 @@ implementation("com.atlassian.jira", "jira-tests", "8.8.1")
 
 Собрав `fat jar` с этими и еще некоторыми прямыми (сам `kotlin`, библиотека для работы с переменными окружения, etc.) и косвенными зависимостями (только представьте сколько зависимостей за собой "тянет" `jira-core`) получаем `trimmer-1.0-all.jar` размером в **112 мегабайт** – такова цена за `code-reuse`. Настало время для `GraalVM` – попробуем преобразовать `jar` файл в обычный исполняемый файл, в надежде избавиться от главной зависимости – виртуальной `java` машины.
 
-```console
+```sh
 $ native-image -cp ./build/libs/trimmer-1.0-all.jar
                -H:Name=trimer-exe
                -H:Class=TrimmerKt
@@ -148,7 +148,7 @@ $ native-image -cp ./build/libs/trimmer-1.0-all.jar
 
 Попытка "в лоб" заканчивается неудачей, логи полны сообщений вида:
 
-```console
+```sh
 Error: Classes that should be initialized at run time got initialized during image building:
 org.apache.log4j.spi.LoggingEvent was unintentionally initialized at build time.
 org.apache.http.HttpEntity was unintentionally initialized at build time.
@@ -158,7 +158,7 @@ Error: Image build request failed with exit status 1
 
 Не отчаиваемся и просим `GraalVM` пытаться инициализировать это все на этапе сборки образа:
 
-```console
+```sh
 $ native-image --no-server
                --enable-https
                --allow-incomplete-classpath
@@ -201,7 +201,7 @@ val jira = lazy { JiraClient(dotenv["JIRA_URL"], BasicCredentials(dotenv["JIRA_U
 
 Кстати, именно из-за статической инициализации приложения на `java` так медленно стартуют, а при старте иногда можно видеть в консоли строки:
 
-```console
+```sh
 log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.PoolingClientConnectionManager).
 log4j:WARN Please initialize the log4j system properly.
 log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
@@ -209,7 +209,7 @@ log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more in
 
 `GraalVM` как раз и славится тем, что позволяет сократить время запуска приложений, так как вся статическая инициализация происходит на этапе "сборки", в готовый исполняемый файл, вместе со встраиваемой виртуальной машиной, попадают "замороженные" версии классов, с уже выполненным шагом статической инициализации.
 
-```console
+```sh
 $ native-image --no-fallback
                --allow-incomplete-classpath
                --enable-https
@@ -223,7 +223,7 @@ $ native-image --no-fallback
 
 Следующая беда "вылазит" уже не на этапе сборки, а после запуска собранного приложения:
 
-```console
+```sh
 Exception in thread "main" java.lang.NoClassDefFoundError: java.lang.Class
   at net.sf.json.AbstractJSON.class$(AbstractJSON.java:53)
   ...
@@ -246,7 +246,7 @@ Exception in thread "main" java.lang.NoClassDefFoundError: java.lang.Class
 
 Заставим `GraalVM` обратить на него внимание:
 
-```console
+```sh
 $ native-image --no-fallback
                --allow-incomplete-classpath
                --enable-https
@@ -261,7 +261,7 @@ $ native-image --no-fallback
 
 В итоге, собранная программа работает как положено. Итоговый размер – **28 мегабайт**, а будучи упакованным при помощи `upx` – **7.1 мегабайт**. Не удивительно, ведь `GraalVM` пришлось включить в исполняемый файл `Substrate VM` виртуальную машину для того, чтобы бинарный файл стал независим от системного `JRE`. Обещания, которые давал `GraalVM` он выполнил – один исполняемый файл, независимость от системного `JRE`. К слову, время старта приложения значительно сократилось – разница заметна даже невооруженным взглядом:
 
-```console
+```sh
 $ time java -jar build/libs/trimmer-1.0-all.jar --dry-run
 0.30s user 0.05s system 181% cpu 0.195 total
 $ time ./trimer-exe --dry-run
@@ -399,7 +399,7 @@ ENTRYPOINT ["/app"]
 
 В итоге, вышел компромиссный вариант (из-за невозможности использовать `musl`) – статическая линковка (размер исполняемого файла **4.6 мегатайта**), вместе с `libc` и библиотеками для `DNS`, сделали размер образа не таким большим – всего **7.2 мегабайта**. Цель по уменьшению размера итогово образа и обеспечению дополнительной безопасности можно считать достигнутой. Особенно греет душу мысль о том, что бот в состоянии покоя занимает в оперативной памяти всего **812 килобайт**!
 
-```console
+```sh
 Cmp   Size  Command
 4.6 MB  ├── app
 246 kB  ├── etc

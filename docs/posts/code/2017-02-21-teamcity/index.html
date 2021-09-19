@@ -117,16 +117,16 @@
 </ol>
 <p>If you are not satisfied with the results, perform any modifications to the configuration files and/or scripts and re-execute ./bootstrap.sh command. Everything will be built from scratch again.</p>
 <p>To stop provisioned environment, use following command:</p>
-<pre class="console"><code>$ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml down</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker-compose <span class="at">-f</span> docker-compose.yml <span class="at">-f</span> docker-compose.<span class="va">$PLATFORM</span>.yml <span class="at">-f</span> docker-compose.agents.<span class="va">$TOTAL_AGENTS</span>.yml down</span></code></pre></div>
 <h2 id="update">Update</h2>
 <p>Whenever new version of the TeamCity becomes available, new commits will appear in <code>master</code> branch of this repository. Updating procedure is easy: on your VM, you can merge master branch to your project’s branch and restart docker-compose services. This will build new TeamCity server image, all agent containers will be automatically updated upon start.</p>
-<pre class="console"><code>$ git checkout master
-$ git pull origin master
-$ git merge master
-$ git checkout project_branch
-$ git merge master
-$ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml build
-$ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml up -d</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git checkout master</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git pull origin master</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git merge master</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git checkout project_branch</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git merge master</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker-compose <span class="at">-f</span> docker-compose.yml <span class="at">-f</span> docker-compose.<span class="va">$PLATFORM</span>.yml <span class="at">-f</span> docker-compose.agents.<span class="va">$TOTAL_AGENTS</span>.yml build</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker-compose <span class="at">-f</span> docker-compose.yml <span class="at">-f</span> docker-compose.<span class="va">$PLATFORM</span>.yml <span class="at">-f</span> docker-compose.agents.<span class="va">$TOTAL_AGENTS</span>.yml up <span class="at">-d</span></span></code></pre></div>
 <h2 id="passwords-expiration">Passwords expiration</h2>
 <p>Since BitBucket provides only Basic Auth for using it’s API, TeamCity has to store password from team member internally. Fortunately, there is a way to securely store sensitive data inside TeamCity without exposing it on GUI or inside configuration Kotlin files. When you notice, that TeamCity has stopped reporting build statuses back to BitBucket, run <code>update_commit_status_password.sh</code> script. It will ask for the username (does not have to be the same as on initial bootstrap) and domain password. Script then will update secure password value inside TeamCity and make corresponding changes inside project repository.</p>
 <h2 id="internals">Internals</h2>
@@ -144,28 +144,28 @@ $ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker
 <li>Communication with VCS (BitBucket or GitHub) to setup access to the code from CI by SSH keys.</li>
 </ul>
 <p>To get the idea what exactly installation script is doing, lets see typical log messages:</p>
-<pre class="console"><code>Destroying previous versions of docker images.
-Generating access keys.
-Uploading public key to BitBucket.
-Executing platform specific scripts.
-Downloading PostgreSQL driver.
-Waiting for TeamCity server to accept agreement...
-Accepting license agreement.
-Adding private key to the TeamCity.
-Creating users.
-Granting admin privileges to the main user.
-Creating project.
-Generating custom config.
-TeamCity configuration dir does not exist, Generating from the template.
-Creating VCS.
-Enable configuration synchronization.
-Authorizing agents.
-Scheduling settings update.
-Waiting for TeamCity server to accept configuration...
-Assigning project to the default agent pool.
-Triggering build.
-TeamCity instance is ready!
-Passwords for users:</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Destroying</span> previous versions of docker images.</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Generating</span> access keys.</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Uploading</span> public key to BitBucket.</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Executing</span> platform specific scripts.</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Downloading</span> PostgreSQL driver.</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Waiting</span> for TeamCity server to accept agreement...</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Accepting</span> license agreement.</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Adding</span> private key to the TeamCity.</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> users.</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Granting</span> admin privileges to the main user.</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> project.</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Generating</span> custom config.</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ex">TeamCity</span> configuration dir does not exist, Generating from the template.</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> VCS.</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Enable</span> configuration synchronization.</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Authorizing</span> agents.</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Scheduling</span> settings update.</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Waiting</span> for TeamCity server to accept configuration...</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Assigning</span> project to the default agent pool.</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Triggering</span> build.</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="ex">TeamCity</span> instance is ready!</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="ex">Passwords</span> for users:</span></code></pre></div>
 <h3 id="docker-compose">docker-compose</h3>
 <p><code>docker-compose</code> allows to specify many <code>yml</code> files to operate with. Bootstrap benefits from that feature by splitting configuration into three parts:</p>
 <ul>

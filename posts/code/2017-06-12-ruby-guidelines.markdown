@@ -47,7 +47,7 @@ Working on legacy code, which wasn't developed with full style guide compliance 
 
 If you have following folder structure:
 
-```console
+```sh
 $  tree -L 1 -A -C
 .
 ├── admin-area
@@ -60,7 +60,7 @@ $  tree -L 1 -A -C
 
 Before creating pull request you should inspect and fix style violations:
 
-```console
+```sh
 $ ./pacthed_rubocop.rb --branch
 Inspecting 4 files
 W.CC
@@ -107,7 +107,7 @@ There are plenty or [articles](@gh(mbj):mutant#blog-posts) and [presentations](@
 
 Running mutant is pretty easy:
 
-```console
+```sh
 $ RAILS_ENV=test bundle exec mutant -I . -I spec --use rspec -j 1 --fail-fast "PaylocityParams#person"
 ```
 

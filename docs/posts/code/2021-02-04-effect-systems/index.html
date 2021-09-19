@@ -111,10 +111,10 @@
 <p>Итоговый интерпретатор, которым можно выполнить всю программу (именно он будет использоваться в main), комбинируют из индивидуальных:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>interpreter <span class="ot">=</span> runIO <span class="op">.</span> runTime <span class="op">.</span> runConsole</span></code></pre></div>
 <p>Применив получившийся интерпретатор <code>interpreter</code> к программе <code>measure greeting</code>, получим:</p>
-<pre class="console"><code>=&gt; What is your name?
-&lt;= Alex
-=&gt; Hello Alex
-=&gt; Action took: 5 seconds</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> What is your name<span class="pp">?</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>= <span class="ex">Alex</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> Hello Alex</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> Action took: 5 seconds</span></code></pre></div>
 <p>Для целей тестирования функции <code>greeting</code> можно написать специальный интерпретатор, который по <code>readLn</code> всегда возвращает нужную нам строку, а <code>printLn</code> постоянно добавляет к аккумулятору переданную ему строку. Но создавать такие интерпретаторы – на наш путь. Мы воспользуемся готовеньким и реализуем эффект <code>ConsoleEffect</code> в терминах двух других библиотечных эффектов – <code>Reader</code> и <code>Writer</code>. В этом случае можно будет воспользоваться уже готовыми интерпретаторами для них:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fakeInterpreter ::</span> <span class="dt">Effect</span> <span class="dt">ConsoleEffect</span> a <span class="ot">-&gt;</span> <span class="dt">Effect</span> (<span class="dt">Writer</span> <span class="dt">String</span> <span class="op">:</span> <span class="dt">Reader</span> <span class="dt">String</span>) a</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fakeInterpreter <span class="ot">=</span> reinterpret \<span class="kw">case</span></span>

@@ -46,20 +46,20 @@
 <p>Первое, что бросается в глаза – это незнакомый формат даты-времени. Даже не формат, а форматы – их несколько. Бывают записи вида <code>whenChanged: 20191028073233.0Z</code> с очевидным форматом, но есть еще и записи вида <code>pwdLastSet: 132119732272806390</code> о сути которых лучше меня расскажет <a href="https://www.epochconverter.com/ldap">страница</a>. Приходится писать свои parser/emitter-ы для этих форматов, так как в поставку библиотек он редко входят. Дата и время – очень обширная тема, приглашаю послушать Kovsh Dmitry на предстоящем <a href="https://itransition.workplace.com/events/537058783541251/">Itransition Development Meetup #10</a>.</p>
 <h2 id="we-need-to-go-deeper">We need to go deeper</h2>
 <p>Как правило, объекты в AD (группы, отделы, пользователи) имеют древовидную структуру, напоминающую (или повторяющую) иерархию реальных организаций. Наша – не исключение (<a href="https://ru.wikipedia.org/wiki/Закон_Конвея">закон Конвея</a>, как-никак). Классические утилиты для работы с AD и, тем более, API – позволяют осуществлять поиск только на один уровень вглубь. Рассмотрим на примере – существует группа RFX Digest Readers, в состав которой входят как пользовательские учетные записи, так и другие группы</p>
-<pre class="console"><code>member: CN=Tech Coordinators,OU=Groups
-member: CN=Marketing,OU=Groups
-member: CN=Departments Managers,OU=Groups
-member: CN=Syomkin, Andrey,OU=Active,OU=Users
-member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Tech Coordinators,OU=Groups</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Marketing,OU=Groups</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Departments Managers,OU=Groups</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Syomkin, Andrey,OU=Active,OU=Users</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Chernikov, Yury,OU=Active,OU=Users</span></code></pre></div>
 <p>Наивное решение для поиска всех людей в этой группе – такое:</p>
-<pre class="console"><code>ldapsearch -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; displayName</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot;</span> displayName</span></code></pre></div>
 <p>Однако результат предсказуем – нашлись только два человека:</p>
-<pre class="console"><code>member: CN=Syomkin, Andrey,OU=Active,OU=Users
-member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Syomkin, Andrey,OU=Active,OU=Users</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Chernikov, Yury,OU=Active,OU=Users</span></code></pre></div>
 <p>Для того, чтобы найти всех, необходимо прибегнуть к “особой Microsoft магии” – специальным <a href="https://docs.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax">префиксам</a>. Например префикс :1.2.840.113556.1.4.1941: (значение именно такое, по <del>иторическим причинам</del> легенде такое значение соответствовало ключу <code>LDAP_MATCHING_RULE_IN_CHAIN</code> в header файлах) позволяет “искать вглубь”. Такой поиск вернет все необходимые записи.</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; displayName | grep displayName: | wc -l
-
-=&gt; 113</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot;</span> displayName <span class="kw">|</span> <span class="fu">grep</span> displayName: <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> 113</span></code></pre></div>
 <h2 id="синхронизация">Синхронизация</h2>
 <p>Если изменение только-только произошло – не спешите стремглав выполнять поиск по AD, в друг там несколько серверов с репликацией и они еще не синхронизировались… О способах и времени синхронизации отдельных серверов в AD ходят легенды. Мой совет – работайте на запись всегда только с одним, конкретным сервером, если возможно. Совет вредный, но рабочий. Буду раз услышать в комментариях совет полезный, но пока так ;)</p>
 <h2 id="tls-соединение">TLS соединение</h2>
@@ -120,16 +120,16 @@ member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
 <h2 id="примеры-запросов">Примеры запросов</h2>
 <p>Запросы в AD могут быть весьма сложными, так сказать write-only. Приведу, один такой пример.</p>
-<pre class="console"><code>(&amp;(objectClass=person)(|
-(memberOf:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(managedObjects:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(memberOf:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(managedObjects:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(managedObjects:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)))</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">(&amp;(</span><span class="va">objectClass</span><span class="op">=</span>person<span class="kw">)(|</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">memberOf:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">managedObjects:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">memberOf:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">managedObjects:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">managedObjects:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)))</span></span></code></pre></div>
 <p>На человеческом языке запрос звучит достаточно просто: все HelpDesk Operator-ы, а так же члены групп <code>IT</code> и <code>VECTOR.Development</code>. Из этой безобидности запрос превращается в “ужас на крыльях ночи” благодаря: - обсуждаемому выше магическому префиксу для поиска “в глубину” - наличию не только членов группы (memberOf), но и ее владельцев (managedObjects) - кроме очевидного способа найти владельцев группы, существует еще и Exchange-way управлять составом групп, так что приходится учитывать поле <code>msExchCoManagedObjectsBL</code></p>
 <p>Предыдущий запрос используется в конфигурационном файле <code>nginx</code> для контроля доступа к страницам при помощи <a href="https://github.com/kvspb/nginx-auth-ldap">nginx-auth-ldap</a> плагина. Такое решение может оказаться эффективнее, чем встраивать аутентификацию внутрь защищаемой системы. Если вам это необходимо – скорее всего придется собрать модуль самостоятельно</p>
 <pre class="docker"><code>RUN git clone https://github.com/kvspb/nginx-auth-ldap.git &amp;&amp; wget -qO- http://nginx.org/download/nginx-1.17.3.tar.gz | tar -xvzf -
@@ -169,73 +169,73 @@ teamcity.options.deleteUsers=true</code></pre>
 <p>Подробный рассказ о TeamCity и то, как его правильно готовить от Panfilenok Aleksandr вас ждет на предстоящем <a href="https://itransition.workplace.com/events/537058783541251/">Itransition Development Meetup #10</a>.</p>
 <h2 id="утилиты-командной-строки">Утилиты командной строки</h2>
 <p>Используя ldapseach можно легко (для тех кто любит терминал) строить полезные запросы к AD. Например – список людей, в интересующей вас комнате:</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))&quot; | grep displayName:
-
-=&gt;
-displayName: Shestakov, Aleksandr
-displayName: Pupkin, Andrey</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))&quot;</span> <span class="kw">|</span> <span class="fu">grep</span> displayName:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">displayName:</span> Shestakov, Aleksandr</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">displayName:</span> Pupkin, Andrey</span></code></pre></div>
 <p>Список проектных групп вашего проекта (результат зависит от консистентности названия групп):</p>
-<pre class="console"><code>ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b &quot;OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; &quot;name=ILLIS*&quot; dn | grep CN=
-
-=&gt;
-dn: CN=ILLIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.ILLIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-o</span> ldif-wrap=no <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;name=ILLIS*&quot;</span> dn <span class="kw">|</span> <span class="fu">grep</span> CN=</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.ILLIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span></code></pre></div>
 <p>Список переговорных на Кульман 1 с окнами:</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))&quot; dn | grep CN= | cut -d , -f 1
-
-=&gt;
-dn: CN=Room K1-101
-dn: CN=Room K1-117
-dn: CN=Room K1-119
-dn: CN=Room K1-202
-dn: CN=Room K1-208
-dn: CN=Room K1-421</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))&quot;</span> dn <span class="kw">|</span> <span class="fu">grep</span> CN= <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> , <span class="at">-f</span> 1</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-101</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-117</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-119</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-202</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-208</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-421</span></code></pre></div>
 <p>Или без окон:</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))&quot; dn | grep CN= | cut -d , -f 1
-
-=&gt;
-dn: CN=Room K1-112
-dn: CN=Room K1-217
-dn: CN=Room K1-224
-dn: CN=Room K1-301a-Manicure
-dn: CN=Room K1-301a-Massage
-dn: CN=Room K1-313a-1
-dn: CN=Room K1-315
-dn: CN=Room K1-316
-dn: CN=Room K1-410
-dn: CN=Room K1-411
-dn: CN=Room K1-419</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))&quot;</span> dn <span class="kw">|</span> <span class="fu">grep</span> CN= <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> , <span class="at">-f</span> 1</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-112</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-217</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-224</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-301a-Manicure</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-301a-Massage</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-313a-1</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-315</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-316</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-410</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-411</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-419</span></code></pre></div>
 <p>Список <em>однофамильцев</em> рабочих станций:</p>
-<pre class="console"><code>ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b &quot;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=shestakova*)(!(name=shestakova-a)))&quot; managedBy
-
-=&gt;
-# extended LDIF
-#
-# LDAPv3
-# base &lt;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&gt; with scope subtree
-# filter: (&amp;(name=shestakova*)(!(name=shestakova-a)))
-# requesting: managedBy
-#
-
-# SHESTAKOVAV, Workstations, Itransition, itransition.corp
-dn: CN=SHESTAKOVAV,OU=Workstations,OU=Itransition,DC=itransition,DC=corp
-managedBy: CN=Shestakova\, Vitalina,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp
-
-# search result
-search: 5
-result: 0 Success
-
-# numResponses: 2
-# numEntries: 1</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-o</span> ldif-wrap=no <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(name=shestakova*)(!(name=shestakova-a)))&quot;</span> managedBy</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># extended LDIF</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># LDAPv3</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># base &lt;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&gt; with scope subtree</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># filter: (&amp;(name=shestakova*)(!(name=shestakova-a)))</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># requesting: managedBy</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># SHESTAKOVAV, Workstations, Itransition, itransition.corp</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=SHESTAKOVAV,OU=Workstations,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="ex">managedBy:</span> CN=Shestakova<span class="dt">\,</span> Vitalina,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co"># search result</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="ex">search:</span> 5</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="ex">result:</span> 0 Success</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co"># numResponses: 2</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># numEntries: 1</span></span></code></pre></div>
 <h2 id="занимательные-флаги">Занимательные флаги</h2>
 <p>При работе с утилитой командной строки ldapsearch необходимо быть внимательным – она любит делать text-wrap, перенося окончания длинных CN на следующую строку. Для того, чтобы этого избежать – удобно пользоваться опцией <code>-o ldif-wrap=no</code>.</p>
 <p>Знаете первое правило real estate бизнеса – <a href="https://www.thebalance.com/what-location-means-in-real-estate-1798766">Location, Location и еще раз Location</a>. Так вот ldapsearch тоже о нем в курсе ;) Для того, чтобы избавиться от надоедливых header-ов (иначе не удобно обрабатывать вывод другими утилитами), необходимо передавать флаги <code>-L -L -L</code>, о чем заботливо упоминается в документации: <em>A single -L restricts the output to LDIFv1. A second -L disables comments. A third -L disables printing of the LDIF version.</em></p>

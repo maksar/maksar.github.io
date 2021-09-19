@@ -183,7 +183,7 @@ claim "Workflow should remain in its bounds"
 
 Перед тем как углубиться в суть выражения `list userProducer`, стоит все же посмотреть на результаты запуска. Видно, что довольно быстро нашелся контрпример, опровергающий наш инвариант. Очень хотелось верить в код, написанный нами с такой аккуратностью и протестированный в предыдущей инкарнации mutation тестами, но он оказался не так уж и хорош. Глядя на контрпример, становится очевидно в чем проблема: если пользователь имеет `FORCE` привилегии, то код не делает никаких проверок и просто-напросто увеличивает номер шага!
 
-```console
+```sh
 ✗ Workflow should remain in its bounds
 
     On check 3, found counterexample:
@@ -270,7 +270,7 @@ claim "Same user cannot vote twice"
 
 Запуск тестов показывает, что инвариант нарушен: найдена такая пара пользователь-операция, при применении которой шаг `workflow`-а уменьшается на единицу.
 
-```console
+```sh
 ✗ Same user cannot vote twice
 
     On check 1, found counterexample:
@@ -281,7 +281,7 @@ claim "Same user cannot vote twice"
 
 И действительно, в функцию `reject` так же закралась ошибка. Применение `locked` вместо `not User.active` исправляет ситуацию – все тесты теперь зеленые.
 
-```console
+```sh
 Running 4 tests. To reproduce these results, run: elm-test --seed 2042167370
 
 TEST RUN PASSED

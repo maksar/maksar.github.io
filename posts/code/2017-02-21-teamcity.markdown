@@ -88,7 +88,7 @@ If you are not satisfied with the results, perform any modifications to the conf
 
 To stop provisioned environment, use following command:
 
-```console
+```sh
 $ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml down
 ```
 
@@ -96,7 +96,7 @@ $ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker
 
 Whenever new version of the TeamCity becomes available, new commits will appear in `master` branch of this repository. Updating procedure is easy: on your VM, you can merge master branch to your project's branch and restart docker-compose services. This will build new TeamCity server image, all agent containers will be automatically updated upon start.
 
-```console
+```sh
 $ git checkout master
 $ git pull origin master
 $ git merge master
@@ -127,7 +127,7 @@ Responsibilities:
 
 To get the idea what exactly installation script is doing, lets see typical log messages:
 
-```console
+```sh
 Destroying previous versions of docker images.
 Generating access keys.
 Uploading public key to BitBucket.

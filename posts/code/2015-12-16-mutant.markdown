@@ -146,7 +146,7 @@ Coverage report generated for RSpec to /Users/maksar/projects/mentat/coverage. 4
 
 This is where the story might end for a mediocre developer. One would think that since coverage indicates we are good, there is no work left to do. Well, let's not be in a hurry, [mutant](@gh(mbj):mutant) to the rescue!
 
-```console
+```sh
 $ mentat git:(master) mutant -I . -r version_1/workflow_spec.rb --use rspec 'Workflow'
 ```
 
@@ -165,7 +165,7 @@ end
 
 Code is changed, running specs:
 
-```console
+```sh
 $ mentat git:(master) rspec version_1/workflow_spec.rb -f p
 .
 
@@ -283,7 +283,7 @@ end
 
 It predictably fails with old good `NotMethodError`:
 
-```console
+```sh
 Workflow
   empty workflow
     should not raise error on inconsistent configuration (FAILED - 1)
@@ -316,7 +316,7 @@ end
 
 Running tests again results in a different `IndexError` error:
 
-```console
+```sh
 Workflow
   empty workflow
     should not raise error on inconsistent configuration (FAILED - 1)
@@ -441,7 +441,7 @@ end
 
 Now, when all Mutants have been killed, mutant happily reports 100% mutation coverage.
 
-```console
+```sh
 Mutant configuration:
 Matcher:         #<Mutant::Matcher::Config match_expressions: [Workflow]>
 Integration:     Mutant::Integration::Rspec

@@ -168,24 +168,24 @@
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  , _projectGroupsOrgunits <span class="ot">=</span> <span class="st">&quot;\615852L$\598568\ESC6\fc&quot;</span> <span class="op">:|</span> [<span class="st">&quot;[h\DC4N[3pzk\b\SUB6\133277\14775&quot;</span>]</span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 <p>Работает! Теперь полиморфная функция <code>forAll</code>, обладающая типом <code>forAll :: (Show a, Testable prop) =&gt; Gen a -&gt; (a -&gt; prop) -&gt; Property</code> может принимать на вход “генератор конфигов” и проверять <code>Property</code> (по сути, чуть-чуть более хитрый предикат, где вместо <code>==</code> используется <code>===</code>).</p>
-<pre class="console"><code>Env
-  environment reading
-    reads config from complete environment
-      +++ OK, passed 100 tests.
-    fails to read a config from incomplete environment
-      +++ OK, passed 100 tests.</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Env</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">environment</span> reading</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">reads</span> config from complete environment</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 100 tests.</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">fails</span> to read a config from incomplete environment</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 100 tests.</span></code></pre></div>
 <p>Строка <code>+++ OK, passed 100 tests.</code> говорит о том, что было сгенерировано 100 случайных <code>Config</code>-ов для проверки инварианта – конвертации “окружение” и обратно. Количество тестов всегда можно задать аргументом командной строки при запусте тестов.</p>
-<pre class="console"><code>$ stack test --test-arguments --qc-max-success=10000
-
-Env
-  environment reading
-    reads config from complete environment
-      +++ OK, passed 10000 tests.
-    fails to read a config from incomplete environment
-      +++ OK, passed 10000 tests.
-
-Finished in 2.2859 seconds
-2 examples, 0 failures</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> stack test <span class="at">--test-arguments</span> <span class="at">--qc-max-success</span><span class="op">=</span>10000</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Env</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">environment</span> reading</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">reads</span> config from complete environment</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 10000 tests.</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">fails</span> to read a config from incomplete environment</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 10000 tests.</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 2.2859 seconds</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="ex">2</span> examples, 0 failures</span></code></pre></div>
 <p>От каких “ошибок” защищают такие defensive (regression, golden) тесты? Например, если случайно переставить местами строки при построении конфига – тесты это отловят. Либо если попытаться захардкодить какое-нибудь одно значение на этапе построения конфига – тесты тоже просигнализируют с несовпадении значений (сгенерированное случайное значение будет отличаться от статического хардкода). Изменение названия переменных, из которых читаем конфиг, такой тест тоже “отловит”, но отловит тут в кавычках, потому что такое падение теста не говорит о некорректности или неработоспособности программы, оно говорит лишь о том, что тесты нужно обновить, по сути “зашив” в процедуру генерации фейкового оружения новые названия переменных. В.С. непременно бы заметил еще на этапе написания тестов, что названия переменных повторяются и в реализации и в тестах – “не DRY”, сказал бы он в code review комментарии…</p>
 <h2 id="суши-с-лупой">Суши с лупой</h2>
 <p>Для того, чтобы избавиться из повторений, будем использовать популярную в функциональном программировании вещь – линзы. Линза, если совсем просто ее представить, это такая сущность, которая совмещает в себе getter и setter. Ну как setter… программирование же функциональное, immutability везде, нет никаких setter-ов, есть только функции <code>Value -&gt; Object -&gt; Object</code>, которые не меняют <code>Object</code>, а возвращают новый.</p>

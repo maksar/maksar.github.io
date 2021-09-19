@@ -7,8 +7,187 @@
         <description><![CDATA[Personal blog of Shestakov Alex]]></description>
         <atom:link href="https://maksar.github.io/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Thu, 05 Aug 2021 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 19 Sep 2021 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Using nix to manage vscode extensions</title>
+    <link>https://maksar.github.io/posts/code/2021-09-19-vscode/index.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Using nix to manage vscode extensions</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Using nix to manage vscode extensions</h1>
+    
+<article>
+  <span class="header">
+    
+      September 19, 2021 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/nix">nix</a>
+  </span>
+  <section>
+    <p>I’m using vscode for a long time, but only recently appreciated how cool Remote set of extensions is. It allows you to run <code>vscode-server</code> on remote host or inside a container while utilizing local UI <code>vscode</code> window for all operations.</p>
+<!--more-->
+<p><img src="../../../previews/vscode/logo.png" class="center" /></p>
+<p>Why to use so complex setup? Reasons may vary… In my particular case there are several:</p>
+<ul>
+<li>Antivirus software (required by employer) is killing performance and feedback loop speed becomes unbearable</li>
+<li>Performance of the local machine can be not enough for productive work or long compilation-intensive workloads</li>
+<li>Linux has better <code>nix</code> support, some tools or dependencies aren’t available on darwin (if you ever worked with <code>MSSQL</code> from MacOS’s terminal, you know…)</li>
+</ul>
+<p>I tried many <em>candidates</em> for a remote host worker role: beefy AWS EC2 machine, own linux desktop, but stopped on a virtual machine inside VmWare Fusion, running on the same apple macbook. Such setup is performant enough (3 times faster compilation then on host machine) and has a benefit of <em>being not really remote</em>. In future I might switch over towards using real cloud server (which is trivial to do with nix and my <a href="https://github.com/maksar/dotfiles/tree/master/home">home-manager</a> setup).</p>
+<p>My typical project setup includes <code>nix</code> (usually <code>nix flake</code> based). <code>vscode</code> doesn’t play nice with it by default. Being launched not from inside <code>nix-shell</code> (with <code>code .</code> command), it fails to <em>see</em> all the tools configured by nix inside your project (language servers, formatters, linters, etc.). To overcome this – there is a <a href="https://marketplace.visualstudio.com/items?itemName=arrterian.nix-env-selector">Nix Environment Selector</a> plugin, which activates <code>nix-shell</code> before all other plugins are loaded. With that done, all the useful tools and utilities become visible for <code>vscode</code>.</p>
+<p>If your project is already fully migrated towards using <code>flake.nix</code>, you’d need to create a wrapper <code>shell.nix</code> file, which loads current project’s flake and grabs a shell derivation out of it:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">builtins.getFlake</span> <span class="er">(</span><span class="ex">toString</span> ./.<span class="kw">))</span><span class="ex">.devShell.</span><span class="va">${builtins</span><span class="er">.currentSystem</span><span class="va">}</span></span></code></pre></div>
+<p>After connecting to the external host by SSH, Visual Studio Code will install <code>vscode-server</code> (based on <code>nodejs</code> 😞 of course) and perform all the required preparations. Unfortunately, it doesn’t install all the plugins that you had on a host machine. In addition, latest version of <code>vscode</code> has a bug, which prevents to install extensions on a remote host manually. But we are going to fix this.</p>
+<p>I was already using <code>home-manager</code>’s <a href="https://github.com/maksar/dotfiles/blob/master/home/vscode/default.nix">configuration</a> to manage <code>vscode</code> extensions:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="ex">config,</span> pkgs, ... }: {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">home.packages</span> = [ pkgs.nixfmt pkgs.curl pkgs.jq ]<span class="kw">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">programs.vscode</span> = {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">enable</span> = true<span class="kw">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">userSettings</span> = {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.renderWhitespace&quot;</span> = <span class="st">&quot;all&quot;</span><span class="kw">;</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;files.autoSave&quot;</span> = <span class="st">&quot;onFocusChange&quot;</span><span class="kw">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.rulers&quot;</span> = [ 80 120 ]<span class="kw">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;telemetry.enableTelemetry&quot;</span> = false<span class="kw">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;telemetry.enableCrashReporter&quot;</span> = false<span class="kw">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.tabSize&quot;</span> = 2<span class="kw">;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;files.exclude&quot;</span> = { <span class="st">&quot;**/node_modules/**&quot;</span> = true<span class="kw">;</span> <span class="kw">};</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.formatOnSave&quot;</span> = false<span class="kw">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;breadcrumbs.enabled&quot;</span> = true<span class="kw">;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.useTabStops&quot;</span> = false<span class="kw">;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.fontFamily&quot;</span> = <span class="st">&quot;PragmataPro Liga&quot;</span><span class="kw">;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.fontSize&quot;</span> = 16<span class="kw">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.fontLigatures&quot;</span> = true<span class="kw">;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.lineHeight&quot;</span> = 20<span class="kw">;</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;workbench.fontAliasing&quot;</span> = <span class="st">&quot;antialiased&quot;</span><span class="kw">;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;files.trimTrailingWhitespace&quot;</span> = true<span class="kw">;</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;editor.minimap.enabled&quot;</span> = false<span class="kw">;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;workbench.colorTheme&quot;</span> = <span class="st">&quot;Atom One Dark&quot;</span><span class="kw">;</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;workbench.editor.enablePreview&quot;</span> = false<span class="kw">;</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;workbench.iconTheme&quot;</span> = <span class="st">&quot;vscode-icons-mac&quot;</span><span class="kw">;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;terminal.integrated.fontFamily&quot;</span> = <span class="st">&quot;PragmataPro Liga&quot;</span><span class="kw">;</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span><span class="kw">;</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="ex">keybindings</span> = [{</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>      <span class="ex">key</span> = <span class="st">&quot;shift+cmd+d&quot;</span><span class="kw">;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>      <span class="bu">command</span> = <span class="st">&quot;editor.action.copyLinesDownAction&quot;</span><span class="kw">;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>      <span class="ex">when</span> = <span class="st">&quot;editorTextFocus &amp;&amp; !editorReadonly&quot;</span><span class="kw">;</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span><span class="ex">]</span><span class="kw">;</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="ex">extensions</span> = pkgs.vscode-utils.extensionsFromVscodeMarketplace</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>      <span class="kw">(</span><span class="ex">import</span> ./extensions.nix<span class="kw">)</span><span class="ex">.extensions</span><span class="kw">;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>  <span class="er">}</span><span class="kw">;</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div>
+<p>With help of this line it was easy to convince <code>vscode-server</code> to install all the same extensions on a remote host on reconnect:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;remote.SSH.defaultExtensions&quot;</span> = map <span class="er">(</span><span class="ex">e:</span> <span class="st">&quot;</span><span class="va">${e</span><span class="er">.publisher</span><span class="va">}</span><span class="st">.</span><span class="va">${e</span><span class="er">.name</span><span class="va">}</span><span class="st">&quot;</span><span class="kw">)</span> <span class="kw">(</span><span class="ex">import</span> ./extensions.nix<span class="kw">)</span><span class="ex">.extensions</span><span class="kw">;</span></span></code></pre></div>
+<p><code>./extensions.nix</code> is generated automatically with a small <a href="https://github.com/NixOS/nixpkgs/blob/master/pkgs/misc/vscode-extensions/update_installed_exts.sh">wrapper</a> script, which I run whenever needed.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="ex">extensions</span> = [</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">name</span> = <span class="st">&quot;terraform&quot;</span><span class="kw">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">publisher</span> = <span class="st">&quot;4ops&quot;</span><span class="kw">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">version</span> = <span class="st">&quot;0.2.2&quot;</span><span class="kw">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">sha256</span> = <span class="st">&quot;1f62sck05gvjp7bb6zv34mdbk57y0c9h1av9kp62vjfqggv4zdpf&quot;</span><span class="kw">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">{</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">name</span> = <span class="st">&quot;vscode-theme-onedark&quot;</span><span class="kw">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">publisher</span> = <span class="st">&quot;akamud&quot;</span><span class="kw">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="ex">version</span> = <span class="st">&quot;2.2.3&quot;</span><span class="kw">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="ex">sha256</span> = <span class="st">&quot;1m6f6p7x8vshhb03ml7sra3v01a7i2p3064mvza800af7cyj3w5m&quot;</span><span class="kw">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">}</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span></code></pre></div>
+<p>With such setup, <code>vscode-server</code> will be started with all required arguments and you’ll get ready to work <code>vscode</code> instance out of the box:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ps <span class="at">-Af</span> <span class="kw">|</span> <span class="fu">grep</span> node <span class="kw">|</span> <span class="fu">head</span> <span class="at">-1</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">maksar</span>     20102   20095  1 08:53 <span class="pp">?</span>        00:00:43 /home/maksar/.vscode-server/bin/83bd43bc519d15e50c4272c6cf5c1479df196a4d/node /home/maksar/.vscode-server/bin/83bd43bc519d15e50c4272c6cf5c1479df196a4d/out/vs/server/main.js <span class="at">--start-server</span> <span class="at">--host</span><span class="op">=</span>127.0.0.1 <span class="at">--enable-remote-auto-shutdown</span> <span class="at">--disable-telemetry</span> <span class="at">--port</span><span class="op">=</span>0 <span class="at">--install-extension</span> 4ops.terraform <span class="at">--install-extension</span> akamud.vscode-theme-onedark <span class="at">--install-extension</span> arrterian.nix-env-selector <span class="at">--install-extension</span> bbenoist.Nix <span class="at">--install-extension</span> berberman.vscode-cabal-fmt <span class="at">--install-extension</span> bibhasdn.unique-lines <span class="at">--install-extension</span> brettm12345.nixfmt-vscode <span class="at">--install-extension</span> bung87.rails <span class="at">--install-extension</span> bung87.vscode-gemfile <span class="at">--install-extension</span> donjayamanne.githistory <span class="at">--install-extension</span> eamodio.gitlens <span class="at">--install-extension</span> hashicorp.terraform <span class="at">--install-extension</span> haskell.haskell <span class="at">--install-extension</span> hoovercj.haskell-linter <span class="at">--install-extension</span> justusadam.language-haskell <span class="at">--install-extension</span> mathiasfrohlich.Kotlin <span class="at">--install-extension</span> mogeko.haskell-extension-pack <span class="at">--install-extension</span> ms-vscode-remote.remote-ssh <span class="at">--install-extension</span> ms-vscode-remote.remote-ssh-edit <span class="at">--install-extension</span> rebornix.ruby <span class="at">--install-extension</span> sianglim.slim <span class="at">--install-extension</span> syler.sass-indented <span class="at">--install-extension</span> wayou.vscode-icons-mac <span class="at">--install-extension</span> will-wow.vscode-alternate-file <span class="at">--install-extension</span> wingrunr21.vscode-ruby <span class="at">--connection-secret</span> /home/maksar/.vscode-server/.83bd43bc519d15e50c4272c6cf5c1479df196a4d.token</span></code></pre></div>
+<p>It might be a good idea to also provide list of extensions <em>recommended</em> for the project’s developers in <code>.vscode/extensions.json</code> file. For example:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;recommendations&quot;</span><span class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;brettm12345.nixfmt-vscode&quot;</span><span class="ot">,</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;bbenoist.Nix&quot;</span><span class="ot">,</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="ot">]</span><span class="fu">,</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>I am also a user of <a href="https://direnv.net">direnv</a>, which automatically activates a <code>nix-shell</code> (both regular and <code>flake</code> flavours are supported). Super handy in terminal, but also helpful in <code>vscode</code>’s built-in Terminal window. Since <code>direnv</code> works on shell level and <code>vscode</code> just uses user’s shell (locally or on a remote host) – you’ll get exactly the same shell experience as in your favorite terminal emulator (colors can be different, though).</p>
+<p><a href="../../../images/vscode/terminal.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/vscode/terminal.png" /></a> <a href="../../../images/vscode/vscode.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/vscode/vscode.png" /></a></p>
+<p>With the following contents of the <code>.envrc</code> file, <code>direnv</code> will load and activate the shell derivation from <code>flake.nix</code> file and extend your current shell with it.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">use</span> flake</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">watch_file</span> blog.project</span></code></pre></div>
+<p>Doing so is better than starting <code>nix-shell</code> manually, because you will still be using your current shell, prompt remains unchanged, etc. <code>direnv</code> has other features, which I quite enjoy, especially loading environment variables from a file (I usually name it <code>.env.development</code>).</p>
+<p>As for this blog – I do also write and support it on a remote linux host with help of <code>vscode</code>’s Remote – SSH extension. Port forwarding is easy to configure in project settings:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="er">&quot;remote.SSH.defaultForwardedPorts&quot;:</span> <span class="ot">[</span><span class="fu">{</span><span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;Blog&quot;</span><span class="fu">,</span> <span class="dt">&quot;localPort&quot;</span><span class="fu">:</span> <span class="dv">8000</span><span class="fu">,</span> <span class="dt">&quot;remotePort&quot;</span><span class="fu">:</span> <span class="dv">8000</span><span class="fu">}</span><span class="ot">]</span></span></code></pre></div>
+<p>Of course, this is not the only setting there is inside <code>.vscode/settings.json</code> file. Among other things, it is possible to configure embedded terminal a bit:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.automationShell.linux&quot;:</span> <span class="er">&quot;nix-shell&quot;,</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.defaultProfile.linux&quot;:</span> <span class="er">&quot;zsh&quot;,</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.cursorBlinking&quot;:</span> <span class="er">true,</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.cursorStyle&quot;:</span> <span class="er">&quot;line&quot;,</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.cursorWidth&quot;:</span> <span class="er">2,</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.enableBell&quot;:</span> <span class="er">true,</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.fontSize&quot;:</span> <span class="er">14,</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.lineHeight&quot;:</span> <span class="er">1.1,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="er">&quot;terminal.integrated.scrollback&quot;:</span> <span class="er">5000,</span></span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>]]></description>
+    <pubDate>Sun, 19 Sep 2021 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2021-09-19-vscode/index.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
     <title>Migrating to the nix flakes for macbook setup</title>
     <link>https://maksar.github.io/posts/code/2021-08-05-nix-flakes/index.html</link>
     <description><![CDATA[<!doctype html>
@@ -92,7 +271,7 @@
 <p>As a result, there is no need for <code>darwin-rebuild</code> to fetch a master branch from <a href="https://github.com/Shados:envy/envy">envy</a> each time I do <code>switch</code> operation.</p>
 <h2 id="control">Control</h2>
 <p>Since there are no dependencies for the local state, it is quite possible to check the consistency of the whole configuration on Github CI.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to bootstrap config</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to bootstrap config</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">nix</span> build .#darwinConfigurations.bootstrap.system</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">./result/sw/bin/darwin-rebuild</span> switch <span class="at">--flake</span> .#bootstrap</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to full config</span></span>
@@ -115,85 +294,105 @@
 <p>My nix configuration, which was inspired by excellent <a href="https://github.com/malob/dotfiles">repo</a> of <a href="https://twitter.com/m_bourgon">Malo Bourgon</a>, is available <a href="https://github.com/maksar/dotfiles">here</a>.</p>
 <h2 id="speed">Speed</h2>
 <p>This one is pretty much speaks for itself. Whole configuration switch, with all <a href="https://brew.sh">homebrew</a> update cycle (yeah, not everything is still in nix) takes up to 13 seconds!</p>
-<pre class="console"><code>$ time darwin-rebuild switch --flake .#macbook
-
-building the system configuration...
-user defaults...
-setting up user launchd services...
-Homebrew bundle...
-Using homebrew/cask
-Using homebrew/cask-versions
-Using homebrew/cask-drivers
-Using microsoft/mssql-release
-Using rkaippully/tools
-Using unixodbc
-Using msodbcsql17
-Using nmap
-Using gamgee
-Using mas
-Using logitech-options
-Using skype
-Using slack
-Using viber
-Using telegram
-Using zoom
-Using microsoft-teams
-Using miro
-Using obs
-Using dropbox
-Using 1password
-Using alfred
-Using unshaky
-Using openvpn-connect
-Using firefox
-Using google-chrome
-Using vivaldi
-Using safari-technology-preview
-Using transmission
-Using tunnelbear
-Using docker
-Using sourcetree
-Using charles
-Using virtualbox
-Using jetbrains-toolbox
-Using typora
-Using steam
-Using vlc
-Using postman
-Using Amphetamine
-Using Excel
-Using Pages
-Using PowerPoint
-Using RemoteDesktop
-Using Word
-Using XCode
-Homebrew Bundle complete! 46 Brewfile dependencies now installed.
-setting up pam...
-setting up groups...
-setting up users...
-setting up ~/Applications...
-applying patches...
-setting up /etc...
-system defaults...
-setting up launchd services...
-configuring networking...
-configuring fonts...
-Activating home-manager configuration for maksar
-Starting home manager activation
-Activating checkFilesChanged
-Activating checkLinkTargets
-Activating writeBoundary
-Activating copyFonts
-Activating installPackages
-replacing old 'home-manager-path'
-installing 'home-manager-path'
-Activating linkGeneration
-Cleaning up orphan links from /Users/maksar
-No change so reusing latest profile generation 230
-Creating home file links in /Users/maksar
-Activating onFilesChange
-
-4.10s user 4.16s system 64% cpu 12.800 total</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time darwin-rebuild switch <span class="at">--flake</span> .#macbook</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">building</span> the system configuration...</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">user</span> defaults...</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up user launchd services...</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Homebrew</span> bundle...</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> homebrew/cask</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> homebrew/cask-versions</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> homebrew/cask-drivers</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> microsoft/mssql-release</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> rkaippully/tools</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> unixodbc</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> msodbcsql17</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> nmap</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> gamgee</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> mas</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> logitech-options</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> skype</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> slack</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> viber</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> telegram</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> zoom</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> microsoft-teams</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> miro</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> obs</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> dropbox</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> 1password</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> alfred</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> unshaky</span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> openvpn-connect</span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> firefox</span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> google-chrome</span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> vivaldi</span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> safari-technology-preview</span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> transmission</span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> tunnelbear</span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> docker</span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> sourcetree</span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> charles</span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> virtualbox</span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> jetbrains-toolbox</span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> typora</span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> steam</span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> vlc</span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> postman</span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Amphetamine</span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Excel</span>
+<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Pages</span>
+<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> PowerPoint</span>
+<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> RemoteDesktop</span>
+<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> Word</span>
+<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a><span class="ex">Using</span> XCode</span>
+<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a><span class="ex">Homebrew</span> Bundle complete! 46 Brewfile dependencies now installed.</span>
+<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up pam...</span>
+<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up groups...</span>
+<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up users...</span>
+<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up ~/Applications...</span>
+<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a><span class="ex">applying</span> patches...</span>
+<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up /etc...</span>
+<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a><span class="ex">system</span> defaults...</span>
+<span id="cb5-61"><a href="#cb5-61" aria-hidden="true" tabindex="-1"></a><span class="ex">setting</span> up launchd services...</span>
+<span id="cb5-62"><a href="#cb5-62" aria-hidden="true" tabindex="-1"></a><span class="ex">configuring</span> networking...</span>
+<span id="cb5-63"><a href="#cb5-63" aria-hidden="true" tabindex="-1"></a><span class="ex">configuring</span> fonts...</span>
+<span id="cb5-64"><a href="#cb5-64" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> home-manager configuration for maksar</span>
+<span id="cb5-65"><a href="#cb5-65" aria-hidden="true" tabindex="-1"></a><span class="ex">Starting</span> home manager activation</span>
+<span id="cb5-66"><a href="#cb5-66" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> checkFilesChanged</span>
+<span id="cb5-67"><a href="#cb5-67" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> checkLinkTargets</span>
+<span id="cb5-68"><a href="#cb5-68" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> writeBoundary</span>
+<span id="cb5-69"><a href="#cb5-69" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> copyFonts</span>
+<span id="cb5-70"><a href="#cb5-70" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> installPackages</span>
+<span id="cb5-71"><a href="#cb5-71" aria-hidden="true" tabindex="-1"></a><span class="ex">replacing</span> old <span class="st">'home-manager-path'</span></span>
+<span id="cb5-72"><a href="#cb5-72" aria-hidden="true" tabindex="-1"></a><span class="ex">installing</span> <span class="st">'home-manager-path'</span></span>
+<span id="cb5-73"><a href="#cb5-73" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> linkGeneration</span>
+<span id="cb5-74"><a href="#cb5-74" aria-hidden="true" tabindex="-1"></a><span class="ex">Cleaning</span> up orphan links from /Users/maksar</span>
+<span id="cb5-75"><a href="#cb5-75" aria-hidden="true" tabindex="-1"></a><span class="ex">No</span> change so reusing latest profile generation 230</span>
+<span id="cb5-76"><a href="#cb5-76" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> home file links in /Users/maksar</span>
+<span id="cb5-77"><a href="#cb5-77" aria-hidden="true" tabindex="-1"></a><span class="ex">Activating</span> onFilesChange</span>
+<span id="cb5-78"><a href="#cb5-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-79"><a href="#cb5-79" aria-hidden="true" tabindex="-1"></a><span class="ex">4.10s</span> user 4.16s system 64% cpu 12.800 total</span></code></pre></div>
+<h2 id="linux">Linux</h2>
+<p>After a while, I extended configuration to have a Linux support also:</p>
+<p>Adding following lines to the <code>flake.nix</code> file:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and activate with `nix build .#cloudVM.activationPackage; ./result/activate`</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cloudVM</span> = home-manager.lib.homeManagerConfiguration {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">system</span> = <span class="st">&quot;x86_64-linux&quot;</span><span class="kw">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">stateVersion</span> = <span class="st">&quot;21.05&quot;</span><span class="kw">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">homeDirectory</span> = <span class="st">&quot;/home/maksar&quot;</span><span class="kw">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">username</span> = <span class="st">&quot;maksar&quot;</span><span class="kw">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">configuration</span> = {</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">os</span> = <span class="st">&quot;linux&quot;</span><span class="kw">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">imports</span> = [ homeManagerCommonConfig ]<span class="kw">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">nixpkgs</span> = nixpkgsConfig<span class="kw">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="er">}</span><span class="kw">;</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span></code></pre></div>
+<p>Allows to configure by linux boxes in absolutely the same way as I do on my macbook.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nix</span> build .#cloudVM.activationPackage</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./result/activate</span></span></code></pre></div>
+<p>Wonderful <code>zsh-powerlevel10k</code> nix package allows my terminal (<code>kitty</code>) to look awesome in any OS</p>
+<p><a href="../../../images/flakes/darwin.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/darwin.png" /></a> <a href="../../../images/flakes/linux.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/linux.png" /></a></p>
   </section>
 </article>
 
@@ -1998,11 +2197,11 @@ Activating onFilesChange
 <span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="do">  end</span></span>
 <span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="do">end</span></span></code></pre></div>
 <p>Unlike classic approach with integration testing, this one does not require any network communication with external world and is executed extremely fast:</p>
-<pre class="console"><code>$ rspec
-.......................................
-
-Finished in 0.08125 seconds (files took 0.45979 seconds to load)
-39 examples, 0 failures</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rspec</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">.......................................</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.08125 seconds <span class="er">(</span><span class="ex">files</span> took 0.45979 seconds to load<span class="kw">)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">39</span> examples, 0 failures</span></code></pre></div>
   </section>
 </article>
 
@@ -2484,10 +2683,10 @@ Finished in 0.08125 seconds (files took 0.45979 seconds to load)
 <p>Итоговый интерпретатор, которым можно выполнить всю программу (именно он будет использоваться в main), комбинируют из индивидуальных:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>interpreter <span class="ot">=</span> runIO <span class="op">.</span> runTime <span class="op">.</span> runConsole</span></code></pre></div>
 <p>Применив получившийся интерпретатор <code>interpreter</code> к программе <code>measure greeting</code>, получим:</p>
-<pre class="console"><code>=&gt; What is your name?
-&lt;= Alex
-=&gt; Hello Alex
-=&gt; Action took: 5 seconds</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> What is your name<span class="pp">?</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>= <span class="ex">Alex</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> Hello Alex</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> Action took: 5 seconds</span></code></pre></div>
 <p>Для целей тестирования функции <code>greeting</code> можно написать специальный интерпретатор, который по <code>readLn</code> всегда возвращает нужную нам строку, а <code>printLn</code> постоянно добавляет к аккумулятору переданную ему строку. Но создавать такие интерпретаторы – на наш путь. Мы воспользуемся готовеньким и реализуем эффект <code>ConsoleEffect</code> в терминах двух других библиотечных эффектов – <code>Reader</code> и <code>Writer</code>. В этом случае можно будет воспользоваться уже готовыми интерпретаторами для них:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="ot">fakeInterpreter ::</span> <span class="dt">Effect</span> <span class="dt">ConsoleEffect</span> a <span class="ot">-&gt;</span> <span class="dt">Effect</span> (<span class="dt">Writer</span> <span class="dt">String</span> <span class="op">:</span> <span class="dt">Reader</span> <span class="dt">String</span>) a</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fakeInterpreter <span class="ot">=</span> reinterpret \<span class="kw">case</span></span>
@@ -4544,25 +4743,25 @@ CMD [&quot;bundle&quot;, &quot;exec&quot;, &quot;ruby&quot;, &quot;server.rb&quo
 <div class="sourceCode" id="cb5"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>implementation<span class="op">(</span><span class="st">&quot;com.atlassian.jira&quot;</span><span class="op">,</span> <span class="st">&quot;jira-core&quot;</span><span class="op">,</span> <span class="st">&quot;8.8.1&quot;</span><span class="op">)</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>implementation<span class="op">(</span><span class="st">&quot;com.atlassian.jira&quot;</span><span class="op">,</span> <span class="st">&quot;jira-tests&quot;</span><span class="op">,</span> <span class="st">&quot;8.8.1&quot;</span><span class="op">)</span></span></code></pre></div>
 <p>Собрав <code>fat jar</code> с этими и еще некоторыми прямыми (сам <code>kotlin</code>, библиотека для работы с переменными окружения, etc.) и косвенными зависимостями (только представьте сколько зависимостей за собой “тянет” <code>jira-core</code>) получаем <code>trimmer-1.0-all.jar</code> размером в <strong>112 мегабайт</strong> – такова цена за <code>code-reuse</code>. Настало время для <code>GraalVM</code> – попробуем преобразовать <code>jar</code> файл в обычный исполняемый файл, в надежде избавиться от главной зависимости – виртуальной <code>java</code> машины.</p>
-<pre class="console"><code>$ native-image -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               -H:+ReportUnsupportedElementsAtRuntime
-               --allow-incomplete-classpath</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:+ReportUnsupportedElementsAtRuntime</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span></code></pre></div>
 <p>Попытка “в лоб” заканчивается неудачей, логи полны сообщений вида:</p>
-<pre class="console"><code>Error: Classes that should be initialized at run time got initialized during image building:
-org.apache.log4j.spi.LoggingEvent was unintentionally initialized at build time.
-org.apache.http.HttpEntity was unintentionally initialized at build time.
-...
-Error: Image build request failed with exit status 1</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Error:</span> Classes that should be initialized at run time got initialized during image building:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">org.apache.log4j.spi.LoggingEvent</span> was unintentionally initialized at build time.</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">org.apache.http.HttpEntity</span> was unintentionally initialized at build time.</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Error:</span> Image build request failed with exit status 1</span></code></pre></div>
 <p>Не отчаиваемся и просим <code>GraalVM</code> пытаться инициализировать это все на этапе сборки образа:</p>
-<pre class="console"><code>$ native-image --no-server
-               --enable-https
-               --allow-incomplete-classpath
-               -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               --initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">--no-server</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--enable-https</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging</span></span></code></pre></div>
 <p>Успех, на выходе имеем <code>trimer-exe</code> файл, размером всего в <strong>6.5 мегабайт</strong>. Упакуем его дополнительно замечательной утилитой <a href="https://upx.github.io">upx</a>, которая знакома всем еще со времен <code>DOS</code> и недостатка места на диске. Результат изумителен – <strong>1.8 мегабайт</strong>! Да только вот нас немного обманули… <code>GraalVM</code>, по умолчанию, строит образы, которые хоть и являются исполняемыми, но они не в состоянии работать без установленной на компьютере <code>java</code> виртуальной машины. При попытке построить “настоящий” независимый образ (опция <code>--no-fallback</code>), сталкиваемся с рядом сложностей.</p>
 <p>Во-первых – <code>Warning: Aborting stand-alone image build. Detected a FileDescriptor in the image heap</code> появляющийся из-за статической инициализации поля <code>org.apache.log4j.LogManager.repositorySelector</code>. Дело в том, что в глубинах зависимостей нашего приложения есть части, инициализирующиеся на этапе загрузки классов – а именно – это код в блоках <code>static</code> и статические члены классов в <code>java</code>. В основном – это <code>logging framework</code>-и (их по дереву зависимостей наберется несколько штук), которые требуют указания <code>class</code>-а для создания logger объекта. Они обладают возможностью ленивой инициализации при первом использовании, при помощи <code>reflection</code> загружая подходящую реализацию, от чего <code>GraalVM</code> становится дурно (действительно, сохранить открытый <code>FileDescriptor</code> в дампе памяти – невыполнимая задача), он отчаянно требует помощи. Попробуем заглушить инициализацию <code>log4j</code>, мы ведь им и не пользуемся даже: добавляем в начале <code>main</code> строку <code>LogManager.setRepositorySelector(DefaultRepositorySelector(NOPLoggerRepository()), null)</code>, а в момент сборки образа добавляем опцию <code>-Dlog4j.defaultInitOverride=true</code>. Как до этого “дойти”? Исключительно чтением исходных текстов библиотеки. Сложно недооценить количество знаний и понимания внутреннего устройства систем, получаемых таким образом – не бойтесь заглядывать под капот используемым библиотекам!</p>
 <p>К слову, еще до использования <code>GraalVM</code> я замечал, что при запуске приложения создается папка <code>target</code> (хоть я и использую <code>gradle</code>, который все <em>кладет</em> в папку <code>build</code>) с пустым файлом <code>unit-tests.log</code> в ней. Подозрения пали на <code>com.atlassian.jira:jira-tests</code> зависимость, в недрах которой обнаружился <code>log4j.properties</code> файл с незатейливым содержимым:</p>
@@ -4580,25 +4779,25 @@ log4j.appender.console.File=target/unit-tests.log</code></pre>
 <p>Она заставит <code>slf4j</code> пропустить инициализацию и не заниматься <code>reflection</code>-ом во время старта приложения. А статическую инициализацию одного из наших полей, сделаем отложенной (чтобы “трюк” из <code>main</code> успел выполниться вовремя):</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> <span class="va">jira</span> <span class="op">=</span> lazy <span class="op">{</span> JiraClient<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_URL&quot;</span><span class="op">],</span> BasicCredentials<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_USERNAME&quot;</span><span class="op">],</span> dotenv<span class="op">[</span><span class="st">&quot;JIRA_PASSWORD&quot;</span><span class="op">]))</span> <span class="op">}</span></span></code></pre></div>
 <p>Кстати, именно из-за статической инициализации приложения на <code>java</code> так медленно стартуют, а при старте иногда можно видеть в консоли строки:</p>
-<pre class="console"><code>log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.PoolingClientConnectionManager).
-log4j:WARN Please initialize the log4j system properly.
-log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">log4j:WARN</span> No appenders could be found for logger <span class="er">(</span><span class="ex">org.apache.http.impl.conn.PoolingClientConnectionManager</span><span class="kw">)</span><span class="bu">.</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">log4j:WARN</span> Please initialize the log4j system properly.</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">log4j:WARN</span> See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.</span></code></pre></div>
 <p><code>GraalVM</code> как раз и славится тем, что позволяет сократить время запуска приложений, так как вся статическая инициализация происходит на этапе “сборки”, в готовый исполняемый файл, вместе со встраиваемой виртуальной машиной, попадают “замороженные” версии классов, с уже выполненным шагом статической инициализации.</p>
-<pre class="console"><code>$ native-image --no-fallback
-               --allow-incomplete-classpath
-               --enable-https
-               --no-server
-               -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
-               -Dlog4j.defaultInitOverride=true</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">--no-fallback</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--enable-https</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--no-server</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-Dlog4j.defaultInitOverride=true</span></span></code></pre></div>
 <p>Следующая беда “вылазит” уже не на этапе сборки, а после запуска собранного приложения:</p>
-<pre class="console"><code>Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: java.lang.Class
-  at net.sf.json.AbstractJSON.class$(AbstractJSON.java:53)
-  ...
-  at net.rcarz.jiraclient.RestClient.request(RestClient.java:165)
-  ...</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Exception</span> in thread <span class="st">&quot;main&quot;</span> java.lang.NoClassDefFoundError: java.lang.Class</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">at</span> net.sf.json.AbstractJSON.class<span class="va">$(</span><span class="ex">AbstractJSON.java:53</span><span class="va">)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">at</span> net.rcarz.jiraclient.RestClient.request<span class="er">(</span><span class="ex">RestClient.java:165</span><span class="kw">)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span></code></pre></div>
 <p>Общение с <code>JIRA</code> происходит при помощи <code>JSON</code>-а, а его разбор в <code>java</code> большинством библиотек происходит через <code>reflection</code>, возможности которого в <code>GraalVM</code> несколько ограничены. <code>GraalVM</code> понимает, что необходимо “встроить” нужные вызовы к <code>reflection</code> <code>API</code> в итоговый образ, если они происходят на этапе статической инициализации, но вот к вызовам <code>reflection</code> во время исполнения его “никто не готовил”. Создадим файл <code>config.json</code> с таким содержимым:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
@@ -4609,21 +4808,21 @@ log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more in
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
 <p>Заставим <code>GraalVM</code> обратить на него внимание:</p>
-<pre class="console"><code>$ native-image --no-fallback
-               --allow-incomplete-classpath
-               --enable-https
-               --no-server
-               -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
-               -Dlog4j.defaultInitOverride=true
-               -H:ReflectionConfigurationFiles=./config.json</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">--no-fallback</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--enable-https</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--no-server</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-Dlog4j.defaultInitOverride=true</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:ReflectionConfigurationFiles=./config.json</span></span></code></pre></div>
 <p>В итоге, собранная программа работает как положено. Итоговый размер – <strong>28 мегабайт</strong>, а будучи упакованным при помощи <code>upx</code> – <strong>7.1 мегабайт</strong>. Не удивительно, ведь <code>GraalVM</code> пришлось включить в исполняемый файл <code>Substrate VM</code> виртуальную машину для того, чтобы бинарный файл стал независим от системного <code>JRE</code>. Обещания, которые давал <code>GraalVM</code> он выполнил – один исполняемый файл, независимость от системного <code>JRE</code>. К слову, время старта приложения значительно сократилось – разница заметна даже невооруженным взглядом:</p>
-<pre class="console"><code>$ time java -jar build/libs/trimmer-1.0-all.jar --dry-run
-0.30s user 0.05s system 181% cpu 0.195 total
-$ time ./trimer-exe --dry-run
-0.00s user 0.00s system 70% cpu 0.010 total</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time java <span class="at">-jar</span> build/libs/trimmer-1.0-all.jar <span class="at">--dry-run</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">0.30s</span> user 0.05s system 181% cpu 0.195 total</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time ./trimer-exe <span class="at">--dry-run</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">0.00s</span> user 0.00s system 70% cpu 0.010 total</span></code></pre></div>
 <h2 id="haskell">Haskell</h2>
 <p>Напоследок, попробуем получить преимущества от статической линковки программы на <code>Haskell</code>, бота <a href="../../../posts/projects/2020-02-07-ldap-bot">Group Manager</a>. Сборка программ на <code>Haskell</code> внутри <code>docker</code>-а происходит примерно так же как и на <code>golang</code>. В первом <code>stage</code>-е устанавливаются все необходимые зависимости, собирается бинарный исполняемый файл. Затем он из этого <code>stage</code>-а копируется в “чистовой” контейнер, не содержащий компилятора и других <code>development</code> зависимостей.</p>
 <p>Самая первая версия бота так и собиралась, итоговый бинарный файл имел размер <strong>26 мегабайт</strong>, а <code>docker</code> образ (на основе того же <code>distroless</code>) – <strong>46 мегабайт</strong>.</p>
@@ -4730,22 +4929,22 @@ COPY --from=fpco/stack-build:lts-14.25 /lib/x86_64-linux-gnu/ld-linux* /lib/x86_
 ENTRYPOINT [&quot;/app&quot;]</code></pre>
 <p>Постойте, какие библиотеки, речь же шла о статической линковке… Дело в том, что <code>libc</code>, в отличие от <code>musl</code> не может быть полностью “влинкован” в приложение. Причин несколько, но для обывателя их можно сформулировать как “так получилось”. Обратите внимание на то, какие именно библиотеки мы копируем – <code>libnss_dns</code> и <code>libresolv</code> (ну и еще <code>ld-linux</code> для возможности динамической загрузки последних). Это библиотеки для работы с <code>DNS</code>, а инфраструктура <a href="https://en.wikipedia.org/wiki/Name_Service_Switch">NSS</a> предоставляет много backend-ов для работы с <code>DNS</code> (вплоть до чтения из файла). Так как нет возможности на этапе сборки указать какой именно backend использовать, <code>libc</code> всегда загружает их динамически, заставляя “тянуть” еще и себя, кроме необходимых <code>NSS</code> плагинов. С таким положением дел все до сих пор мирятся (убеждая окружающих, что статическая линковка “не нужна”, ведь все равно придется “тянуть” с собой <code>libc</code>), периодически “сбегая” в лагерь <code>musl</code>, если нужна “действительно” статическая линковка.</p>
 <p>В итоге, вышел компромиссный вариант (из-за невозможности использовать <code>musl</code>) – статическая линковка (размер исполняемого файла <strong>4.6 мегатайта</strong>), вместе с <code>libc</code> и библиотеками для <code>DNS</code>, сделали размер образа не таким большим – всего <strong>7.2 мегабайта</strong>. Цель по уменьшению размера итогово образа и обеспечению дополнительной безопасности можно считать достигнутой. Особенно греет душу мысль о том, что бот в состоянии покоя занимает в оперативной памяти всего <strong>812 килобайт</strong>!</p>
-<pre class="console"><code>Cmp   Size  Command
-4.6 MB  ├── app
-246 kB  ├── etc
-246 kB  │   └── ssl
-235 kB  │       ├── certs
-235 kB  │       │   └── ca-certificates.crt
- 11 kB  │       └── openssl.cnf
-2.3 MB  └── lib
-171 kB      ├── ld-linux-x86-64.so.2
-2.0 MB      ├── libc.so.6
- 27 kB      ├── libnss_dns.so.2
-101 kB      └── libresolv.so.2
-
-Total Image size: 7.2 MB
-Potential wasted space: 0 B
-Image efficiency score: 100 %</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Cmp</span>   Size  Command</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">4.6</span> MB  ├── app</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="ex">246</span> kB  ├── etc</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="ex">246</span> kB  │   └── ssl</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">235</span> kB  │       ├── certs</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="ex">235</span> kB  │       │   └── ca-certificates.crt</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a> <span class="ex">11</span> kB  │       └── openssl.cnf</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="ex">2.3</span> MB  └── lib</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="ex">171</span> kB      ├── ld-linux-x86-64.so.2</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="ex">2.0</span> MB      ├── libc.so.6</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">27</span> kB      ├── libnss_dns.so.2</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="ex">101</span> kB      └── libresolv.so.2</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Total</span> Image size: 7.2 MB</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Potential</span> wasted space: 0 B</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Image</span> efficiency score: 100 %</span></code></pre></div>
   </section>
 </article>
 
@@ -5124,24 +5323,24 @@ Image efficiency score: 100 %</code></pre>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  , _projectGroupsOrgunits <span class="ot">=</span> <span class="st">&quot;\615852L$\598568\ESC6\fc&quot;</span> <span class="op">:|</span> [<span class="st">&quot;[h\DC4N[3pzk\b\SUB6\133277\14775&quot;</span>]</span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  }</span></code></pre></div>
 <p>Работает! Теперь полиморфная функция <code>forAll</code>, обладающая типом <code>forAll :: (Show a, Testable prop) =&gt; Gen a -&gt; (a -&gt; prop) -&gt; Property</code> может принимать на вход “генератор конфигов” и проверять <code>Property</code> (по сути, чуть-чуть более хитрый предикат, где вместо <code>==</code> используется <code>===</code>).</p>
-<pre class="console"><code>Env
-  environment reading
-    reads config from complete environment
-      +++ OK, passed 100 tests.
-    fails to read a config from incomplete environment
-      +++ OK, passed 100 tests.</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Env</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">environment</span> reading</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">reads</span> config from complete environment</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 100 tests.</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">fails</span> to read a config from incomplete environment</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 100 tests.</span></code></pre></div>
 <p>Строка <code>+++ OK, passed 100 tests.</code> говорит о том, что было сгенерировано 100 случайных <code>Config</code>-ов для проверки инварианта – конвертации “окружение” и обратно. Количество тестов всегда можно задать аргументом командной строки при запусте тестов.</p>
-<pre class="console"><code>$ stack test --test-arguments --qc-max-success=10000
-
-Env
-  environment reading
-    reads config from complete environment
-      +++ OK, passed 10000 tests.
-    fails to read a config from incomplete environment
-      +++ OK, passed 10000 tests.
-
-Finished in 2.2859 seconds
-2 examples, 0 failures</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> stack test <span class="at">--test-arguments</span> <span class="at">--qc-max-success</span><span class="op">=</span>10000</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Env</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">environment</span> reading</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">reads</span> config from complete environment</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 10000 tests.</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="ex">fails</span> to read a config from incomplete environment</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="ex">+++</span> OK, passed 10000 tests.</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 2.2859 seconds</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="ex">2</span> examples, 0 failures</span></code></pre></div>
 <p>От каких “ошибок” защищают такие defensive (regression, golden) тесты? Например, если случайно переставить местами строки при построении конфига – тесты это отловят. Либо если попытаться захардкодить какое-нибудь одно значение на этапе построения конфига – тесты тоже просигнализируют с несовпадении значений (сгенерированное случайное значение будет отличаться от статического хардкода). Изменение названия переменных, из которых читаем конфиг, такой тест тоже “отловит”, но отловит тут в кавычках, потому что такое падение теста не говорит о некорректности или неработоспособности программы, оно говорит лишь о том, что тесты нужно обновить, по сути “зашив” в процедуру генерации фейкового оружения новые названия переменных. В.С. непременно бы заметил еще на этапе написания тестов, что названия переменных повторяются и в реализации и в тестах – “не DRY”, сказал бы он в code review комментарии…</p>
 <h2 id="суши-с-лупой">Суши с лупой</h2>
 <p>Для того, чтобы избавиться из повторений, будем использовать популярную в функциональном программировании вещь – линзы. Линза, если совсем просто ее представить, это такая сущность, которая совмещает в себе getter и setter. Ну как setter… программирование же функциональное, immutability везде, нет никаких setter-ов, есть только функции <code>Value -&gt; Object -&gt; Object</code>, которые не меняют <code>Object</code>, а возвращают новый.</p>
@@ -5830,7 +6029,7 @@ Finished in 2.2859 seconds
   </span>
   <section>
     <h2 id="i-love-regular-expressions">I love regular expressions…</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span><span class="fu"> change_file()</span> <span class="kw">{</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span><span class="fu"> change_file()</span> <span class="kw">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">row</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="bu">local</span> <span class="va">temp_row</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> row <span class="kw">in</span> <span class="va">$(</span><span class="fu">grep</span> <span class="at">-E</span> <span class="st">&quot;</span><span class="dt">\&quot;\\</span><span class="st">$\{[^{]*}</span><span class="dt">\&quot;</span><span class="st">&quot;</span> <span class="op">&lt;</span> <span class="va">${1})</span><span class="kw">;</span> <span class="cf">do</span></span>
@@ -6892,20 +7091,20 @@ Finished in 2.2859 seconds
 <p>Первое, что бросается в глаза – это незнакомый формат даты-времени. Даже не формат, а форматы – их несколько. Бывают записи вида <code>whenChanged: 20191028073233.0Z</code> с очевидным форматом, но есть еще и записи вида <code>pwdLastSet: 132119732272806390</code> о сути которых лучше меня расскажет <a href="https://www.epochconverter.com/ldap">страница</a>. Приходится писать свои parser/emitter-ы для этих форматов, так как в поставку библиотек он редко входят. Дата и время – очень обширная тема, приглашаю послушать Kovsh Dmitry на предстоящем <a href="https://itransition.workplace.com/events/537058783541251/">Itransition Development Meetup #10</a>.</p>
 <h2 id="we-need-to-go-deeper">We need to go deeper</h2>
 <p>Как правило, объекты в AD (группы, отделы, пользователи) имеют древовидную структуру, напоминающую (или повторяющую) иерархию реальных организаций. Наша – не исключение (<a href="https://ru.wikipedia.org/wiki/Закон_Конвея">закон Конвея</a>, как-никак). Классические утилиты для работы с AD и, тем более, API – позволяют осуществлять поиск только на один уровень вглубь. Рассмотрим на примере – существует группа RFX Digest Readers, в состав которой входят как пользовательские учетные записи, так и другие группы</p>
-<pre class="console"><code>member: CN=Tech Coordinators,OU=Groups
-member: CN=Marketing,OU=Groups
-member: CN=Departments Managers,OU=Groups
-member: CN=Syomkin, Andrey,OU=Active,OU=Users
-member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Tech Coordinators,OU=Groups</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Marketing,OU=Groups</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Departments Managers,OU=Groups</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Syomkin, Andrey,OU=Active,OU=Users</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Chernikov, Yury,OU=Active,OU=Users</span></code></pre></div>
 <p>Наивное решение для поиска всех людей в этой группе – такое:</p>
-<pre class="console"><code>ldapsearch -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; displayName</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;memberOf=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot;</span> displayName</span></code></pre></div>
 <p>Однако результат предсказуем – нашлись только два человека:</p>
-<pre class="console"><code>member: CN=Syomkin, Andrey,OU=Active,OU=Users
-member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Syomkin, Andrey,OU=Active,OU=Users</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">member:</span> CN=Chernikov, Yury,OU=Active,OU=Users</span></code></pre></div>
 <p>Для того, чтобы найти всех, необходимо прибегнуть к “особой Microsoft магии” – специальным <a href="https://docs.microsoft.com/en-us/windows/win32/adsi/search-filter-syntax">префиксам</a>. Например префикс :1.2.840.113556.1.4.1941: (значение именно такое, по <del>иторическим причинам</del> легенде такое значение соответствовало ключу <code>LDAP_MATCHING_RULE_IN_CHAIN</code> в header файлах) позволяет “искать вглубь”. Такой поиск вернет все необходимые записи.</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; displayName | grep displayName: | wc -l
-
-=&gt; 113</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;memberOf:1.2.840.113556.1.4.1941:=CN=RFX Digest Readers,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot;</span> displayName <span class="kw">|</span> <span class="fu">grep</span> displayName: <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span> 113</span></code></pre></div>
 <h2 id="синхронизация">Синхронизация</h2>
 <p>Если изменение только-только произошло – не спешите стремглав выполнять поиск по AD, в друг там несколько серверов с репликацией и они еще не синхронизировались… О способах и времени синхронизации отдельных серверов в AD ходят легенды. Мой совет – работайте на запись всегда только с одним, конкретным сервером, если возможно. Совет вредный, но рабочий. Буду раз услышать в комментариях совет полезный, но пока так ;)</p>
 <h2 id="tls-соединение">TLS соединение</h2>
@@ -6966,16 +7165,16 @@ member: CN=Chernikov, Yury,OU=Active,OU=Users</code></pre>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
 <h2 id="примеры-запросов">Примеры запросов</h2>
 <p>Запросы в AD могут быть весьма сложными, так сказать write-only. Приведу, один такой пример.</p>
-<pre class="console"><code>(&amp;(objectClass=person)(|
-(memberOf:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(managedObjects:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(memberOf:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(managedObjects:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(managedObjects:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)
-(msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp)))</code></pre>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">(&amp;(</span><span class="va">objectClass</span><span class="op">=</span>person<span class="kw">)(|</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">memberOf:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">managedObjects:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=HelpDesk.Operators,OU=ServiceGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">memberOf:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">managedObjects:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=IT,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">memberOf:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">managedObjects:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span><span class="ex">msExchCoManagedObjectsBL:1.2.840.113556.1.4.1941:=CN=VECTOR.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span><span class="kw">)))</span></span></code></pre></div>
 <p>На человеческом языке запрос звучит достаточно просто: все HelpDesk Operator-ы, а так же члены групп <code>IT</code> и <code>VECTOR.Development</code>. Из этой безобидности запрос превращается в “ужас на крыльях ночи” благодаря: - обсуждаемому выше магическому префиксу для поиска “в глубину” - наличию не только членов группы (memberOf), но и ее владельцев (managedObjects) - кроме очевидного способа найти владельцев группы, существует еще и Exchange-way управлять составом групп, так что приходится учитывать поле <code>msExchCoManagedObjectsBL</code></p>
 <p>Предыдущий запрос используется в конфигурационном файле <code>nginx</code> для контроля доступа к страницам при помощи <a href="https://github.com/kvspb/nginx-auth-ldap">nginx-auth-ldap</a> плагина. Такое решение может оказаться эффективнее, чем встраивать аутентификацию внутрь защищаемой системы. Если вам это необходимо – скорее всего придется собрать модуль самостоятельно</p>
 <pre class="docker"><code>RUN git clone https://github.com/kvspb/nginx-auth-ldap.git &amp;&amp; wget -qO- http://nginx.org/download/nginx-1.17.3.tar.gz | tar -xvzf -
@@ -7015,73 +7214,73 @@ teamcity.options.deleteUsers=true</code></pre>
 <p>Подробный рассказ о TeamCity и то, как его правильно готовить от Panfilenok Aleksandr вас ждет на предстоящем <a href="https://itransition.workplace.com/events/537058783541251/">Itransition Development Meetup #10</a>.</p>
 <h2 id="утилиты-командной-строки">Утилиты командной строки</h2>
 <p>Используя ldapseach можно легко (для тех кто любит терминал) строить полезные запросы к AD. Например – список людей, в интересующей вас комнате:</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))&quot; | grep displayName:
-
-=&gt;
-displayName: Shestakov, Aleksandr
-displayName: Pupkin, Andrey</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(physicalDeliveryOfficeName=118a)(streetAddress=Kulman, 1))&quot;</span> <span class="kw">|</span> <span class="fu">grep</span> displayName:</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="ex">displayName:</span> Shestakov, Aleksandr</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">displayName:</span> Pupkin, Andrey</span></code></pre></div>
 <p>Список проектных групп вашего проекта (результат зависит от консистентности названия групп):</p>
-<pre class="console"><code>ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b &quot;OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot; &quot;name=ILLIS*&quot; dn | grep CN=
-
-=&gt;
-dn: CN=ILLIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.ILLIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp
-dn: CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-o</span> ldif-wrap=no <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Groups,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;name=ILLIS*&quot;</span> dn <span class="kw">|</span> <span class="fu">grep</span> CN=</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Development,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.DevOps,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Ecomm,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Feature,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.FrontEnd,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Helpdesk,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.ILLIS-PLUS,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.Platform,OU=ProjectGroups,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.PM-BA,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.QA,OU=A1QA.com,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=ILLIS.TL,OU=MailLists,OU=Groups,OU=Itransition,DC=itransition,DC=corp</span></code></pre></div>
 <p>Список переговорных на Кульман 1 с окнами:</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))&quot; dn | grep CN= | cut -d , -f 1
-
-=&gt;
-dn: CN=Room K1-101
-dn: CN=Room K1-117
-dn: CN=Room K1-119
-dn: CN=Room K1-202
-dn: CN=Room K1-208
-dn: CN=Room K1-421</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(name=Room K1-*)(msExchResourceDisplay=*NaturalLight*))&quot;</span> dn <span class="kw">|</span> <span class="fu">grep</span> CN= <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> , <span class="at">-f</span> 1</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-101</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-117</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-119</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-202</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-208</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-421</span></code></pre></div>
 <p>Или без окон:</p>
-<pre class="console"><code>ldapsearch -Q -h ldap.itransition.corp -b &quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))&quot; dn | grep CN= | cut -d , -f 1
-
-=&gt;
-dn: CN=Room K1-112
-dn: CN=Room K1-217
-dn: CN=Room K1-224
-dn: CN=Room K1-301a-Manicure
-dn: CN=Room K1-301a-Massage
-dn: CN=Room K1-313a-1
-dn: CN=Room K1-315
-dn: CN=Room K1-316
-dn: CN=Room K1-410
-dn: CN=Room K1-411
-dn: CN=Room K1-419</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=ConferenceRooms,OU=ServiceAccounts,OU=Users,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(name=Room K1-*)(!(msExchResourceDisplay=*NaturalLight*)))&quot;</span> dn <span class="kw">|</span> <span class="fu">grep</span> CN= <span class="kw">|</span> <span class="fu">cut</span> <span class="at">-d</span> , <span class="at">-f</span> 1</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-112</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-217</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-224</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-301a-Manicure</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-301a-Massage</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-313a-1</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-315</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-316</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-410</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-411</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=Room K1-419</span></code></pre></div>
 <p>Список <em>однофамильцев</em> рабочих станций:</p>
-<pre class="console"><code>ldapsearch -o ldif-wrap=no -Q -h ldap.itransition.corp -b &quot;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&quot; &quot;(&amp;(name=shestakova*)(!(name=shestakova-a)))&quot; managedBy
-
-=&gt;
-# extended LDIF
-#
-# LDAPv3
-# base &lt;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&gt; with scope subtree
-# filter: (&amp;(name=shestakova*)(!(name=shestakova-a)))
-# requesting: managedBy
-#
-
-# SHESTAKOVAV, Workstations, Itransition, itransition.corp
-dn: CN=SHESTAKOVAV,OU=Workstations,OU=Itransition,DC=itransition,DC=corp
-managedBy: CN=Shestakova\, Vitalina,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp
-
-# search result
-search: 5
-result: 0 Success
-
-# numResponses: 2
-# numEntries: 1</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">ldapsearch</span> <span class="at">-o</span> ldif-wrap=no <span class="at">-Q</span> <span class="at">-h</span> ldap.itransition.corp <span class="at">-b</span> <span class="st">&quot;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&quot;</span> <span class="st">&quot;(&amp;(name=shestakova*)(!(name=shestakova-a)))&quot;</span> managedBy</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="ex">=</span><span class="op">&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># extended LDIF</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="co"># LDAPv3</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="co"># base &lt;OU=Workstations,OU=Itransition,DC=itransition,DC=corp&gt; with scope subtree</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># filter: (&amp;(name=shestakova*)(!(name=shestakova-a)))</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="co"># requesting: managedBy</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="co"># SHESTAKOVAV, Workstations, Itransition, itransition.corp</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="ex">dn:</span> CN=SHESTAKOVAV,OU=Workstations,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="ex">managedBy:</span> CN=Shestakova<span class="dt">\,</span> Vitalina,OU=Active,OU=Users,OU=Itransition,DC=itransition,DC=corp</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a><span class="co"># search result</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="ex">search:</span> 5</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a><span class="ex">result:</span> 0 Success</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a><span class="co"># numResponses: 2</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a><span class="co"># numEntries: 1</span></span></code></pre></div>
 <h2 id="занимательные-флаги">Занимательные флаги</h2>
 <p>При работе с утилитой командной строки ldapsearch необходимо быть внимательным – она любит делать text-wrap, перенося окончания длинных CN на следующую строку. Для того, чтобы этого избежать – удобно пользоваться опцией <code>-o ldif-wrap=no</code>.</p>
 <p>Знаете первое правило real estate бизнеса – <a href="https://www.thebalance.com/what-location-means-in-real-estate-1798766">Location, Location и еще раз Location</a>. Так вот ldapsearch тоже о нем в курсе ;) Для того, чтобы избавиться от надоедливых header-ов (иначе не удобно обрабатывать вывод другими утилитами), необходимо передавать флаги <code>-L -L -L</code>, о чем заботливо упоминается в документации: <em>A single -L restricts the output to LDIFv1. A second -L disables comments. A third -L disables printing of the LDIF version.</em></p>
@@ -10500,21 +10699,21 @@ return TRUE;
 <p>Most controversial rules like ‘max. 10 lines per method’ and ‘max. 100 lines per class’ – are not changed. Arguments about large case statements or long hash definitions should be refused. Large case statement can always be converted to the data structure. Having long hash definitions in the code also usually signals about hidden data structure. Thanks to Ruby’s ‘block magic’ ©, it is possible to easily reuse code parts, extracted to the small, properly named, separate method.</p>
 <p>Working on legacy code, which wasn’t developed with full style guide compliance can be hard and tedious. Fortunately, there is a script, aimed to help. Being executed with –branch flag – it checks only lines, written by developer in current branch (committed or not) without touching legacy code. That is handy tool to check the code, before creating a pull request.</p>
 <p>If you have following folder structure:</p>
-<pre class="console"><code>$  tree -L 1 -A -C
-.
-├── admin-area
-├── ...
-├── env_setup.sh
-└── patched_rubocop.rb
-
-9 directories, 2 files</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span>  tree <span class="at">-L</span> 1 <span class="at">-A</span> <span class="at">-C</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> admin-area</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> ...</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">├──</span> env_setup.sh</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">└──</span> patched_rubocop.rb</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">9</span> directories, 2 files</span></code></pre></div>
 <p>Before creating pull request you should inspect and fix style violations:</p>
-<pre class="console"><code>$ ./pacthed_rubocop.rb --branch
-Inspecting 4 files
-W.CC
-Offenses:
-....
-4 files inspected, 11 offenses detected</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> ./pacthed_rubocop.rb <span class="at">--branch</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Inspecting</span> 4 files</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">W.CC</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Offenses:</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">....</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">4</span> files inspected, 11 offenses detected</span></code></pre></div>
 <h2 id="test-coverage">Test Coverage</h2>
 <p>There are test coverage tools out there for almost every language. But most of them collect statistics only about source code lines, whether particular line of source code was executed or not (and how many times). But in fact, there is more than just line coverage: just look at this <a href="http://www.slideshare.net/hiroppie/test-coverage">slide</a>.</p>
 <ul>
@@ -10541,7 +10740,7 @@ Offenses:
 <p><a href="https://en.wikipedia.org/wiki/Mutation_testing">Mutation testing</a> technique is based on quite a simple idea. Say, you have a bunch of code and a number of tests to verify its correctness. Doesn’t matter how those tests were born: using techniques like <a href="https://en.wikipedia.org/wiki/Test-driven_development">TDD</a> or written afterwards. Mutation testing allows to verify that your test suite is full. By ‘full’ it means – there is no code (code execution path, to be precisely correct) that is not covered with at least one test case.</p>
 <p>There are plenty or <a href="https://github.com/mbj/mutant#blog-posts">articles</a> and <a href="https://github.com/mbj/mutant#presentations">presentations</a> explaining what is mutation testing and <a href="https://github.com/mbj/mutant">mutant</a> itself. If you are not familiar – it’s definitely worth to check.</p>
 <p>Running mutant is pretty easy:</p>
-<pre class="console"><code>$ RAILS_ENV=test bundle exec mutant -I . -I spec --use rspec -j 1 --fail-fast &quot;PaylocityParams#person&quot;</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> RAILS_ENV=test bundle exec mutant <span class="at">-I</span> . <span class="at">-I</span> spec <span class="at">--use</span> rspec <span class="at">-j</span> 1 <span class="at">--fail-fast</span> <span class="st">&quot;PaylocityParams#person&quot;</span></span></code></pre></div>
 <p>Last arguments is – name of the class and method you want to mutate and check whether the tests are still green or not.</p>
 <h2 id="protection">Protection</h2>
 <p>In order to protect from accidental mistakes and enforce high code style consistency and adhere to the coding standards, VCS commit hooks are used (both in form of CI checks and on local development machines).</p>
@@ -10921,15 +11120,15 @@ Offenses:
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> <span class="fu">for</span> (<span class="fu">list</span> <span class="fu">userProducer</span>)</span></code></pre></div>
 <p>Перед тем как углубиться в суть выражения <code>list userProducer</code>, стоит все же посмотреть на результаты запуска. Видно, что довольно быстро нашелся контрпример, опровергающий наш инвариант. Очень хотелось верить в код, написанный нами с такой аккуратностью и протестированный в предыдущей инкарнации mutation тестами, но он оказался не так уж и хорош. Глядя на контрпример, становится очевидно в чем проблема: если пользователь имеет <code>FORCE</code> привилегии, то код не делает никаких проверок и просто-напросто увеличивает номер шага!</p>
-<pre class="console"><code>✗ Workflow should remain in its bounds
-
-    On check 3, found counterexample:
-      [User { name = &quot;&quot;, active = True, permissions = Array.fromList [VOTE] },
-       User { name = &quot;&quot;, active = True, permissions = Array.fromList [NONE,FORCE] },
-       User { name = &quot;&quot;, active = True, permissions = Array.fromList [NONE,NONE,FORCE] },
-       User { name = &quot;&quot;, active = True, permissions = Array.fromList [NONE,NONE,NONE,FORCE] }]
-    Expected:   True
-    But It Was: False</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">✗</span> Workflow should remain in its bounds</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">On</span> check 3, found counterexample:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="ex">[User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [VOTE] },</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,FORCE] },</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,NONE,FORCE] },</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,NONE,NONE,FORCE] }]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expected:</span>   True</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">But</span> It Was: False</span></code></pre></div>
 <h2 id="генерация-случайных-данных">Генерация случайных данных</h2>
 <p>Выражение <code>list userProducer</code> имеет тип <code>Producer (List User)</code>, что можно прочитать как «Генератор Списка Пользователей». Он получается применением комбинатора <code>list</code> (имеющего сигнатуру типа <code>list : Producer a -&gt; Producer (List a)</code>) к генератору <code>userProducer</code> (с типом <code>Producer User</code>). На основе одного генератора легко построить другой, более сложный. Так, между прочим, и был построен <code>userProducer</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode elm"><code class="sourceCode elm"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">userProducer</span> : <span class="dt">Producer</span> <span class="dt">User</span></span>
@@ -10985,20 +11184,20 @@ Offenses:
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> <span class="fu">is</span> (\( <span class="fu">user</span><span class="op">,</span> <span class="fu">operation</span> ) <span class="op">-&gt;</span> (<span class="fu">workflowVotedByUser</span> <span class="fu">user</span>)<span class="op">.</span><span class="fu">currentStep</span>)</span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> <span class="fu">for</span> (<span class="fu">tuple</span> ( <span class="fu">userProducer</span><span class="op">,</span> <span class="fu">operationProducer</span> ))</span></code></pre></div>
 <p>Запуск тестов показывает, что инвариант нарушен: найдена такая пара пользователь-операция, при применении которой шаг <code>workflow</code>-а уменьшается на единицу.</p>
-<pre class="console"><code>✗ Same user cannot vote twice
-
-    On check 1, found counterexample:
-      (User { name = &quot;&quot;, active = False, permissions = Array.fromList [NONE,VOTE] },Reject)
-    Expected:   1
-    But It Was: 0</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">✗</span> Same user cannot vote twice</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">On</span> check 1, found counterexample:</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">(</span><span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = False, permissions = Array.fromList [NONE,VOTE] },Reject<span class="kw">)</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expected:</span>   1</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">But</span> It Was: 0</span></code></pre></div>
 <p>И действительно, в функцию <code>reject</code> так же закралась ошибка. Применение <code>locked</code> вместо <code>not User.active</code> исправляет ситуацию – все тесты теперь зеленые.</p>
-<pre class="console"><code>Running 4 tests. To reproduce these results, run: elm-test --seed 2042167370
-
-TEST RUN PASSED
-
-Duration: 5 ms
-Passed:   4
-Failed:   0</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Running</span> 4 tests. To reproduce these results, run: elm-test <span class="at">--seed</span> 2042167370</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">TEST</span> RUN PASSED</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Duration:</span> 5 ms</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Passed:</span>   4</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Failed:</span>   0</span></code></pre></div>
 <h2 id="заключение">Заключение</h2>
 <p>При помощи всего двух простых инвариантов удалось обнаружить несколько нетривиальных проблем в реализации <code>workflow</code>-а. Найти их традиционными способами трудно – разработчик, может, и проверит, получится ли голосовать второй раз на одном и том же шаге, однако вряд ли он попытается сделать <code>reject</code> сразу после голосования в коде unit тестов. К слову, в <code>ruby</code> реализации, вдоль и поперек проверенной мутационным тестированием, обнаружились эти же дефекты ;) Что в очередной раз доказывает, что «серебряной пули» не существует и полагаться только на один способ проверки – наивно.</p>
 <p>Библиотеки для property-based тестирования существуют не только для полностью функциональных языков программирования: в <code>ruby</code> это <a href="https://github.com/abargnesi/rantly">rantly</a>, в <code>python</code> – <a href="https://github.com/HypothesisWorks/hypothesis-python">hypothesis</a>, в <code>Java</code> – <a href="https://github.com/pholser/junit-quickcheck">junit-quickcheck</a> и т.д.</p>
@@ -11161,16 +11360,16 @@ Failed:   0</code></pre>
 </ol>
 <p>If you are not satisfied with the results, perform any modifications to the configuration files and/or scripts and re-execute ./bootstrap.sh command. Everything will be built from scratch again.</p>
 <p>To stop provisioned environment, use following command:</p>
-<pre class="console"><code>$ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml down</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker-compose <span class="at">-f</span> docker-compose.yml <span class="at">-f</span> docker-compose.<span class="va">$PLATFORM</span>.yml <span class="at">-f</span> docker-compose.agents.<span class="va">$TOTAL_AGENTS</span>.yml down</span></code></pre></div>
 <h2 id="update">Update</h2>
 <p>Whenever new version of the TeamCity becomes available, new commits will appear in <code>master</code> branch of this repository. Updating procedure is easy: on your VM, you can merge master branch to your project’s branch and restart docker-compose services. This will build new TeamCity server image, all agent containers will be automatically updated upon start.</p>
-<pre class="console"><code>$ git checkout master
-$ git pull origin master
-$ git merge master
-$ git checkout project_branch
-$ git merge master
-$ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml build
-$ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker-compose.agents.$TOTAL_AGENTS.yml up -d</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git checkout master</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git pull origin master</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git merge master</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git checkout project_branch</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> git merge master</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker-compose <span class="at">-f</span> docker-compose.yml <span class="at">-f</span> docker-compose.<span class="va">$PLATFORM</span>.yml <span class="at">-f</span> docker-compose.agents.<span class="va">$TOTAL_AGENTS</span>.yml build</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker-compose <span class="at">-f</span> docker-compose.yml <span class="at">-f</span> docker-compose.<span class="va">$PLATFORM</span>.yml <span class="at">-f</span> docker-compose.agents.<span class="va">$TOTAL_AGENTS</span>.yml up <span class="at">-d</span></span></code></pre></div>
 <h2 id="passwords-expiration">Passwords expiration</h2>
 <p>Since BitBucket provides only Basic Auth for using it’s API, TeamCity has to store password from team member internally. Fortunately, there is a way to securely store sensitive data inside TeamCity without exposing it on GUI or inside configuration Kotlin files. When you notice, that TeamCity has stopped reporting build statuses back to BitBucket, run <code>update_commit_status_password.sh</code> script. It will ask for the username (does not have to be the same as on initial bootstrap) and domain password. Script then will update secure password value inside TeamCity and make corresponding changes inside project repository.</p>
 <h2 id="internals">Internals</h2>
@@ -11188,28 +11387,28 @@ $ docker-compose -f docker-compose.yml -f docker-compose.$PLATFORM.yml -f docker
 <li>Communication with VCS (BitBucket or GitHub) to setup access to the code from CI by SSH keys.</li>
 </ul>
 <p>To get the idea what exactly installation script is doing, lets see typical log messages:</p>
-<pre class="console"><code>Destroying previous versions of docker images.
-Generating access keys.
-Uploading public key to BitBucket.
-Executing platform specific scripts.
-Downloading PostgreSQL driver.
-Waiting for TeamCity server to accept agreement...
-Accepting license agreement.
-Adding private key to the TeamCity.
-Creating users.
-Granting admin privileges to the main user.
-Creating project.
-Generating custom config.
-TeamCity configuration dir does not exist, Generating from the template.
-Creating VCS.
-Enable configuration synchronization.
-Authorizing agents.
-Scheduling settings update.
-Waiting for TeamCity server to accept configuration...
-Assigning project to the default agent pool.
-Triggering build.
-TeamCity instance is ready!
-Passwords for users:</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Destroying</span> previous versions of docker images.</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Generating</span> access keys.</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Uploading</span> public key to BitBucket.</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Executing</span> platform specific scripts.</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Downloading</span> PostgreSQL driver.</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Waiting</span> for TeamCity server to accept agreement...</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Accepting</span> license agreement.</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Adding</span> private key to the TeamCity.</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> users.</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Granting</span> admin privileges to the main user.</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> project.</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Generating</span> custom config.</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="ex">TeamCity</span> configuration dir does not exist, Generating from the template.</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Creating</span> VCS.</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Enable</span> configuration synchronization.</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Authorizing</span> agents.</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Scheduling</span> settings update.</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Waiting</span> for TeamCity server to accept configuration...</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="ex">Assigning</span> project to the default agent pool.</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="ex">Triggering</span> build.</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="ex">TeamCity</span> instance is ready!</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="ex">Passwords</span> for users:</span></code></pre></div>
 <h3 id="docker-compose">docker-compose</h3>
 <p><code>docker-compose</code> allows to specify many <code>yml</code> files to operate with. Bootstrap benefits from that feature by splitting configuration into three parts:</p>
 <ul>
@@ -11542,7 +11741,7 @@ Passwords for users:</code></pre>
 <p><img src="../../../images/mutant/coverage.png" class="center full" /></p>
 <h2 id="mutation-testing">Mutation testing</h2>
 <p>This is where the story might end for a mediocre developer. One would think that since coverage indicates we are good, there is no work left to do. Well, let’s not be in a hurry, <a href="https://github.com/mbj/mutant">mutant</a> to the rescue!</p>
-<pre class="console"><code>$ mentat git:(master) mutant -I . -r version_1/workflow_spec.rb --use rspec 'Workflow'</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mentat git:<span class="er">(</span><span class="ex">master</span><span class="kw">)</span> <span class="ex">mutant</span> <span class="at">-I</span> . <span class="at">-r</span> version_1/workflow_spec.rb <span class="at">--use</span> rspec <span class="st">'Workflow'</span></span></code></pre></div>
 <p><a href="https://asciinema.org/a/31217" target="_blank"><img src="https://asciinema.org/a/31217.svg" class="center full" /></a></p>
 <p>What? Only <strong>64.71%</strong>? It sounds very… sobering. Let’s see what just happened. We specified mutation target (<code>'Workflow'</code> string in the command line), mutant detected 7 mutation subjects (methods) in that class. For each subject, it has constructed an <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">AST</a> (Abstract Syntax Tree) of the code and tried to apply different <em>mutations</em> to it. Mutations are small code changes, for example: flipping a condition to its opposite, removing a whole line of code, changing constant value, etc. Mutations are easier to deal with working with AST instead of plain text, and that’s why mutant parses your code, applies mutation (new Mutant is born) and then converts AST back to code and inserts it into your VM, to let <code>rspec</code> execute tests against it (attempt to kill the Mutant). If all tests are passed, Mutant remains alive. Think about it: someone just deleted a whole line from your code, and tests are still passing… That basically means that a test suite does not contain enough examples to cover all execution branches.</p>
 <p>On the screenshot above, mutant claims that if we remove condition check inside <code>vote</code> method, tests will continue to work. Hard to believe? Let’s verify:</p>
@@ -11551,11 +11750,11 @@ Passwords for users:</code></pre>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  increment</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Code is changed, running specs:</p>
-<pre class="console"><code>$ mentat git:(master) rspec version_1/workflow_spec.rb -f p
-.
-
-Finished in 0.00144 seconds (files took 0.08017 seconds to load)
-1 example, 0 failures</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> mentat git:<span class="er">(</span><span class="ex">master</span><span class="kw">)</span> <span class="ex">rspec</span> version_1/workflow_spec.rb <span class="at">-f</span> p</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="bu">.</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.00144 seconds <span class="er">(</span><span class="ex">files</span> took 0.08017 seconds to load<span class="kw">)</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">1</span> example, 0 failures</span></code></pre></div>
 <p>Zero failures! It surprises me every time… After staring at other alive Mutants I finally realized how stupid I was, thinking that one test case proves correctness or can protect me from regressions. OK, enough being dumb, we can do better! This time I tried to write a very extensive test suite, covering every business feature one by one:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>describe <span class="dt">Workflow</span> <span class="cf">do</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  context <span class="vs">'empty workflow'</span> <span class="cf">do</span></span>
@@ -11650,24 +11849,24 @@ Finished in 0.00144 seconds (files took 0.08017 seconds to load)
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>)<span class="at">.approve</span>(<span class="dt">User</span><span class="at">.new</span>(<span class="kw">[</span><span class="cn">VOTE</span><span class="kw">]</span>)) <span class="kw">}</span><span class="at">.not_to</span> raise_error</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>It predictably fails with old good <code>NotMethodError</code>:</p>
-<pre class="console"><code>Workflow
-  empty workflow
-    should not raise error on inconsistent configuration (FAILED - 1)
-
-Failures:
-
-  1) Workflow empty workflow should not raise error on inconsistent configuration
-     Failure/Error: expect { Workflow.new([]).approve(User.new([VOTE])) }.not_to raise_error
-
-       expected no Exception, got #&lt;NoMethodError: undefined method `&lt;&lt;' for nil:NilClass&gt; with backtrace:
-         # ./version_2/workflow.rb:36:in `vote'
-         # ./version_2/workflow.rb:15:in `approve'
-         # ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'
-         # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-     # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-
-Finished in 0.00971 seconds (files took 0.08025 seconds to load)
-1 example, 1 failure</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Workflow</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">empty</span> workflow</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">should</span> not raise error on inconsistent configuration <span class="er">(</span><span class="ex">FAILED</span> <span class="at">-</span> 1<span class="kw">)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Failures:</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">1</span><span class="er">)</span> <span class="ex">Workflow</span> empty workflow should not raise error on inconsistent configuration</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Failure/Error:</span> expect { Workflow.new<span class="er">(</span><span class="ex">[]</span><span class="kw">)</span><span class="ex">.approve</span><span class="er">(</span><span class="ex">User.new</span><span class="er">(</span><span class="ex">[VOTE]</span><span class="kw">))</span> <span class="er">}</span><span class="ex">.not_to</span> raise_error</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>       <span class="ex">expected</span> no Exception, got <span class="co">#&lt;NoMethodError: undefined method `&lt;&lt;' for nil:NilClass&gt; with backtrace:</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:36:in `vote'</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:15:in `approve'</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>     <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.00971 seconds <span class="er">(</span><span class="ex">files</span> took 0.08025 seconds to load<span class="kw">)</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="ex">1</span> example, 1 failure</span></code></pre></div>
 <p>What can we do about it? Let’s actually try to apply the change, suggested by mutant. The <code>vote</code> method now looks like this:</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> vote(actor)</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">@votes</span><span class="at">.fetch</span>(<span class="ot">@current_step</span>) <span class="kw">&lt;&lt;</span> actor</span>
@@ -11675,25 +11874,25 @@ Finished in 0.00971 seconds (files took 0.08025 seconds to load)
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  increment <span class="cf">if</span> <span class="ot">@votes</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span><span class="at">.size</span> <span class="kw">&gt;=</span> <span class="ot">@steps_config</span><span class="kw">[</span><span class="ot">@current_step</span><span class="kw">]</span></span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Running tests again results in a different <code>IndexError</code> error:</p>
-<pre class="console"><code>Workflow
-  empty workflow
-    should not raise error on inconsistent configuration (FAILED - 1)
-
-Failures:
-
-  1) Workflow empty workflow should not raise error on inconsistent configuration
-     Failure/Error: expect { Workflow.new([]).approve(User.new([VOTE])) }.not_to raise_error
-
-       expected no Exception, got #&lt;IndexError: index 0 outside of array bounds: 0...0&gt; with backtrace:
-         # ./version_2/workflow.rb:36:in `fetch'
-         # ./version_2/workflow.rb:36:in `vote'
-         # ./version_2/workflow.rb:15:in `approve'
-         # ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'
-         # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-     # ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'
-
-Finished in 0.01043 seconds (files took 0.0895 seconds to load)
-1 example, 1 failure</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Workflow</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">empty</span> workflow</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">should</span> not raise error on inconsistent configuration <span class="er">(</span><span class="ex">FAILED</span> <span class="at">-</span> 1<span class="kw">)</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Failures:</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">1</span><span class="er">)</span> <span class="ex">Workflow</span> empty workflow should not raise error on inconsistent configuration</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>     <span class="ex">Failure/Error:</span> expect { Workflow.new<span class="er">(</span><span class="ex">[]</span><span class="kw">)</span><span class="ex">.approve</span><span class="er">(</span><span class="ex">User.new</span><span class="er">(</span><span class="ex">[VOTE]</span><span class="kw">))</span> <span class="er">}</span><span class="ex">.not_to</span> raise_error</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>       <span class="ex">expected</span> no Exception, got <span class="co">#&lt;IndexError: index 0 outside of array bounds: 0...0&gt; with backtrace:</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:36:in `fetch'</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:36:in `vote'</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow.rb:15:in `approve'</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (4 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>         <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>     <span class="co"># ./version_2/workflow_spec.rb:9:in `block (3 levels) in &lt;top (required)&gt;'</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Finished</span> in 0.01043 seconds <span class="er">(</span><span class="ex">files</span> took 0.0895 seconds to load<span class="kw">)</span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="ex">1</span> example, 1 failure</span></code></pre></div>
 <p>This one is actually much better to work with. The code blows up exactly where it should, on the code containing accessing error, not later. In the previous run, it failed on <code>&lt;&lt;</code> operator, which in real world examples may be far away from the place containing an error.</p>
 <p>OK, we learned something useful, let’s not waste time on actually fixing it properly. Instead, I’ll just pretend <code>IndexError</code> is the desired behavior and replace all hash and array accessing methods to be <code>fetch</code>:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>subject <span class="kw">{</span> <span class="dt">Workflow</span><span class="at">.new</span>(<span class="kw">[]</span>) <span class="kw">}</span></span>
@@ -11765,24 +11964,24 @@ Finished in 0.01043 seconds (files took 0.0895 seconds to load)
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  expect <span class="kw">{</span> subject<span class="at">.approve</span>(voter<span class="at">.call</span>) <span class="kw">}</span><span class="at">.to</span> change(subject, <span class="wa">:finished?</span>)</span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Now, when all Mutants have been killed, mutant happily reports 100% mutation coverage.</p>
-<pre class="console"><code>Mutant configuration:
-Matcher:         #&lt;Mutant::Matcher::Config match_expressions: [Workflow]&gt;
-Integration:     Mutant::Integration::Rspec
-Expect Coverage: 100.00%
-Jobs:            8
-Includes:        [&quot;.&quot;]
-Requires:        [&quot;version_6/workflow_spec.rb&quot;]
-Subjects:        7
-Mutations:       316
-Results:         316
-Kills:           316
-Alive:           0
-Runtime:         8.57s
-Killtime:        33.80s
-Overhead:        -74.66%
-Mutations/s:     36.89
-Coverage:        100.00%
-Expected:        100.00%</code></pre>
+<div class="sourceCode" id="cb22"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Mutant</span> configuration:</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="ex">Matcher:</span>         <span class="co">#&lt;Mutant::Matcher::Config match_expressions: [Workflow]&gt;</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="ex">Integration:</span>     Mutant::Integration::Rspec</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="ex">Expect</span> Coverage: 100.00%</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Jobs:</span>            8</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Includes:</span>        [<span class="st">&quot;.&quot;</span>]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Requires:</span>        [<span class="st">&quot;version_6/workflow_spec.rb&quot;</span>]</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="ex">Subjects:</span>        7</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="ex">Mutations:</span>       316</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="ex">Results:</span>         316</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="ex">Kills:</span>           316</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="ex">Alive:</span>           0</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="ex">Runtime:</span>         8.57s</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Killtime:</span>        33.80s</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Overhead:</span>        <span class="at">-74.66%</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Mutations/s:</span>     36.89</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="ex">Coverage:</span>        100.00%</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="ex">Expected:</span>        100.00%</span></code></pre></div>
 <h2 id="conclusion">Conclusion</h2>
 <p>Traditional coverage tools only highlights code which was executed by running a test suite. Let’s run a little thought experiment: squint for a second, blink twice and imagine all assertion checks from your test suite have just disappeared. Will that affect coverage?.. It’s very refreshing to realize it will not. Furthermore, even having full branch coverage does not guarantee you are safe. See <a href="http://pitest.org/weak_tests/">here</a> for examples. Ask yourself a very simple question: are you still sure that the test suite you have is actually able to detect failures in the code?</p>
 <p>Besides branch coverage, mutation testing is intended to ensure that code is <em>meaningfully</em> tested, giving your test suite powers to weed broken code out. However, no formal guarantees can be given, it’s a <strong>way</strong> to perfection, not ideal itself.</p>

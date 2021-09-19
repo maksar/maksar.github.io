@@ -167,15 +167,15 @@
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        )</span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> <span class="fu">for</span> (<span class="fu">list</span> <span class="fu">userProducer</span>)</span></code></pre></div>
 <p>Перед тем как углубиться в суть выражения <code>list userProducer</code>, стоит все же посмотреть на результаты запуска. Видно, что довольно быстро нашелся контрпример, опровергающий наш инвариант. Очень хотелось верить в код, написанный нами с такой аккуратностью и протестированный в предыдущей инкарнации mutation тестами, но он оказался не так уж и хорош. Глядя на контрпример, становится очевидно в чем проблема: если пользователь имеет <code>FORCE</code> привилегии, то код не делает никаких проверок и просто-напросто увеличивает номер шага!</p>
-<pre class="console"><code>✗ Workflow should remain in its bounds
-
-    On check 3, found counterexample:
-      [User { name = &quot;&quot;, active = True, permissions = Array.fromList [VOTE] },
-       User { name = &quot;&quot;, active = True, permissions = Array.fromList [NONE,FORCE] },
-       User { name = &quot;&quot;, active = True, permissions = Array.fromList [NONE,NONE,FORCE] },
-       User { name = &quot;&quot;, active = True, permissions = Array.fromList [NONE,NONE,NONE,FORCE] }]
-    Expected:   True
-    But It Was: False</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">✗</span> Workflow should remain in its bounds</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">On</span> check 3, found counterexample:</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="ex">[User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [VOTE] },</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,FORCE] },</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,NONE,FORCE] },</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,NONE,NONE,FORCE] }]</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expected:</span>   True</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">But</span> It Was: False</span></code></pre></div>
 <h2 id="генерация-случайных-данных">Генерация случайных данных</h2>
 <p>Выражение <code>list userProducer</code> имеет тип <code>Producer (List User)</code>, что можно прочитать как «Генератор Списка Пользователей». Он получается применением комбинатора <code>list</code> (имеющего сигнатуру типа <code>list : Producer a -&gt; Producer (List a)</code>) к генератору <code>userProducer</code> (с типом <code>Producer User</code>). На основе одного генератора легко построить другой, более сложный. Так, между прочим, и был построен <code>userProducer</code>:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode elm"><code class="sourceCode elm"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">userProducer</span> : <span class="dt">Producer</span> <span class="dt">User</span></span>
@@ -231,20 +231,20 @@
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> <span class="fu">is</span> (\( <span class="fu">user</span><span class="op">,</span> <span class="fu">operation</span> ) <span class="op">-&gt;</span> (<span class="fu">workflowVotedByUser</span> <span class="fu">user</span>)<span class="op">.</span><span class="fu">currentStep</span>)</span>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">|&gt;</span> <span class="fu">for</span> (<span class="fu">tuple</span> ( <span class="fu">userProducer</span><span class="op">,</span> <span class="fu">operationProducer</span> ))</span></code></pre></div>
 <p>Запуск тестов показывает, что инвариант нарушен: найдена такая пара пользователь-операция, при применении которой шаг <code>workflow</code>-а уменьшается на единицу.</p>
-<pre class="console"><code>✗ Same user cannot vote twice
-
-    On check 1, found counterexample:
-      (User { name = &quot;&quot;, active = False, permissions = Array.fromList [NONE,VOTE] },Reject)
-    Expected:   1
-    But It Was: 0</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">✗</span> Same user cannot vote twice</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">On</span> check 1, found counterexample:</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">(</span><span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = False, permissions = Array.fromList [NONE,VOTE] },Reject<span class="kw">)</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expected:</span>   1</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">But</span> It Was: 0</span></code></pre></div>
 <p>И действительно, в функцию <code>reject</code> так же закралась ошибка. Применение <code>locked</code> вместо <code>not User.active</code> исправляет ситуацию – все тесты теперь зеленые.</p>
-<pre class="console"><code>Running 4 tests. To reproduce these results, run: elm-test --seed 2042167370
-
-TEST RUN PASSED
-
-Duration: 5 ms
-Passed:   4
-Failed:   0</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Running</span> 4 tests. To reproduce these results, run: elm-test <span class="at">--seed</span> 2042167370</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="ex">TEST</span> RUN PASSED</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Duration:</span> 5 ms</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="ex">Passed:</span>   4</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="ex">Failed:</span>   0</span></code></pre></div>
 <h2 id="заключение">Заключение</h2>
 <p>При помощи всего двух простых инвариантов удалось обнаружить несколько нетривиальных проблем в реализации <code>workflow</code>-а. Найти их традиционными способами трудно – разработчик, может, и проверит, получится ли голосовать второй раз на одном и том же шаге, однако вряд ли он попытается сделать <code>reject</code> сразу после голосования в коде unit тестов. К слову, в <code>ruby</code> реализации, вдоль и поперек проверенной мутационным тестированием, обнаружились эти же дефекты ;) Что в очередной раз доказывает, что «серебряной пули» не существует и полагаться только на один способ проверки – наивно.</p>
 <p>Библиотеки для property-based тестирования существуют не только для полностью функциональных языков программирования: в <code>ruby</code> это <a href="https://github.com/abargnesi/rantly">rantly</a>, в <code>python</code> – <a href="https://github.com/HypothesisWorks/hypothesis-python">hypothesis</a>, в <code>Java</code> – <a href="https://github.com/pholser/junit-quickcheck">junit-quickcheck</a> и т.д.</p>

@@ -139,25 +139,25 @@ CMD [&quot;bundle&quot;, &quot;exec&quot;, &quot;ruby&quot;, &quot;server.rb&quo
 <div class="sourceCode" id="cb5"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>implementation<span class="op">(</span><span class="st">&quot;com.atlassian.jira&quot;</span><span class="op">,</span> <span class="st">&quot;jira-core&quot;</span><span class="op">,</span> <span class="st">&quot;8.8.1&quot;</span><span class="op">)</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>implementation<span class="op">(</span><span class="st">&quot;com.atlassian.jira&quot;</span><span class="op">,</span> <span class="st">&quot;jira-tests&quot;</span><span class="op">,</span> <span class="st">&quot;8.8.1&quot;</span><span class="op">)</span></span></code></pre></div>
 <p>Собрав <code>fat jar</code> с этими и еще некоторыми прямыми (сам <code>kotlin</code>, библиотека для работы с переменными окружения, etc.) и косвенными зависимостями (только представьте сколько зависимостей за собой “тянет” <code>jira-core</code>) получаем <code>trimmer-1.0-all.jar</code> размером в <strong>112 мегабайт</strong> – такова цена за <code>code-reuse</code>. Настало время для <code>GraalVM</code> – попробуем преобразовать <code>jar</code> файл в обычный исполняемый файл, в надежде избавиться от главной зависимости – виртуальной <code>java</code> машины.</p>
-<pre class="console"><code>$ native-image -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               -H:+ReportUnsupportedElementsAtRuntime
-               --allow-incomplete-classpath</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:+ReportUnsupportedElementsAtRuntime</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span></code></pre></div>
 <p>Попытка “в лоб” заканчивается неудачей, логи полны сообщений вида:</p>
-<pre class="console"><code>Error: Classes that should be initialized at run time got initialized during image building:
-org.apache.log4j.spi.LoggingEvent was unintentionally initialized at build time.
-org.apache.http.HttpEntity was unintentionally initialized at build time.
-...
-Error: Image build request failed with exit status 1</code></pre>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Error:</span> Classes that should be initialized at run time got initialized during image building:</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">org.apache.log4j.spi.LoggingEvent</span> was unintentionally initialized at build time.</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">org.apache.http.HttpEntity</span> was unintentionally initialized at build time.</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">Error:</span> Image build request failed with exit status 1</span></code></pre></div>
 <p>Не отчаиваемся и просим <code>GraalVM</code> пытаться инициализировать это все на этапе сборки образа:</p>
-<pre class="console"><code>$ native-image --no-server
-               --enable-https
-               --allow-incomplete-classpath
-               -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               --initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">--no-server</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--enable-https</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--initialize-at-build-time=org.apache.http,org.slf4j,org.apache.log4j,org.apache.commons.codec,org.apache.commons.logging</span></span></code></pre></div>
 <p>Успех, на выходе имеем <code>trimer-exe</code> файл, размером всего в <strong>6.5 мегабайт</strong>. Упакуем его дополнительно замечательной утилитой <a href="https://upx.github.io">upx</a>, которая знакома всем еще со времен <code>DOS</code> и недостатка места на диске. Результат изумителен – <strong>1.8 мегабайт</strong>! Да только вот нас немного обманули… <code>GraalVM</code>, по умолчанию, строит образы, которые хоть и являются исполняемыми, но они не в состоянии работать без установленной на компьютере <code>java</code> виртуальной машины. При попытке построить “настоящий” независимый образ (опция <code>--no-fallback</code>), сталкиваемся с рядом сложностей.</p>
 <p>Во-первых – <code>Warning: Aborting stand-alone image build. Detected a FileDescriptor in the image heap</code> появляющийся из-за статической инициализации поля <code>org.apache.log4j.LogManager.repositorySelector</code>. Дело в том, что в глубинах зависимостей нашего приложения есть части, инициализирующиеся на этапе загрузки классов – а именно – это код в блоках <code>static</code> и статические члены классов в <code>java</code>. В основном – это <code>logging framework</code>-и (их по дереву зависимостей наберется несколько штук), которые требуют указания <code>class</code>-а для создания logger объекта. Они обладают возможностью ленивой инициализации при первом использовании, при помощи <code>reflection</code> загружая подходящую реализацию, от чего <code>GraalVM</code> становится дурно (действительно, сохранить открытый <code>FileDescriptor</code> в дампе памяти – невыполнимая задача), он отчаянно требует помощи. Попробуем заглушить инициализацию <code>log4j</code>, мы ведь им и не пользуемся даже: добавляем в начале <code>main</code> строку <code>LogManager.setRepositorySelector(DefaultRepositorySelector(NOPLoggerRepository()), null)</code>, а в момент сборки образа добавляем опцию <code>-Dlog4j.defaultInitOverride=true</code>. Как до этого “дойти”? Исключительно чтением исходных текстов библиотеки. Сложно недооценить количество знаний и понимания внутреннего устройства систем, получаемых таким образом – не бойтесь заглядывать под капот используемым библиотекам!</p>
 <p>К слову, еще до использования <code>GraalVM</code> я замечал, что при запуске приложения создается папка <code>target</code> (хоть я и использую <code>gradle</code>, который все <em>кладет</em> в папку <code>build</code>) с пустым файлом <code>unit-tests.log</code> в ней. Подозрения пали на <code>com.atlassian.jira:jira-tests</code> зависимость, в недрах которой обнаружился <code>log4j.properties</code> файл с незатейливым содержимым:</p>
@@ -175,25 +175,25 @@ log4j.appender.console.File=target/unit-tests.log</code></pre>
 <p>Она заставит <code>slf4j</code> пропустить инициализацию и не заниматься <code>reflection</code>-ом во время старта приложения. А статическую инициализацию одного из наших полей, сделаем отложенной (чтобы “трюк” из <code>main</code> успел выполниться вовремя):</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">val</span> <span class="va">jira</span> <span class="op">=</span> lazy <span class="op">{</span> JiraClient<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_URL&quot;</span><span class="op">],</span> BasicCredentials<span class="op">(</span>dotenv<span class="op">[</span><span class="st">&quot;JIRA_USERNAME&quot;</span><span class="op">],</span> dotenv<span class="op">[</span><span class="st">&quot;JIRA_PASSWORD&quot;</span><span class="op">]))</span> <span class="op">}</span></span></code></pre></div>
 <p>Кстати, именно из-за статической инициализации приложения на <code>java</code> так медленно стартуют, а при старте иногда можно видеть в консоли строки:</p>
-<pre class="console"><code>log4j:WARN No appenders could be found for logger (org.apache.http.impl.conn.PoolingClientConnectionManager).
-log4j:WARN Please initialize the log4j system properly.
-log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.</code></pre>
+<div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">log4j:WARN</span> No appenders could be found for logger <span class="er">(</span><span class="ex">org.apache.http.impl.conn.PoolingClientConnectionManager</span><span class="kw">)</span><span class="bu">.</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="ex">log4j:WARN</span> Please initialize the log4j system properly.</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="ex">log4j:WARN</span> See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.</span></code></pre></div>
 <p><code>GraalVM</code> как раз и славится тем, что позволяет сократить время запуска приложений, так как вся статическая инициализация происходит на этапе “сборки”, в готовый исполняемый файл, вместе со встраиваемой виртуальной машиной, попадают “замороженные” версии классов, с уже выполненным шагом статической инициализации.</p>
-<pre class="console"><code>$ native-image --no-fallback
-               --allow-incomplete-classpath
-               --enable-https
-               --no-server
-               -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
-               -Dlog4j.defaultInitOverride=true</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">--no-fallback</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--enable-https</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--no-server</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-Dlog4j.defaultInitOverride=true</span></span></code></pre></div>
 <p>Следующая беда “вылазит” уже не на этапе сборки, а после запуска собранного приложения:</p>
-<pre class="console"><code>Exception in thread &quot;main&quot; java.lang.NoClassDefFoundError: java.lang.Class
-  at net.sf.json.AbstractJSON.class$(AbstractJSON.java:53)
-  ...
-  at net.rcarz.jiraclient.RestClient.request(RestClient.java:165)
-  ...</code></pre>
+<div class="sourceCode" id="cb14"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Exception</span> in thread <span class="st">&quot;main&quot;</span> java.lang.NoClassDefFoundError: java.lang.Class</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">at</span> net.sf.json.AbstractJSON.class<span class="va">$(</span><span class="ex">AbstractJSON.java:53</span><span class="va">)</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">at</span> net.rcarz.jiraclient.RestClient.request<span class="er">(</span><span class="ex">RestClient.java:165</span><span class="kw">)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span></code></pre></div>
 <p>Общение с <code>JIRA</code> происходит при помощи <code>JSON</code>-а, а его разбор в <code>java</code> большинством библиотек происходит через <code>reflection</code>, возможности которого в <code>GraalVM</code> несколько ограничены. <code>GraalVM</code> понимает, что необходимо “встроить” нужные вызовы к <code>reflection</code> <code>API</code> в итоговый образ, если они происходят на этапе статической инициализации, но вот к вызовам <code>reflection</code> во время исполнения его “никто не готовил”. Создадим файл <code>config.json</code> с таким содержимым:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ot">[</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">{</span></span>
@@ -204,21 +204,21 @@ log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more in
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="ot">]</span></span></code></pre></div>
 <p>Заставим <code>GraalVM</code> обратить на него внимание:</p>
-<pre class="console"><code>$ native-image --no-fallback
-               --allow-incomplete-classpath
-               --enable-https
-               --no-server
-               -cp ./build/libs/trimmer-1.0-all.jar
-               -H:Name=trimer-exe
-               -H:Class=TrimmerKt
-               --initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec
-               -Dlog4j.defaultInitOverride=true
-               -H:ReflectionConfigurationFiles=./config.json</code></pre>
+<div class="sourceCode" id="cb16"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> native-image <span class="at">--no-fallback</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--allow-incomplete-classpath</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--enable-https</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--no-server</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-cp</span> ./build/libs/trimmer-1.0-all.jar</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Name=trimer-exe</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:Class=TrimmerKt</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>               <span class="ex">--initialize-at-build-time=org.apache.http,org.apache.log4j,org.slf4j,org.apache.commons.logging,org.apache.commons.collections.map,net.sf.json,net.sf.ezmorph,org.apache.oro.text.regex,org.apache.commons.codec</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-Dlog4j.defaultInitOverride=true</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>               <span class="ex">-H:ReflectionConfigurationFiles=./config.json</span></span></code></pre></div>
 <p>В итоге, собранная программа работает как положено. Итоговый размер – <strong>28 мегабайт</strong>, а будучи упакованным при помощи <code>upx</code> – <strong>7.1 мегабайт</strong>. Не удивительно, ведь <code>GraalVM</code> пришлось включить в исполняемый файл <code>Substrate VM</code> виртуальную машину для того, чтобы бинарный файл стал независим от системного <code>JRE</code>. Обещания, которые давал <code>GraalVM</code> он выполнил – один исполняемый файл, независимость от системного <code>JRE</code>. К слову, время старта приложения значительно сократилось – разница заметна даже невооруженным взглядом:</p>
-<pre class="console"><code>$ time java -jar build/libs/trimmer-1.0-all.jar --dry-run
-0.30s user 0.05s system 181% cpu 0.195 total
-$ time ./trimer-exe --dry-run
-0.00s user 0.00s system 70% cpu 0.010 total</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time java <span class="at">-jar</span> build/libs/trimmer-1.0-all.jar <span class="at">--dry-run</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="ex">0.30s</span> user 0.05s system 181% cpu 0.195 total</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> time ./trimer-exe <span class="at">--dry-run</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="ex">0.00s</span> user 0.00s system 70% cpu 0.010 total</span></code></pre></div>
 <h2 id="haskell">Haskell</h2>
 <p>Напоследок, попробуем получить преимущества от статической линковки программы на <code>Haskell</code>, бота <a href="../../../posts/projects/2020-02-07-ldap-bot">Group Manager</a>. Сборка программ на <code>Haskell</code> внутри <code>docker</code>-а происходит примерно так же как и на <code>golang</code>. В первом <code>stage</code>-е устанавливаются все необходимые зависимости, собирается бинарный исполняемый файл. Затем он из этого <code>stage</code>-а копируется в “чистовой” контейнер, не содержащий компилятора и других <code>development</code> зависимостей.</p>
 <p>Самая первая версия бота так и собиралась, итоговый бинарный файл имел размер <strong>26 мегабайт</strong>, а <code>docker</code> образ (на основе того же <code>distroless</code>) – <strong>46 мегабайт</strong>.</p>
@@ -325,22 +325,22 @@ COPY --from=fpco/stack-build:lts-14.25 /lib/x86_64-linux-gnu/ld-linux* /lib/x86_
 ENTRYPOINT [&quot;/app&quot;]</code></pre>
 <p>Постойте, какие библиотеки, речь же шла о статической линковке… Дело в том, что <code>libc</code>, в отличие от <code>musl</code> не может быть полностью “влинкован” в приложение. Причин несколько, но для обывателя их можно сформулировать как “так получилось”. Обратите внимание на то, какие именно библиотеки мы копируем – <code>libnss_dns</code> и <code>libresolv</code> (ну и еще <code>ld-linux</code> для возможности динамической загрузки последних). Это библиотеки для работы с <code>DNS</code>, а инфраструктура <a href="https://en.wikipedia.org/wiki/Name_Service_Switch">NSS</a> предоставляет много backend-ов для работы с <code>DNS</code> (вплоть до чтения из файла). Так как нет возможности на этапе сборки указать какой именно backend использовать, <code>libc</code> всегда загружает их динамически, заставляя “тянуть” еще и себя, кроме необходимых <code>NSS</code> плагинов. С таким положением дел все до сих пор мирятся (убеждая окружающих, что статическая линковка “не нужна”, ведь все равно придется “тянуть” с собой <code>libc</code>), периодически “сбегая” в лагерь <code>musl</code>, если нужна “действительно” статическая линковка.</p>
 <p>В итоге, вышел компромиссный вариант (из-за невозможности использовать <code>musl</code>) – статическая линковка (размер исполняемого файла <strong>4.6 мегатайта</strong>), вместе с <code>libc</code> и библиотеками для <code>DNS</code>, сделали размер образа не таким большим – всего <strong>7.2 мегабайта</strong>. Цель по уменьшению размера итогово образа и обеспечению дополнительной безопасности можно считать достигнутой. Особенно греет душу мысль о том, что бот в состоянии покоя занимает в оперативной памяти всего <strong>812 килобайт</strong>!</p>
-<pre class="console"><code>Cmp   Size  Command
-4.6 MB  ├── app
-246 kB  ├── etc
-246 kB  │   └── ssl
-235 kB  │       ├── certs
-235 kB  │       │   └── ca-certificates.crt
- 11 kB  │       └── openssl.cnf
-2.3 MB  └── lib
-171 kB      ├── ld-linux-x86-64.so.2
-2.0 MB      ├── libc.so.6
- 27 kB      ├── libnss_dns.so.2
-101 kB      └── libresolv.so.2
-
-Total Image size: 7.2 MB
-Potential wasted space: 0 B
-Image efficiency score: 100 %</code></pre>
+<div class="sourceCode" id="cb23"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Cmp</span>   Size  Command</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="ex">4.6</span> MB  ├── app</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="ex">246</span> kB  ├── etc</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="ex">246</span> kB  │   └── ssl</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="ex">235</span> kB  │       ├── certs</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="ex">235</span> kB  │       │   └── ca-certificates.crt</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a> <span class="ex">11</span> kB  │       └── openssl.cnf</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="ex">2.3</span> MB  └── lib</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="ex">171</span> kB      ├── ld-linux-x86-64.so.2</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="ex">2.0</span> MB      ├── libc.so.6</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a> <span class="ex">27</span> kB      ├── libnss_dns.so.2</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="ex">101</span> kB      └── libresolv.so.2</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="ex">Total</span> Image size: 7.2 MB</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a><span class="ex">Potential</span> wasted space: 0 B</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="ex">Image</span> efficiency score: 100 %</span></code></pre></div>
   </section>
 </article>
 
