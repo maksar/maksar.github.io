@@ -93,7 +93,6 @@
 
             haskellPackages.haskell-language-server
             haskellPackages.cabal-fmt
-            haskellPackages.cabal-fmt
             pre-commit-hooks.checks.${system}.ormolu
             pre-commit-hooks.checks.${system}.hlint
             pre-commit-hooks.checks.${system}.nixpkgs-fmt

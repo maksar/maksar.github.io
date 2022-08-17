@@ -1,0 +1,10 @@
+---
+title: Do you even read, bro?
+---
+
+## Every hour of the day is a miracle...
+
+```haskell
+hourOfDay :: UTCTime -> Int
+hourOfDay = read . formatTime defaultTimeLocale "%H"
+```
