@@ -339,7 +339,7 @@
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">imports</span> = [ <span class="er">(</span><span class="ex">import</span> <span class="st">&quot;</span><span class="va">${envy}</span><span class="st">/home-manager.nix&quot;</span> { }<span class="kw">)</span> <span class="ex">]</span><span class="kw">;</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
-<p>Since <code>builtins.fetchGit</code> isn’t allowed in nix flakes, I was forced to convert <a href="https://github.com/Shados:envy/envy">envy</a> to the dependency of my configuration flake:</p>
+<p>Since <code>builtins.fetchGit</code> isn’t allowed in nix flakes, I was forced to convert <a href="https://github.com/Shados/envy">envy</a> to the dependency of my configuration flake:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">inputs</span> = {</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">envy</span> = { url = <span class="st">&quot;github:Shados/envy&quot;</span><span class="kw">;</span> <span class="ex">flake</span> = false<span class="kw">;</span> <span class="er">}</span><span class="kw">;</span></span>
@@ -350,7 +350,7 @@
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">homeManagerModules</span> = {</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">vim-envy</span> = import <span class="st">&quot;</span><span class="va">${envy}</span><span class="st">/home-manager.nix&quot;</span> {}<span class="kw">;</span></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span></code></pre></div>
-<p>As a result, there is no need for <code>darwin-rebuild</code> to fetch a master branch from <a href="https://github.com/Shados:envy/envy">envy</a> each time I do <code>switch</code> operation.</p>
+<p>As a result, there is no need for <code>darwin-rebuild</code> to fetch a master branch from <a href="https://github.com/Shados/envy">envy</a> each time I do <code>switch</code> operation.</p>
 <h2 id="control">Control</h2>
 <p>Since there are no dependencies for the local state, it is quite possible to check the consistency of the whole configuration on Github CI.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and switch to bootstrap config</span></span>

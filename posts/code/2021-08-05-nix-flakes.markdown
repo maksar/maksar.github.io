@@ -37,7 +37,7 @@ in {
 }
 ```
 
-Since `builtins.fetchGit` isn't allowed in nix flakes, I was forced to convert [envy](@gh(Shados:envy)) to the dependency of my configuration flake:
+Since `builtins.fetchGit` isn't allowed in nix flakes, I was forced to convert [envy](@gh(Shados):envy) to the dependency of my configuration flake:
 
 ```nix
 inputs = {
@@ -52,7 +52,7 @@ homeManagerModules = {
 };
 ```
 
-As a result, there is no need for `darwin-rebuild` to fetch a master branch from [envy](@gh(Shados:envy)) each time I do `switch` operation.
+As a result, there is no need for `darwin-rebuild` to fetch a master branch from [envy](@gh(Shados):envy) each time I do `switch` operation.
 
 ## Control
 
