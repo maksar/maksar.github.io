@@ -43,12 +43,6 @@
               hlint = { enable = true; };
               ormolu = { enable = true; };
               nixpkgs-fmt = { enable = true; };
-              cabal = {
-                enable = true;
-                name = "cabal-fmt";
-                entry = "${cabal-fmt}/bin/cabal-fmt --inplace";
-                files = "\\.cabal$";
-              };
               blog = {
                 enable = true;
                 name = "blog";
@@ -62,19 +56,16 @@
 
         devShell = ((
           (haskell.lib.addBuildTools defaultPackage [
-            haskellPackages.fswatcher
-            haskellPackages.apply-refact
-
-            zlib
             imagemagick
+            zlib
 
+            haskellPackages.cabal-install
+            haskellPackages.fswatcher
             haskellPackages.haskell-language-server
-            haskellPackages.cabal-fmt
-            pre-commit-hooks.checks.${system}.ormolu
+
             pre-commit-hooks.checks.${system}.hlint
             pre-commit-hooks.checks.${system}.nixpkgs-fmt
-            haskellPackages.cabal-install
-            haskellPackages.stan
+            pre-commit-hooks.checks.${system}.ormolu
           ])
         ).envFunc { }).overrideAttrs (f: { inherit (self.checks.${system}.pre-commit-check) shellHook; });
       });
