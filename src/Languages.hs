@@ -14,7 +14,7 @@ languagesListField key tags = field key (const $ renderList "&" tags)
 languageField' :: String -> Tags -> Context a
 languageField' = tagsFieldWith getLanguage (renderLink "&") mconcat
 
-getLanguage :: MonadMetadata m => Identifier -> m [String]
+getLanguage :: (MonadMetadata m) => Identifier -> m [String]
 getLanguage identifier = do
   metadata <- getMetadata identifier
   return $
@@ -22,7 +22,7 @@ getLanguage identifier = do
       lookupStringList "language" metadata
         <> (map trim . splitAll "," <$> lookupString "language" metadata)
 
-buildLanguages :: MonadMetadata m => Pattern -> (String -> Identifier) -> m Tags
+buildLanguages :: (MonadMetadata m) => Pattern -> (String -> Identifier) -> m Tags
 buildLanguages = buildTagsWith getLanguage
 
 languageTitleField :: String -> Context a

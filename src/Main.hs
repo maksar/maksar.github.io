@@ -16,7 +16,7 @@ import Static
 import System.FilePath
 import Tags
 
-deriving instance Eq a => Eq (Item a)
+deriving instance (Eq a) => Eq (Item a)
 
 main :: IO ()
 main = hakyllWith config $ do

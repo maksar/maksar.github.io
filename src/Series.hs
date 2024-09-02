@@ -11,10 +11,10 @@ import qualified Data.Set as Set
 import Hakyll
 import Html
 
-getSeries :: MonadMetadata m => Identifier -> m (Maybe String)
+getSeries :: (MonadMetadata m) => Identifier -> m (Maybe String)
 getSeries = flip getMetadataField "series"
 
-withMaybeOrEmpty :: Alternative f => Maybe t -> (t -> a) -> f a
+withMaybeOrEmpty :: (Alternative f) => Maybe t -> (t -> a) -> f a
 withMaybeOrEmpty mv fun =
   case mv of
     Nothing -> empty
