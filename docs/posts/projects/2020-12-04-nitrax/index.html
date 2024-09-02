@@ -43,62 +43,62 @@
 <!--more-->
 <p><img src="../../../previews/nitrax/logo.png" class="center" /></p>
 <p>It is composed of several <code>nix</code> files, each responsible for a single service or bot.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">network</span> = {</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">description</span> = <span class="st">&quot;Itransition NIXOS fleet&quot;</span><span class="kw">;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">enableRollback</span> = true<span class="kw">;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">nixpkgs</span> = <span class="er">(</span><span class="ex">import</span> <span class="op">&lt;</span>nixos-21.05-small<span class="op">&gt;</span> { system = <span class="st">&quot;x86_64-linux&quot;</span><span class="kw">;</span> <span class="er">}</span><span class="kw">);</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">};</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">network</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">description</span> <span class="op">=</span> <span class="st">&quot;Itransition NIXOS fleet&quot;</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">enableRollback</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">nixpkgs</span> <span class="op">=</span> <span class="op">(</span><span class="bu">import</span> &lt;nixos<span class="fl">-21.05</span><span class="op">-</span>small&gt; <span class="op">{</span> <span class="va">system</span> <span class="op">=</span> <span class="st">&quot;x86_64-linux&quot;</span><span class="op">;</span> <span class="op">});</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;decepticons&quot;</span> = { config, pkgs, ... }: {</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">rootfs</span> = <span class="st">&quot;btrfs&quot;</span><span class="kw">;</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">imports</span> = [</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./hardware/efi.nix</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./os</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/trimmer.nix</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/gitman.nix</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/nine11.nix</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/ldap-bot.nix</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/instagram.nix</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/digest.nix</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/fukuisima.nix</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/milestones.nix</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/personer.nix</span></span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/certiplace.nix</span></span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="ex">./modules/coorish.nix</span></span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">]</span><span class="kw">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">&quot;decepticons&quot;</span> <span class="op">=</span> <span class="op">{</span> <span class="va">config</span><span class="op">,</span> <span class="va">pkgs</span><span class="op">,</span> <span class="op">...</span> <span class="op">}</span>: <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">rootfs</span> <span class="op">=</span> <span class="st">&quot;btrfs&quot;</span><span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">imports</span> <span class="op">=</span> <span class="op">[</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./hardware/efi.nix</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./os</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/trimmer.nix</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/gitman.nix</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/nine11.nix</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/ldap-bot.nix</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/instagram.nix</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/digest.nix</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/fukuisima.nix</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/milestones.nix</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/personer.nix</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/certiplace.nix</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>      <span class="ss">./modules/coorish.nix</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">];</span></span>
 <span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="ex">networking.hostName</span> = <span class="st">&quot;decepticons&quot;</span><span class="kw">;</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="ex">deployment.targetHost</span> = <span class="st">&quot;decepticons.itransition.corp&quot;</span><span class="kw">;</span></span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="er">}</span><span class="kw">;</span></span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="va">networking</span>.<span class="va">hostName</span> <span class="op">=</span> <span class="st">&quot;decepticons&quot;</span><span class="op">;</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="va">deployment</span>.<span class="va">targetHost</span> <span class="op">=</span> <span class="st">&quot;decepticons.itransition.corp&quot;</span><span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>With this <a href="https://github.com/maksar/nitrax/blob/master/modules/certiplace.nix">service</a> I struggled the most, because of the way <code>unixODBC</code> drivers are working on <code>MacOS</code> and <code>Linux</code>.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="ex">pkgs,</span> ... }:</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">let</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">certiplace</span> = <span class="er">(</span><span class="ex">builtins.getFlake</span> <span class="st">&quot;git+ssh://git@git.itransition.com:7999/workplace/certificates.git&quot;</span><span class="kw">)</span><span class="ex">.defaultPackage.</span><span class="va">${pkgs</span><span class="er">.system</span><span class="va">}</span><span class="kw">;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">driver</span> = pkgs.unixODBCDrivers.msodbcsql17<span class="kw">;</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="er">in</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">environment.systemPackages</span> = [ certiplace driver ]<span class="kw">;</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span> <span class="va">pkgs</span><span class="op">,</span> <span class="op">...</span> <span class="op">}</span>:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">let</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">certiplace</span> <span class="op">=</span> <span class="op">(</span><span class="bu">builtins</span>.getFlake <span class="st">&quot;git+ssh://git@git.itransition.com:7999/workplace/certificates.git&quot;</span><span class="op">)</span>.defaultPackage.$<span class="op">{</span><span class="va">pkgs</span>.<span class="va">system</span><span class="op">};</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">driver</span> <span class="op">=</span> pkgs.unixODBCDrivers.msodbcsql17<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">in</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="va">environment</span>.<span class="va">systemPackages</span> <span class="op">=</span> <span class="op">[</span> certiplace driver <span class="op">];</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">deployment.keys.certiplace-env</span> = {</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">text</span> = <span class="er">(</span><span class="ex">builtins.readFile</span> ~/projects/certiplace/.env.production<span class="kw">)</span> <span class="ex">+</span> <span class="st">&quot;\nCERTIPLACE_EMS_DATABASE_DRIVER=</span><span class="va">${driver}</span><span class="st">/</span><span class="va">${driver</span><span class="er">.driver</span><span class="va">}</span><span class="st">&quot;</span><span class="kw">;</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">};</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="ex">systemd.services.certiplace</span> = {</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="ex">after</span> = [ <span class="st">&quot;certiplace-env-key.service&quot;</span> ]<span class="kw">;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="ex">wants</span> = [ <span class="st">&quot;certiplace-env-key.service&quot;</span> ]<span class="kw">;</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="ex">script</span> = <span class="st">''</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>      <span class="bu">source</span> <span class="op">&lt;(</span><span class="fu">sed</span> <span class="at">-E</span> <span class="st">'s/([A-Z_0-9]+)=(.*)/export \1=\2/g'</span> /run/keys/certiplace-env<span class="op">)</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>      <span class="bu">exec</span> <span class="va">${certiplace}</span>/bin/certiplace</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="st">''</span><span class="kw">;</span></span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">};</span></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="ex">systemd.timers.certiplace</span> = {</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="ex">timerConfig</span> = {</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="va">OnCalendar</span><span class="op">=</span><span class="st">&quot;*-*-01 12:15:00&quot;</span><span class="kw">;</span></span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="er">}</span><span class="kw">;</span></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="ex">wantedBy</span> = [ <span class="st">&quot;timers.target&quot;</span> ]<span class="kw">;</span></span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="er">}</span><span class="kw">;</span></span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="er">}</span></span></code></pre></div>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">deployment</span>.<span class="va">keys</span>.<span class="va">certiplace-env</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">text</span> <span class="op">=</span> <span class="op">(</span><span class="bu">builtins</span>.readFile ~<span class="ss">/projects/certiplace/.env.production</span><span class="op">)</span> <span class="op">+</span> <span class="st">&quot;</span><span class="sc">\n</span><span class="st">CERTIPLACE_EMS_DATABASE_DRIVER=</span><span class="sc">${</span>driver<span class="sc">}</span><span class="st">/</span><span class="sc">${</span>driver.driver<span class="sc">}</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="va">systemd</span>.<span class="va">services</span>.<span class="va">certiplace</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="va">after</span> <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;certiplace-env-key.service&quot;</span> <span class="op">];</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="va">wants</span> <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;certiplace-env-key.service&quot;</span> <span class="op">];</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="va">script</span> <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">      source &lt;(sed -E 's/([A-Z_0-9]+)=(.*)/export \1=\2/g' /run/keys/certiplace-env)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">      exec </span><span class="sc">${</span>certiplace<span class="sc">}</span><span class="st">/bin/certiplace</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="st">    ''</span><span class="op">;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="va">systemd</span>.<span class="va">timers</span>.<span class="va">certiplace</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="va">timerConfig</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="va">OnCalendar</span><span class="op">=</span><span class="st">&quot;*-*-01 12:15:00&quot;</span><span class="op">;</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="va">wantedBy</span> <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;timers.target&quot;</span> <span class="op">];</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>That is a <code>python</code> bot, which connects to <code>MSSQL</code> database (what a pain to use) to fetch data about recently earned certifications in a company, renders it in a picture and uploads to the intranet. Despite the fact <code>python</code> is well supported by <a href="https://github.com/nix-community/poetry2nix">poetry2nix</a>, some tricks (disabling LTO) were needed to build <a href="https://github.com/matplotlib/matplotlib">mathplotlib</a> library.</p>
   </section>
 </article>

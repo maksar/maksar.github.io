@@ -6,7 +6,7 @@ language: english
 
 Ruby is a multi-paradigm programming language. It fully allows writing old-fashioned procedural code, but also provides many useful constructs and features from the functional world.
 
-The majority of developers come to [Ruby](https://www.programmableweb.com/news/why-parse-picked-googles-go-over-microsofts-c-to-replace-its-ailing-ruby-stack/brief/2015/06/16) from the imperative world. They are used to making many local variables, changing their state and relying on implicit dependencies. Very quickly, it becomes clear that code can be much more expressive, using powerful idioms from functional languages. Ruby isn't a fully functional language by any means; functions are not first class citizens, evaluation flow is not lazy, pattern matching support is very limited, etc. But still, it is possible to write code in a functional way and garner many benefits as a result.
+The majority of developers come to [Ruby](https://web.archive.org/web/20220521011426/https://www.programmableweb.com/news/why-parse-picked-googles-go-over-microsofts-c-to-replace-its-ailing-ruby-stack/brief/2015/06/16) from the imperative world. They are used to making many local variables, changing their state and relying on implicit dependencies. Very quickly, it becomes clear that code can be much more expressive, using powerful idioms from functional languages. Ruby isn't a fully functional language by any means; functions are not first class citizens, evaluation flow is not lazy, pattern matching support is very limited, etc. But still, it is possible to write code in a functional way and garner many benefits as a result.
 
 <!--more-->
 

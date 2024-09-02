@@ -54,28 +54,28 @@
 <li>have all your dependencies to be publicly available in git</li>
 </ul>
 <p>You can no longer <code>import</code> a file from your local filesystem (or a predefined channel), which increases reproducibility and robustness. As an example: I had such <code>neovim</code> setup beforehand:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">{</span> <span class="ex">config,</span> pkgs, ... }:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="bu">let</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">envy</span> = builtins.fetchGit {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="ex">url</span> = <span class="st">&quot;https://github.com/Shados/envy&quot;</span><span class="kw">;</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">ref</span> = <span class="st">&quot;master&quot;</span><span class="kw">;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">};</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span> <span class="va">config</span><span class="op">,</span> <span class="va">pkgs</span><span class="op">,</span> <span class="op">...</span> <span class="op">}</span>:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="kw">let</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">envy</span> <span class="op">=</span> <span class="bu">builtins</span>.fetchGit <span class="op">{</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">url</span> <span class="op">=</span> <span class="st">&quot;https://github.com/Shados/envy&quot;</span><span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">ref</span> <span class="op">=</span> <span class="st">&quot;master&quot;</span><span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="er">in</span> <span class="kw">{</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">imports</span> = [ <span class="er">(</span><span class="ex">import</span> <span class="st">&quot;</span><span class="va">${envy}</span><span class="st">/home-manager.nix&quot;</span> { }<span class="kw">)</span> <span class="ex">]</span><span class="kw">;</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">}</span></span></code></pre></div>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">in</span> <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">imports</span> <span class="op">=</span> <span class="op">[</span> <span class="op">(</span><span class="bu">import</span> <span class="st">&quot;</span><span class="sc">${</span>envy<span class="sc">}</span><span class="st">/home-manager.nix&quot;</span> <span class="op">{</span> <span class="op">})</span> <span class="op">];</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  ...</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>Since <code>builtins.fetchGit</code> isn’t allowed in nix flakes, I was forced to convert <a href="https://github.com/Shados/envy">envy</a> to the dependency of my configuration flake:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">inputs</span> = {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="ex">...</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">envy</span> = { url = <span class="st">&quot;github:Shados/envy&quot;</span><span class="kw">;</span> <span class="ex">flake</span> = false<span class="kw">;</span> <span class="er">}</span><span class="kw">;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>inputs = <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">envy</span> = { <span class="va">url</span> = &quot;<span class="va">github</span>:<span class="va">Shados</span>/<span class="va">envy</span>&quot;; <span class="va">flake</span> = <span class="va">false</span>; <span class="op">}</span>;</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>};</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">...</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>...</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">homeManagerModules</span> = {</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">vim-envy</span> = import <span class="st">&quot;</span><span class="va">${envy}</span><span class="st">/home-manager.nix&quot;</span> {}<span class="kw">;</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span></code></pre></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>homeManagerModules = <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">vim-envy</span> <span class="op">=</span> <span class="bu">import</span> <span class="st">&quot;</span><span class="sc">${</span>envy<span class="sc">}</span><span class="st">/home-manager.nix&quot;</span> <span class="op">{};</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
 <p>As a result, there is no need for <code>darwin-rebuild</code> to fetch a master branch from <a href="https://github.com/Shados/envy">envy</a> each time I do <code>switch</code> operation.</p>
 <h2 id="control">Control</h2>
 <p>Since there are no dependencies for the local state, it is quite possible to check the consistency of the whole configuration on Github CI.</p>
@@ -184,23 +184,24 @@
 <h2 id="linux">Linux</h2>
 <p>After a while, I extended configuration to have a Linux support also:</p>
 <p>Adding following lines to the <code>flake.nix</code> file:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode nix"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and activate with `nix build .#cloudVM.activationPackage; ./result/activate`</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">cloudVM</span> = home-manager.lib.homeManagerConfiguration {</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="ex">system</span> = <span class="st">&quot;x86_64-linux&quot;</span><span class="kw">;</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="ex">stateVersion</span> = <span class="st">&quot;21.05&quot;</span><span class="kw">;</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="ex">homeDirectory</span> = <span class="st">&quot;/home/maksar&quot;</span><span class="kw">;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="ex">username</span> = <span class="st">&quot;maksar&quot;</span><span class="kw">;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">configuration</span> = {</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">os</span> = <span class="st">&quot;linux&quot;</span><span class="kw">;</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">imports</span> = [ homeManagerCommonConfig ]<span class="kw">;</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="ex">nixpkgs</span> = nixpkgsConfig<span class="kw">;</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="er">}</span><span class="kw">;</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="er">}</span><span class="kw">;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and activate with `nix build .#cloudVM.activationPackage; ./result/activate`</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cloudVM = home<span class="op">-</span>manager.lib.homeManagerConfiguration <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">system</span> <span class="op">=</span> <span class="st">&quot;x86_64-linux&quot;</span><span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">stateVersion</span> <span class="op">=</span> <span class="st">&quot;21.05&quot;</span><span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">homeDirectory</span> <span class="op">=</span> <span class="st">&quot;/home/maksar&quot;</span><span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="va">username</span> <span class="op">=</span> <span class="st">&quot;maksar&quot;</span><span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="va">configuration</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="va">os</span> <span class="op">=</span> <span class="st">&quot;linux&quot;</span><span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">imports</span> <span class="op">=</span> <span class="op">[</span> homeManagerCommonConfig <span class="op">];</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">nixpkgs</span> <span class="op">=</span> nixpkgsConfig<span class="op">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
 <p>Allows to configure by linux boxes in absolutely the same way as I do on my macbook.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">nix</span> build .#cloudVM.activationPackage</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">./result/activate</span></span></code></pre></div>
 <p>Wonderful <code>zsh-powerlevel10k</code> nix package allows my terminal (<code>kitty</code>) to look awesome in any OS</p>
-<p><a href="../../../images/flakes/darwin.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/darwin.png" /></a> <a href="../../../images/flakes/linux.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/linux.png" /></a></p>
+<p><a href="../../../images/flakes/darwin.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/darwin.png" /></a>
+<a href="../../../images/flakes/linux.png" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/flakes/linux.png" /></a></p>
   </section>
 </article>
 

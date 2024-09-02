@@ -42,7 +42,10 @@
     <p>Gitman is a Telegram chat bot. It helps to manage source code repositories in Itransition Bitbucket server. Instead of creating repositories manually, our HelpDesk operators are using this bot. It sets up all merge hooks, commit message checks, default reviewers policy, other things which is tedious to do by hands.</p>
 <!--more-->
 <p>Here are some examples of <em>how it looks</em>:</p>
-<p><a href="../../../images/gitman/1.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/1.jpg" /></a> <a href="../../../images/gitman/2.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/2.jpg" /></a> <a href="../../../images/gitman/3.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/3.jpg" /></a> <a href="../../../images/gitman/4.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/4.jpg" /></a></p>
+<p><a href="../../../images/gitman/1.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/1.jpg" /></a>
+<a href="../../../images/gitman/2.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/2.jpg" /></a>
+<a href="../../../images/gitman/3.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/3.jpg" /></a>
+<a href="../../../images/gitman/4.jpg" class="fresco" data-fresco-group="thumbnail" data-fresco-options="ui: 'inside', thumbnails: false"><img src="../../../previews/gitman/4.jpg" /></a></p>
 <p>There are number of technical decisions, which makes this piece of software interesting to mention as a ‘ruby pearl’:</p>
 <ul>
 <li>usage of ruby Fibers feature</li>
@@ -241,11 +244,11 @@
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Do you want to create it? KBD: </span><span class="sc">#{</span>yes<span class="sc">}</span><span class="do">, </span><span class="sc">#{</span>no<span class="sc">}</span></span>
 <span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Ok then.</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="do">      TEXT</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="do">      </span><span class="cf">TEXT</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
 <span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="do">    it &quot;user wants to create a project&quot; do</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="do">      expect(runtime.chat(payload = [project.key, yes, project.name, project.description, yes])).to chat_match(&lt;&lt;~TEXT)</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    it <span class="st">&quot;user wants to create a project&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>      expect(runtime<span class="at">.chat</span>(payload <span class="kw">=</span> <span class="kw">[</span>project<span class="at">.key</span>, yes, project<span class="at">.name</span>, project<span class="at">.description</span>, yes<span class="kw">]</span>))<span class="at">.to</span> chat_match(<span class="kw">&lt;&lt;~</span><span class="cf">TEXT</span><span class="do">)</span></span>
 <span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: What is Bitbucket PROJECT key?</span></span>
 <span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
 <span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: There is no such project.</span></span>
@@ -262,39 +265,39 @@
 <span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Type: </span><span class="sc">#{</span>project<span class="at">.type</span><span class="sc">}</span></span>
 <span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Description: </span><span class="sc">#{</span>project<span class="at">.description</span><span class="sc">}</span></span>
 <span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Project created! LNK: </span><span class="sc">#{</span>bitbucket<span class="at">.projects_link</span>(<span class="dt">Services</span><span class="kw">::</span><span class="dt">Bitbucket</span><span class="kw">::</span><span class="cn">BROWSER_PREFIX</span>)<span class="sc">}</span><span class="do">/</span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="do">      TEXT</span></span>
-<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
-<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a><span class="do">  end</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="do">      </span><span class="cf">TEXT</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
 <span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="do">  context &quot;when project does exist&quot; do</span></span>
-<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a><span class="do">    let(:bitbucket) { DummyBitbucket.new(conversation, project, nil) }</span></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>  context <span class="st">&quot;when project does exist&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>    let(<span class="wa">:bitbucket</span>) <span class="kw">{</span> <span class="dt">DummyBitbucket</span><span class="at">.new</span>(conversation, project, <span class="dv">nil</span>) <span class="kw">}</span></span>
 <span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a><span class="do">    it &quot;shows project details&quot; do</span></span>
-<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="do">      expect(runtime.chat(payload = [project.key])).to chat_match(&lt;&lt;~TEXT)</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>    it <span class="st">&quot;shows project details&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>      expect(runtime<span class="at">.chat</span>(payload <span class="kw">=</span> <span class="kw">[</span>project<span class="at">.key</span><span class="kw">]</span>))<span class="at">.to</span> chat_match(<span class="kw">&lt;&lt;~</span><span class="cf">TEXT</span><span class="do">)</span></span>
 <span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: What is Bitbucket PROJECT key?</span></span>
 <span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a><span class="do">        USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
 <span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Ok, </span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span><span class="do"> project already exist.</span></span>
 <span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Name: </span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span></span>
 <span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Type: </span><span class="sc">#{</span>project<span class="at">.type</span><span class="sc">}</span></span>
 <span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="do">        BOT: Description: </span><span class="sc">#{</span>project<span class="at">.description</span><span class="sc">}</span></span>
-<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="do">      TEXT</span></span>
-<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="do">      </span><span class="cf">TEXT</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
 <span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a><span class="do">    context &quot;when does not have a description&quot; do</span></span>
-<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a><span class="do">      before { project[:description] = nil }</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>    context <span class="st">&quot;when does not have a description&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>      before <span class="kw">{</span> project<span class="kw">[</span><span class="wa">:description</span><span class="kw">]</span> <span class="kw">=</span> <span class="dv">nil</span> <span class="kw">}</span></span>
 <span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a><span class="do">      it &quot;shows project details with no description&quot; do</span></span>
-<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a><span class="do">        expect(runtime.chat(payload = [project.key])).to chat_match(&lt;&lt;~TEXT)</span></span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>      it <span class="st">&quot;shows project details with no description&quot;</span> <span class="cf">do</span></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>        expect(runtime<span class="at">.chat</span>(payload <span class="kw">=</span> <span class="kw">[</span>project<span class="at">.key</span><span class="kw">]</span>))<span class="at">.to</span> chat_match(<span class="kw">&lt;&lt;~</span><span class="cf">TEXT</span><span class="do">)</span></span>
 <span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: What is Bitbucket PROJECT key?</span></span>
 <span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a><span class="do">          USR: </span><span class="sc">#{</span>payload<span class="at">.shift</span><span class="sc">}</span></span>
 <span id="cb7-62"><a href="#cb7-62" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: Ok, </span><span class="sc">#{</span>project<span class="at">.key</span><span class="sc">}</span><span class="do"> project already exist.</span></span>
 <span id="cb7-63"><a href="#cb7-63" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: Name: </span><span class="sc">#{</span>project<span class="at">.name</span><span class="sc">}</span></span>
 <span id="cb7-64"><a href="#cb7-64" aria-hidden="true" tabindex="-1"></a><span class="do">          BOT: Type: </span><span class="sc">#{</span>project<span class="at">.type</span><span class="sc">}</span></span>
-<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="do">        TEXT</span></span>
-<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a><span class="do">      end</span></span>
-<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a><span class="do">    end</span></span>
-<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a><span class="do">  end</span></span>
-<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="do">end</span></span></code></pre></div>
+<span id="cb7-65"><a href="#cb7-65" aria-hidden="true" tabindex="-1"></a><span class="do">        </span><span class="cf">TEXT</span></span>
+<span id="cb7-66"><a href="#cb7-66" aria-hidden="true" tabindex="-1"></a>      <span class="cf">end</span></span>
+<span id="cb7-67"><a href="#cb7-67" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb7-68"><a href="#cb7-68" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb7-69"><a href="#cb7-69" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code></pre></div>
 <p>Unlike classic approach with integration testing, this one does not require any network communication with external world and is executed extremely fast:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> rspec</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">.......................................</span></span>

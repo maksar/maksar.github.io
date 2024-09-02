@@ -170,10 +170,10 @@
 <div class="sourceCode" id="cb7"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">✗</span> Workflow should remain in its bounds</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">On</span> check 3, found counterexample:</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="ex">[User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [VOTE] },</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,FORCE] },</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,NONE,FORCE] },</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList [NONE,NONE,NONE,FORCE] }]</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      <span class="ex">[User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList <span class="pp">[</span><span class="ss">VOTE</span><span class="pp">]</span> },</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList <span class="pp">[</span><span class="ss">NONE,FORCE</span><span class="pp">]</span> },</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList <span class="pp">[</span><span class="ss">NONE,NONE,FORCE</span><span class="pp">]</span> },</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>       <span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = True, permissions = Array.fromList <span class="pp">[</span><span class="ss">NONE,NONE,NONE,FORCE</span><span class="pp">]</span> }]</span>
 <span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expected:</span>   True</span>
 <span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="ex">But</span> It Was: False</span></code></pre></div>
 <h2 id="генерация-случайных-данных">Генерация случайных данных</h2>
@@ -234,7 +234,7 @@
 <div class="sourceCode" id="cb12"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="ex">✗</span> Same user cannot vote twice</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="ex">On</span> check 1, found counterexample:</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">(</span><span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = False, permissions = Array.fromList [NONE,VOTE] },Reject<span class="kw">)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="kw">(</span><span class="ex">User</span> { name = <span class="st">&quot;&quot;</span>, active = False, permissions = Array.fromList <span class="pp">[</span><span class="ss">NONE,VOTE</span><span class="pp">]</span> },Reject<span class="kw">)</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="ex">Expected:</span>   1</span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="ex">But</span> It Was: 0</span></code></pre></div>
 <p>И действительно, в функцию <code>reject</code> так же закралась ошибка. Применение <code>locked</code> вместо <code>not User.active</code> исправляет ситуацию – все тесты теперь зеленые.</p>
