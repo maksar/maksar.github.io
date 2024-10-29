@@ -7,8 +7,118 @@
         <description><![CDATA[Personal blog of Shestakov Alex]]></description>
         <atom:link href="https://maksar.github.io/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Wed, 17 Aug 2022 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Tue, 29 Oct 2024 00:00:00 UT</lastBuildDate>
         <item>
+    <title>wget and read-only file system don&#39;t play well together</title>
+    <link>https://maksar.github.io/posts/shorts/2024-10-29/index.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog wget and read-only file system don't play well together</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>wget and read-only file system don't play well together</h1>
+    
+<article>
+  <span class="header">
+    
+      October 29, 2024 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/ECS">ECS</a> #<a href="../../../tags/AWS">AWS</a>
+  </span>
+  <section>
+    <p>Short story about <em>how I spent good 2 hours of yesterday’s evening</em>.</p>
+<p>We use <code>wget</code> utility as a health-check probe pretty much in every ecs container.</p>
+<pre class="hcl"><code>  healthcheck = {
+    command     = [&quot;CMD-SHELL&quot;, &quot;wget --no-verbose --tries=1 --spider http://localhost:8000/health || exit 1&quot;]
+    timeout     = 30
+    interval    = 10
+    retries     = 3
+    startPeriod = 10
+  }</code></pre>
+<p>Very handy as <code>wget</code> exists everywhere. It even existed in google-provided <a href="https://cloud.google.com/vertex-ai">vertex AI</a> predictor images.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>  <span class="ex">docker</span> pull us-docker.pkg.dev/vertex-ai/automl-tabular/prediction-server:20240609_1425</span></code></pre></div>
+<p>So I just re-used that piece of container configuration. Annoyingly ECS kept marking containers as <strong>unhealthy</strong> soon after start despite all my efforts to fine-tune health-check delay/retry parameters. Worst of all – I can clearly see probing http requests in container logs and <code>200 OK</code> response statuses.</p>
+<p>It is impossible to see logs of a health-check procedure anywhere in ECS <em>afair</em>. After scratching my head for a bit, I replaced <code>wget</code> with <code>curl</code> as official <code>ECS</code> <a href="https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_HealthCheck.html">help page</a> suggests and it worked! Containers are <strong>healthy</strong> and I was able to finish my day.</p>
+<p>But subtle background thought of “why” never left me… Today in the morning’s shower it finally clicked – readonly filesystem! When I was playing with vertex predictor I noticed that it didn’t like <code>HEAD</code> http requests, only <code>GET /health</code> was good enough for it to answer with <code>200 OK</code> response code (otherwise it gave nasty <code>405 Method Not Allowed</code>), so I removed <code>--spider</code> argument to <code>wget</code>. What <code>wget</code> does by default? Right, it saves the downloaded file to a current folder…</p>
+<p>Container definition looks something like that:</p>
+<pre class="hcl"><code>  module &quot;vertex_container_definition&quot; {
+    source    = &quot;cloudposse/ecs-container-definition/aws&quot;
+    version   = &quot;~&gt;0.58.1&quot;
+    essential = true
+    command   = [&quot;bash&quot;, &quot;-c&quot;, &quot;python3 -m google3.third_party.py.cloud_ml_autoflow.prediction.launcher&quot;]
+
+    readonly_root_filesystem = true
+    mount_points             = [
+      {
+        sourceVolume  = &quot;tmp&quot;
+        readOnly      = false
+        containerPath = &quot;/tmp&quot;
+      }
+    ]
+  }</code></pre>
+<p><code>wget</code> was sending requests, but wasn’t able to save downloaded content to a disk, that caused health-check command to emit <code>1</code> exit code and <code>ECS</code> marked container as <strong>unhealthy</strong>.</p>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>]]></description>
+    <pubDate>Tue, 29 Oct 2024 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/shorts/2024-10-29/index.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
     <title>Do you even read, bro?</title>
     <link>https://maksar.github.io/posts/WAT/2022-08-17/index.html</link>
     <description><![CDATA[<!doctype html>
@@ -38,7 +148,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -120,7 +230,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -300,7 +410,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -542,7 +652,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -636,7 +746,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -722,7 +832,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -836,7 +946,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -917,7 +1027,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -998,7 +1108,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1078,7 +1188,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1217,7 +1327,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1513,7 +1623,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1596,7 +1706,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1680,7 +1790,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1766,7 +1876,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1850,7 +1960,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -1930,7 +2040,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2010,7 +2120,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2354,7 +2464,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2436,7 +2546,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2563,7 +2673,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2687,7 +2797,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2871,7 +2981,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -2964,7 +3074,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3044,7 +3154,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3168,7 +3278,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3258,7 +3368,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3398,7 +3508,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3609,7 +3719,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3740,7 +3850,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3828,7 +3938,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3916,7 +4026,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -3998,7 +4108,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4092,7 +4202,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4177,7 +4287,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4274,7 +4384,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4356,7 +4466,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4449,7 +4559,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4532,7 +4642,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4627,7 +4737,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -4722,7 +4832,7 @@
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -5103,7 +5213,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -5191,7 +5301,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -5273,7 +5383,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -5570,7 +5680,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -5671,7 +5781,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -5853,7 +5963,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -6025,7 +6135,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -6107,7 +6217,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -6200,7 +6310,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -6305,7 +6415,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -6526,7 +6636,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -6999,7 +7109,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7088,7 +7198,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7168,7 +7278,7 @@ ENTRYPOINT [&quot;/app&quot;]</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7453,7 +7563,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7533,7 +7643,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7615,7 +7725,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7695,7 +7805,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7784,7 +7894,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7866,7 +7976,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -7968,7 +8078,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8055,7 +8165,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8170,7 +8280,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8255,7 +8365,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8337,7 +8447,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8435,7 +8545,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8549,7 +8659,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8637,7 +8747,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8717,7 +8827,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8806,7 +8916,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -8905,7 +9015,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -9002,7 +9112,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -9121,7 +9231,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -9429,7 +9539,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -9521,7 +9631,7 @@ teamcity.options.deleteUsers=true</code></pre>
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -9626,7 +9736,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -9945,7 +10055,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10088,7 +10198,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10258,7 +10368,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10409,7 +10519,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10500,7 +10610,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10611,7 +10721,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10720,7 +10830,7 @@ return TRUE;
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -10979,7 +11089,7 @@ Most controversial rule <a href="https://github.com/troessner/reek/blob/2b9cc78f
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -11085,7 +11195,7 @@ Most controversial rule <a href="https://github.com/troessner/reek/blob/2b9cc78f
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -11375,7 +11485,7 @@ Most controversial rule <a href="https://github.com/troessner/reek/blob/2b9cc78f
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -11627,7 +11737,7 @@ Installation script asks user for the technology and uses corresponding branch o
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -11737,7 +11847,7 @@ Installation script asks user for the technology and uses corresponding branch o
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -12165,7 +12275,7 @@ Installation script asks user for the technology and uses corresponding branch o
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -12268,7 +12378,7 @@ Installation script asks user for the technology and uses corresponding branch o
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>
@@ -12400,7 +12510,7 @@ Installation script asks user for the technology and uses corresponding branch o
     </div>
     <nav>
       &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
-      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
       <a href="../../../about">About</a>
     </nav>
   </header>

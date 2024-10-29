@@ -26,8 +26,6 @@
         };
 
         blog = haskellPackages.callCabal2nix "blog" ./. { };
-
-        cabal-fmt = haskellPackages.cabal-fmt;
       in
       rec {
         defaultApp = {

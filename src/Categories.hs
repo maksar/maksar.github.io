@@ -14,4 +14,7 @@ categoryListField :: String -> Tags -> Context a
 categoryListField key tags = field key (const $ renderList "@" tags)
 
 categoryTitleField :: String -> Context a
-categoryTitleField category = captionField $ "Articles in " <> capitalize category <> " category"
+categoryTitleField =
+  captionField . \case
+    "shorts" -> "Short articles"
+    category -> "Articles in " <> capitalize category <> " category"
