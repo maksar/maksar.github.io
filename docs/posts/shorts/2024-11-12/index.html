@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog HLS support for multi-target Cabal projects</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>HLS support for multi-target Cabal projects</h1>
+    
+<article>
+  <span class="header">
+    
+      November 12, 2024 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/HLS">HLS</a> #<a href="../../../tags/Haskell">Haskell</a> #<a href="../../../tags/Cabal">Cabal</a>
+  </span>
+  <section>
+    <p>Some time ago I read the <a href="https://jade.fyi/blog/cabal-test-dev-trick/">article</a> about neat <code>Cabal</code> trick to solve <code>HLS</code>’s inability to work with multi-target Cabal projects. Basically, at the current moment, HLS fails to do a decent jobs when you have:</p>
+<ul>
+<li>multiple binaries in the same Haskell project</li>
+<li>multiple internal libraries</li>
+</ul>
+<p>Some time ago in one of the projects we had this solved with custom <code>hie.yaml</code> files, which pointed to individual <code>Cabal</code> components.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cradle</span><span class="kw">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">multi</span><span class="kw">:</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">path</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;./&quot;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">config</span><span class="kw">:</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">cradle</span><span class="kw">:</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="fu">bios</span><span class="kw">:</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="at">            </span><span class="fu">shell</span><span class="kw">:</span><span class="at"> ./hie.sh</span></span></code></pre></div>
+<p>Script to handle that was <strong>very</strong> complicated and full of project specific details:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">just</span> hpack <span class="dv">1</span><span class="op">&gt;&amp;</span><span class="dv">2</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-hide-all-packages&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-XAllowAmbiguousTypes&quot;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;-packagepolysemy-plugin&quot;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="ex">yq</span> <span class="at">-r</span> <span class="st">'._all.&quot;dependencies&quot; | map(&quot;-package&quot; + .) | join(&quot;\n&quot;)'</span> package.common.yaml</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="ex">yq</span> <span class="at">-r</span> <span class="st">'._all.&quot;default-extensions&quot; | map(&quot;-X&quot; + .) | join(&quot;\n&quot;)'</span> package.common.yaml</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="ex">yq</span> <span class="at">-r</span> <span class="st">'._all.&quot;ghc-options&quot; | join(&quot;\n&quot;)'</span> package.common.yaml</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> autogenDir <span class="kw">in</span> <span class="va">$(</span><span class="fu">find</span> dist-newstyle <span class="at">-name</span> autogen <span class="at">-type</span> d <span class="at">-not</span> <span class="at">-path</span> <span class="st">&quot;*/x/*&quot;</span> <span class="at">-not</span> <span class="at">-path</span> <span class="st">&quot;*/t/*&quot;</span><span class="va">)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">do</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="bu">echo</span> <span class="st">&quot;-i</span><span class="va">${autogenDir}</span><span class="st">&quot;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">find</span> <span class="st">&quot;</span><span class="va">$autogenDir</span><span class="st">&quot;</span> <span class="at">-name</span> <span class="st">&quot;*.hs&quot;</span> <span class="at">-type</span> f</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">done</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> packageFile <span class="kw">in</span> <span class="va">$(</span><span class="fu">find</span> . <span class="at">-maxdepth</span> 3 <span class="at">-name</span> <span class="st">&quot;package.yaml&quot;</span><span class="va">)</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">do</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="va">packageDir</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$(</span><span class="fu">dirname</span> <span class="va">$packageFile)</span><span class="st">/&quot;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span> package.common.yaml <span class="va">$packageFile</span> <span class="kw">|</span> <span class="ex">yq</span> <span class="at">-r</span> <span class="at">--arg</span> path <span class="st">&quot;</span><span class="va">$packageDir</span><span class="st">&quot;</span> <span class="at">--arg</span> noTests <span class="st">&quot;</span><span class="va">$NO_TEST</span><span class="st">&quot;</span> <span class="st">'if 0 == ($noTests | length) then . else del(.tests) end | .. .&quot;dependencies&quot;? | select(.) | map(select(. | startswith(&quot;project-name&quot;) | not)) | flatten | .[] | &quot;-package\(.)&quot;'</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> sourceDir <span class="kw">in</span> <span class="va">$(</span><span class="fu">cat</span> package.common.yaml <span class="va">$packageFile</span> <span class="kw">|</span> <span class="ex">yq</span> <span class="at">-r</span> <span class="at">--arg</span> path <span class="st">&quot;</span><span class="va">$packageDir</span><span class="st">&quot;</span> <span class="at">--arg</span> noTests <span class="st">&quot;</span><span class="va">$NO_TEST</span><span class="st">&quot;</span> <span class="st">'if 0 == ($noTests | length) then . else del(.tests) end | .. .&quot;source-dirs&quot;? | select(.) | flatten | .[] | &quot;\($path)\(.)&quot;'</span><span class="va">)</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">do</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>      <span class="co"># </span><span class="al">TODO</span><span class="co">: Remove when we don't have nonexistent lib in test package</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="bu">[</span> <span class="ot">-d</span> <span class="va">$sourceDir</span> <span class="bu">]</span><span class="kw">;</span> <span class="cf">then</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>        <span class="bu">echo</span> <span class="st">&quot;-i</span><span class="va">${sourceDir}</span><span class="st">&quot;</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Only match on directories that look like Haskell modules</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">find</span> <span class="va">$sourceDir</span> <span class="at">-name</span> <span class="st">&quot;*.hs&quot;</span> <span class="kw">|</span> <span class="fu">grep</span> <span class="at">-v</span> <span class="st">&quot;</span><span class="va">${sourceDir}</span><span class="st">/[^A-Z]&quot;</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>      <span class="cf">fi</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="cf">done</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">done</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a><span class="kw">)</span> <span class="op">&gt;&gt;</span> <span class="va">$HIE_BIOS_OUTPUT</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a><span class="kw">(</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">find</span> . <span class="at">-maxdepth</span> 3 <span class="at">-name</span> <span class="st">&quot;package.yaml&quot;</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;package.common.yaml&quot;</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;default.nix&quot;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;shell.nix&quot;</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>  <span class="bu">echo</span> <span class="st">&quot;project-name.cabal&quot;</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a><span class="kw">)</span> <span class="op">&gt;&gt;</span> <span class="va">$HIE_BIOS_DEPS</span></span></code></pre></div>
+<p>But this wasn’t ideal solution (I mean, just look at the file above…) as we still had to come-up with custom GHCi script (<code>ghci.sh</code>) to start REPL:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># this will load all components to a single GHCI session</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="va">opts</span><span class="op">=</span><span class="va">$(HIE_BIOS_OUTPUT</span><span class="op">=</span>/dev/stdout <span class="va">HIE_BIOS_DEPS</span><span class="op">=</span>/dev/null <span class="ex">./hie.sh</span> <span class="kw">|</span> <span class="fu">tr</span> <span class="st">'\n'</span> <span class="st">' '</span><span class="va">)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="bu">exec</span> ghci <span class="at">-hidir</span> <span class="va">$PWD</span>/dist-ghc/ <span class="at">-odir</span> <span class="va">$PWD</span>/dist-ghc/ <span class="va">$opts</span> <span class="at">-fobject-code</span> <span class="at">-Wall</span> <span class="at">-O0</span> +RTS <span class="at">-N</span> <span class="at">-A128M</span> <span class="at">-RTS</span></span></code></pre></div>
+<p>Article suggested to create an artificial Cabal component to use specifically for HLS/REPL purposes. Finally I had time and opportunity to experiment with approach in automatic manner. So I created small <a href="https://jqlang.github.io/jq/">jq</a> script to update <code>package.yaml</code> on the fly:</p>
+<pre class="jq"><code>.name as $name |
+(.executables + (.tests | del(.hls)) + {library}) as $sources |
+def collect($f): $sources | map((.[$f] // [])[]) | unique | sort;
+.benchmarks.hls =
+(.tests.test + ([&quot;source-dirs&quot;, &quot;default-extensions&quot;, &quot;ghc-options&quot;, &quot;dependencies&quot;] | map({(.): collect(.)}) | add) | (.dependencies -= [$name]))</code></pre>
+<p>It is integrated with out <a href="https://github.com/casey/just">Justfile</a>:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dv">default:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>just test</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dv">clean:</span><span class="dt"> hpack</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>cabal clean</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="dv">build:</span><span class="dt"> hpack</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>cabal build all</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="dv">test args=(&quot;&quot;):</span><span class="dt"> build</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>cabal test test --test-show-details=streaming --test-options=<span class="st">'{{args}}'</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="dv">hls:</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>yq -f hls.jq -y -i package.yaml</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="dv">hpack:</span><span class="dt"> hls</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>fd package.yaml -x hpack</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="dv">gen:</span><span class="dt"> hpack</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>echo <span class="st">&quot;:set -Wno-missing-home-modules&quot;</span> &gt; ghci.test</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  cat package.yaml | yq -r <span class="st">'.benchmarks.hls.dependencies | map(&quot;:set -package &quot; + .) | join(&quot;\n&quot;)'</span> &gt;&gt; ghci.test</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  cat package.yaml | yq -r <span class="st">'.benchmarks.hls.&quot;source-dirs&quot; | map(&quot;:set -i&quot; + .) | join(&quot;\n&quot;)'</span> &gt;&gt; ghci.test</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  cat package.yaml | yq -r <span class="st">'.benchmarks.hls.main | &quot;:l &quot; + .'</span> &gt;&gt; ghci.test</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  cat package.yaml | yq -r <span class="st">'.benchmarks.hls.&quot;ghc-options&quot; | map(&quot;:set &quot; + .) | join(&quot;\n&quot;)'</span> &gt;&gt; ghci.test</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="dv">repl:</span><span class="dt"> gen</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>(echo <span class="st">&quot;:set -XQuasiQuotes&quot;</span> &amp;&amp; echo <span class="st">&quot;import Prelude&quot;</span> &amp;&amp; cat) | cabal repl benchmark:hls</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="dv">watch:</span><span class="dt"> gen</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>ghciwatch --command <span class="st">&quot;cabal repl benchmark:hls --repl-no-load&quot;</span> --after-startup-ghci <span class="st">':script ghci.test'</span> --watch <span class="st">&quot;.&quot;</span> --restart-glob <span class="st">&quot;package.yaml&quot;</span> --before-startup-shell <span class="st">&quot;hpack&quot;</span> --test-ghci <span class="st">&quot;Main.main&quot;</span> --no-interrupt-reloads --clear</span></code></pre></div>
+<p>The reason for using <code>benchmark</code> instead of <code>test</code> is: by default, <code>cabal build all</code> will build all tests components, but not benchmarks. Moreover, <code>nix build</code> for the package would not bother building <code>benchmark</code>s by default. So this approach isn’t prone to spending more time on CI.</p>
+<p>Bonus: <a href="https://github.com/MercuryTechnologies/ghciwatch">ghciwatch</a> is pretty cool, check it out!</p>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>
