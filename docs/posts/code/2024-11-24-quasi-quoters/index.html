@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Little handy QuasiQuoters</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Little handy QuasiQuoters</h1>
+    
+<article>
+  <span class="header">
+    
+      November 24, 2024 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/Haskell">Haskell</a>
+  </span>
+  <section>
+    <p>List of very handy QuasiQuoters in Haskell, that makes routine programming tasks easier.</p>
+<!--more-->
+<p><img src="../../../previews/quasi-quoters/logo.png" class="center" /></p>
+<h2 id="data.time.clock.duration.qq"><a href="https://hackage.haskell.org/package/duration-0.2.0.0/docs/Data-Time-Clock-Duration-QQ.html">Data.Time.Clock.Duration.QQ</a></h2>
+<p>Some Haskell libraries in Haskell tend to accept time durations as <code>Int</code>s (<code>timeout</code> from <a href="https://hackage.haskell.org/package/base-4.20.0.1/docs/System-Timeout.html#v:timeout">base</a> wants microseconds, but <code>timeout</code> from <a href="https://hackage.haskell.org/package/wai-extra-3.1.17/docs/Network-Wai-Middleware-Timeout.html#v:timeout">wai-extra</a> prefers seconds). That can be very error-prawn and annoying to work with. Set of QuasiQuoters from <code>Data.Time.Clock.Duration.QQ</code> package solves this problem in vert elegant way:</p>
+<ul>
+<li>Need to express 5 seconds worth of time, but in microseconds? <code>[µs|5s|]</code> (very cute usage of unicode, I must say).</li>
+<li>How long is 42 minutes in seconds? Trivial: <code>[s|42m|]</code>.</li>
+<li>Want to hardcode <em>a day</em> as <code>NominalDiffTime</code>, but without doing <code>24*60*60</code> or <code>-- 24 hours</code> comment? Easy: <code>[t|1day|]</code>.</li>
+</ul>
+<p>Many different time durations are <a href="https://hackage.haskell.org/package/duration-0.2.0.0/docs/Data-Time-Clock-Duration-Types.html#t:Time">supported</a>:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">Time</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">Picosec</span>  <span class="dt">Rational</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Nanosec</span>  <span class="dt">Rational</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Microsec</span> <span class="dt">Rational</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Millisec</span> <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @ms@, @msec@, @msecs@, @millisecond@, or @milliseconds@</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Second</span>   <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @s@, @sec@, @secs@, @second@, or @seconds@</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Minute</span>   <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @m@, @min@, @mins@, @minute@, or @minutes@</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Hour</span>     <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @h@, @hr@, @hrs@, @hour@, or @hours@</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Day</span>      <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @d@, @day@, or @days@</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Week</span>     <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @w@, @week@, or @weeks@</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">Year</span>     <span class="dt">Rational</span> <span class="co">-- ^ Denoted by @y@, @yr@, @yrs@, @year@, or @years@</span></span></code></pre></div>
+<h2 id="data.time.qq"><a href="https://hackage.haskell.org/package/time-qq-0.0.1.0/docs/Data-Time-QQ.html">Data.Time.QQ</a></h2>
+<p>This QuasiQuoter is very handy when you need to put some human readable date in code, which expects <code>UTCTime</code>.</p>
+<ul>
+<li>Just a date, with time zeroed-out: <code>[utcIso8601|2048-12-01|]</code>.</li>
+<li>With particular time (including milliseconds): <code>[utcIso8601ms|2099-01-01T10:15:13.42324|]</code>.</li>
+</ul>
+<h2 id="text.uri.qq-and-network.uri.static"><a href="https://hackage.haskell.org/package/modern-uri-0.3.6.1/docs/Text-URI-QQ.html">Text.URI.QQ</a> and <a href="https://hackage.haskell.org/package/network-uri-2.6.4.2/docs/Network-URI-Static.html">Network.URI.Static</a></h2>
+<p>Ever need to create a value of <code>URI</code> type (from <a href="https://hackage.haskell.org/package/modern-uri-0.3.6.1/docs/Text-URI.html#t:URI">Text.URI</a> or from <a href="https://hackage.haskell.org/package/network-uri-2.6.4.2/docs/Network-URI.html#t:URI">Network.URI</a>)? Not very hard task to do, but type signatures assume parsing might fail:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ot">parseURI ::</span> <span class="dt">String</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> <span class="dt">URI</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ot">mkURI ::</span> <span class="dt">MonadThrow</span> m <span class="ot">=&gt;</span> <span class="dt">Text</span> <span class="ot">-&gt;</span> m <span class="dt">URI</span></span></code></pre></div>
+<p>Hopefully, you can rely on QuasiQuoters: <code>[uri|https://www.google.com/|]</code> and get you <code>URI</code> checked at compile time.</p>
+<h2 id="path.posix"><a href="https://hackage.haskell.org/package/path-0.9.6/docs/Path-Posix.html">Path.Posix</a></h2>
+<p>Working with system paths requires some attention and love. I prefer to use stronger-typed <a href="https://hackage.haskell.org/package/path">path</a> package. It allows to distinguish between absolute and relative paths, making code a but less error-prawn.</p>
+<p>Set of QuasiQuoters allows to embed absolute and relative file system paths with ease:</p>
+<ul>
+<li>Files:
+<ul>
+<li>Relative: <code>[relfile|tests/Golden/trigger.schema|]</code>.</li>
+<li>Absolute: <code>[absfile|/home/maksar/foo.txt|]</code>.</li>
+</ul></li>
+<li>Directories:
+<ul>
+<li>Relative: <code>[reldir|maksar|]</code>.</li>
+<li>Absolute: <code>[absdir|/home/maksar|]</code>.</li>
+</ul></li>
+</ul>
+<h2 id="text.regex.quote"><a href="https://hackage.haskell.org/package/lens-regex-0.1.3/docs/Text-Regex-Quote.html">Text.Regex.Quote</a></h2>
+<p>Regular expression QuasiQuoter, I think it is self-explanatory: <code>[r|run-([0-9a-f]{32})-sha-[0-9a-f]{40}|]</code>. However, there is a little twist, here is the quote from documentation:</p>
+<blockquote>
+<p>You can choose <code>Regex</code> type by changing imports.</p>
+<p>For example, the <code>exp</code> variable in the below example has the type of <code>Text.Regex.Posix.Regex</code>:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex.Posix</span> (<span class="dt">Regex</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span> <span class="ot">=</span> [r|hoge|]</span></code></pre></div>
+<p>and, the exp variable in below example has the type of <code>Text.Regex.PCRE.Regex</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex.PCRE</span> (<span class="dt">Regex</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span> <span class="ot">=</span> [r|hoge|]</span></code></pre></div>
+</blockquote>
+<h2 id="data.string.interpolate"><a href="https://hackage.haskell.org/package/string-interpolate-0.3.4.0/docs/Data-String-Interpolate.html">Data.String.Interpolate</a></h2>
+<p>That one is a Swiss army knife for string interpolation: <code>[i|run-#{run}-sha-#{sha}|]</code>.</p>
+<p>Just compare it with alternatives:</p>
+<ul>
+<li><a href="https://hackage.haskell.org/package/fmt">Fmt</a> (which I prefer to use for a log messages because of <a href="https://hackage.haskell.org/package/fmt-0.6.3.0/docs/Fmt.html#g:6">show brackets</a> and <a href="https://hackage.haskell.org/package/fmt-0.6.3.0/docs/Fmt.html#g:7">combinators</a>):
+<ul>
+<li>Regular way <code>"run-" +| run |+ "-sha-" +| sha |+ ""</code>.</li>
+<li>Format way <code>format "run-{}-sha-{}" run sha</code>.</li>
+</ul></li>
+<li><a href="https://hackage.haskell.org/package/base-4.20.0.1/docs/Prelude.html#v:-60--62-">Semigroup</a> way <code>"run-" &lt;&gt; run &lt;&gt; "-sha-" &lt;&gt; sha</code>.</li>
+</ul>
+<p>It also has some flavours:</p>
+<ul>
+<li><a href="https://hackage.haskell.org/package/string-interpolate-0.3.4.0/docs/Data-String-Interpolate.html#v:__i">__i</a> An interpolator that handles indentation.</li>
+<li><a href="https://hackage.haskell.org/package/string-interpolate-0.3.4.0/docs/Data-String-Interpolate.html#v:iii">iii</a> An interpolator that strips excess whitespace.</li>
+</ul>
+<h2 id="data.aeson.qq"><a href="https://hackage.haskell.org/package/aeson-qq-0.8.4/docs/Data-Aeson-QQ.html">Data.Aeson.QQ</a></h2>
+<p>Unlike <a href="https://hackage.haskell.org/package/aeson-2.2.3.0/docs/Data-Aeson-QQ-Simple.html">Data.Aeson.QQ.Simple</a>, this one allows interpolation of values. Very handy, no need to create custom type with <code>ToJSON</code> instance or use verbose json combinators from <code>Data.Aeson</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>[aesonQQ|{</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  experiment_ids: #{[experimentId]},</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  filter: #{filterText},</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  run_view_type: &quot;ACTIVE_ONLY&quot;,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  max_results: 1,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  order_by: [&quot;attributes.end_time DESC&quot;]</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>}|])</span></code></pre></div>
+<h2 id="data.aeson.schema"><a href="https://hackage.haskell.org/package/aeson-schemas-1.4.2.1/docs/Data-Aeson-Schema.html">Data.Aeson.Schema</a></h2>
+<p>If you love <a href="https://jqlang.github.io/jq/">jq</a> like I do, you going to like this one.</p>
+<p>Technically, function is called <a href="https://hackage.haskell.org/package/aeson-schemas-1.4.2.1/docs/Data-Aeson-Schema.html#v:get">get</a> original <a href="https://hackage.haskell.org/package/aeson-schemas">aeson-schemas</a> library, but I did seme renames for great good.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">FromSchema</span> <span class="ot">=</span> <span class="dt">Data.Aeson.Schema.Object</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>jq <span class="ot">=</span> Data.Aeson.Schema.get</span></code></pre></div>
+<p>It allows to define your types as a json:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">GitlabUserSchema</span> <span class="ot">=</span> [schema|</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    id: Integer,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    username: Text,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    name: Text,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    web_url: Text</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>|]</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">GitlabUser</span> <span class="ot">=</span> <span class="dt">FromSchema</span> <span class="dt">GitlabUserSchema</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">GitlabJobSchema</span> <span class="ot">=</span> [schema|</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  {</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    id: Integer,</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    status: GitlabStatus,</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    name: Text,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    ref: Text,</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    created_at: GitlabTime,</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    started_at: Maybe GitlabTime,</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    finished_at: Maybe GitlabTime,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>    erased_at: Maybe GitlabTime,</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    user: GitlabUser,</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>    commit: GitlabCommit,</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    pipeline: Value,</span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>    web_url: GitlabWebURL,</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>    project: Value</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>|]</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">GitlabJob</span> <span class="ot">=</span> <span class="dt">FromSchema</span> <span class="dt">GitlabJobSchema</span></span></code></pre></div>
+<p>And then extracts little bits and pieces out of it without lenses from <a href="https://hackage.haskell.org/package/lens-aeson-1.2.3/docs/Data-Aeson-Lens.html">Data.Aeson.Lens</a> in a type-safe way. Isn’t using <code>Data.Aeson.Lens</code> also type-safe you ask? Yeah, but with <code>Data.Aeson.Schema</code> you have <strong>compile-type</strong> checks!</p>
+<p>Here is a real world example, that demonstrates the use of different QuasiQuoters and how it allows too make code more condensed and easier to reason about:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">monitorJob ::</span> <span class="dt">AppM</span> m <span class="ot">=&gt;</span> <span class="dt">GitlabProjectId</span> <span class="ot">-&gt;</span> <span class="dt">GitlabStatus</span> <span class="ot">-&gt;</span> <span class="dt">Integer</span> <span class="ot">-&gt;</span> m ()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>monitorJob (<span class="dt">GitlabProjectId</span> projectId) targetStatus jobId <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">GitlabAccessToken</span> accessToken <span class="ot">&lt;-</span> fetchAccessToken</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  result <span class="ot">&lt;-</span> timeout [µs<span class="op">|</span><span class="dv">30</span>min<span class="op">|</span>] <span class="op">$</span> untilJust <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    result <span class="ot">&lt;-</span> liftIO (request <span class="op">@</span><span class="dt">GitlabJob</span> <span class="op">$</span> getWith (defaults <span class="op">&amp;</span> auth <span class="op">?~</span> oauth2Bearer (encodeUtf8 accessToken)) [i|#{render gitlabHost}/api/v4/projects/#{projectId}/jobs/#{jobId}|])</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    view <span class="op">#</span>runtime <span class="op">&gt;&gt;=</span> liftIO <span class="op">.</span> \<span class="kw">case</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>      <span class="dt">CI</span> <span class="ot">-&gt;</span> <span class="fu">putStr</span> <span class="st">&quot;\n&quot;</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Local</span> <span class="ot">-&gt;</span> clearLine <span class="op">&gt;&gt;</span> setCursorColumn <span class="dv">0</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">case</span> [jq|result.status|] <span class="kw">of</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;canceled&quot;</span> <span class="ot">-&gt;</span> reportFailure result</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;failed&quot;</span> <span class="ot">-&gt;</span> reportFailure result</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>      status <span class="op">|</span> status <span class="op">==</span> targetStatus <span class="ot">-&gt;</span> <span class="fu">pure</span> <span class="op">$</span> <span class="dt">Just</span> result</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>      _ <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">log</span> <span class="dt">D</span> <span class="op">$</span> <span class="st">&quot;Job &quot;</span><span class="op">+|</span>[jq|result.id|]<span class="op">|+</span><span class="st">&quot; status is still &quot;</span><span class="op">+|</span>[jq|result.status|]<span class="op">|+</span><span class="st">&quot;.&quot;</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        liftIO <span class="op">$</span> <span class="kw">do</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>          <span class="fu">putStr</span> <span class="st">&quot;Waiting&quot;</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>          replicateM_ <span class="dv">10</span> <span class="op">$</span> <span class="fu">putChar</span> <span class="ch">'.'</span> <span class="op">&gt;&gt;</span> threadDelay [µs<span class="op">|</span><span class="dv">1</span>s<span class="op">|</span>]</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>          <span class="fu">pure</span> <span class="dt">Nothing</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="ot">search ::</span> <span class="dt">AppM</span> m <span class="ot">=&gt;</span> <span class="dt">ExperimentName</span> <span class="ot">-&gt;</span> <span class="dt">Maybe</span> (<span class="dt">Either</span> <span class="dt">GitTagName</span> <span class="dt">GitCommit</span>) <span class="ot">-&gt;</span> m (<span class="dt">Maybe</span> <span class="dt">MlflowRun</span>)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>search experimentName git <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>  experiment <span class="ot">&lt;-</span> getExperiment experimentName</span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>    experimentId <span class="ot">=</span> [jq|experiment.experiment_id|]</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>    baseConditions <span class="ot">=</span> [<span class="st">&quot;tags.`mlflow.model-version` LIKE '%run-%-sha-%'&quot;</span>, <span class="st">&quot;attributes.status = 'FINISHED'&quot;</span>]</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    filterCondition <span class="ot">=</span> <span class="kw">case</span> git <span class="kw">of</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">mempty</span></span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Just</span> (<span class="dt">Left</span> (<span class="dt">GitTagName</span> gitTag)) <span class="ot">-&gt;</span> [i|attributes.run_name = '#{gitTag}'|]</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Just</span> (<span class="dt">Right</span> (<span class="dt">GitCommit</span> gitCommit)) <span class="ot">-&gt;</span> [i|tags.`mlflow.source.git.commit` = '#{gitCommit}'|]</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>    filterText <span class="ot">=</span> intercalate <span class="st">&quot; AND &quot;</span> <span class="op">$</span> baseConditions <span class="op">&lt;&gt;</span> [filterCondition]</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> liftIO <span class="op">$</span> request <span class="op">@</span><span class="dt">MlflowGetRuns</span> (postWith defaults [i|#{render mlflowHost}/ajax-api/2.0/mlflow/runs/search|]</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    [aesonQQ|{</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>      experiment_ids: #{[experimentId]},</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>      filter: #{filterText},</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>      run_view_type: &quot;ACTIVE_ONLY&quot;,</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>      max_results: 1,</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>      order_by: [&quot;attributes.end_time DESC&quot;]</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>    }|])</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pure</span> <span class="op">$</span> <span class="fu">head</span> <span class="op">&lt;$&gt;</span> (nonEmpty <span class="op">=&lt;&lt;</span> [jq|results.runs?[]|])</span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>
