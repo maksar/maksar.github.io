@@ -19,12 +19,12 @@ variable "release_version" {
 And then have a `tfvars` file in the source code repository, which will point to the _current_ version of the application:
 
 ```hcl
-release_versino = "0cf879d3809e428787f35ace54b45c6f"
+release_version = "0cf879d3809e428787f35ace54b45c6f"
 ```
 
 Having that in place is convenient for many reasons:
 - it is immediately obvious which version is currently deployed and who performed the deploy (`git` log holds the history)
-- repeated invocations of `terraform apply` are idempotent, no need to worry about "forgetting" to specity `-var` cli argument
+- repeated invocations of `terraform apply` are idempotent, no need to worry about "forgetting" to specify `-var` cli argument
 
 But there is a different way, which might be more convenient in case you want to deploy very often, in automated way (from CI, without human interaction).
 

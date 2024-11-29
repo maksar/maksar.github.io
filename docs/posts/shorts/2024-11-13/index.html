@@ -47,10 +47,10 @@
   default = null
 }</code></pre>
 <p>And then have a <code>tfvars</code> file in the source code repository, which will point to the <em>current</em> version of the application:</p>
-<pre class="hcl"><code>release_versino = &quot;0cf879d3809e428787f35ace54b45c6f&quot;</code></pre>
+<pre class="hcl"><code>release_version = &quot;0cf879d3809e428787f35ace54b45c6f&quot;</code></pre>
 <p>Having that in place is convenient for many reasons:
 - it is immediately obvious which version is currently deployed and who performed the deploy (<code>git</code> log holds the history)
-- repeated invocations of <code>terraform apply</code> are idempotent, no need to worry about “forgetting” to specity <code>-var</code> cli argument</p>
+- repeated invocations of <code>terraform apply</code> are idempotent, no need to worry about “forgetting” to specify <code>-var</code> cli argument</p>
 <p>But there is a different way, which might be more convenient in case you want to deploy very often, in automated way (from CI, without human interaction).</p>
 <p>Declare an <code>output</code>, which captures a version of the application after deploy:</p>
 <pre class="hcl"><code>module &quot;application&quot; {
