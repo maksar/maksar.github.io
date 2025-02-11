@@ -1,6 +1,6 @@
 ---
 title: Little handy QuasiQuoters
-tags: Haskell
+tags: haskell
 language: english
 ---
 
