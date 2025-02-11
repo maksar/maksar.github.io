@@ -1,6 +1,6 @@
 ---
 title: HLS support for multi-target Cabal projects
-tags: HLS, Haskell, Cabal
+tags: HLS, haskell, Cabal
 language: english
 ---
 

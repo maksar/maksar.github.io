@@ -1,6 +1,6 @@
 ---
 title: Self-referential deployment pointers
-tags: Terraform, AWS
+tags: terraform, AWS
 language: english
 ---
 
