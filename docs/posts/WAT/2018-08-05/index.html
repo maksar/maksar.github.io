@@ -87,28 +87,28 @@
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">;</span></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 id="but-im-not-greedy-can-let-others-see">But I’m not greedy, can let others see</h2>
-<pre class="erb"><code>&lt;tr&gt;
-    &lt;td&gt;
-        Passwort&amp;nbsp;*
-    &lt;/td&gt;
-    &lt;td&gt;
-        &lt;input class=&quot;inp&quot; type=&quot;password&quot; name=&quot;password&quot; size=&quot;20&quot; maxlength=&quot;30&quot;
-                value='&lt;%= user.getPassword() %&gt;' /&gt;
-    &lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-    &lt;td&gt;
-        Wiederholung Passwort&amp;nbsp;*
-    &lt;/td&gt;
-    &lt;td&gt;
-        &lt;input class=&quot;inp&quot; type=&quot;password&quot; name=&quot;confirmPassword&quot; size=&quot;20&quot; maxlength=&quot;30&quot;
-                value='&lt;%= user.getPassword() %&gt;' /&gt;
-    &lt;/td&gt;
-&lt;/tr&gt;
-
-&lt;input type=&quot;hidden&quot; name=&quot;&lt;%=customerBean.encodeStringByBeanID( &quot;email&quot; )%&gt;&quot; value=&quot;&lt;%=user.getEmail()%&gt;&quot;/&gt;
-&lt;input type=&quot;hidden&quot; name=&quot;&lt;%=customerBean.encodeStringByBeanID( &quot;password&quot; )%&gt;&quot; value=&quot;&lt;%=user.getPassword()%&gt;&quot;/&gt;
-&lt;input type=&quot;hidden&quot; name=&quot;&lt;%=customerBean.encodeStringByBeanID( &quot;confirmPassword&quot; )%&gt;&quot; value=&quot;&lt;%=user.getPassword()%&gt;&quot;/&gt;</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode erb"><code class="sourceCode rhtml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;tr&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        Passwort<span class="dv">&amp;nbsp;</span>*</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;input</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;inp&quot;</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;password&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;password&quot;</span> <span class="er">size</span><span class="ot">=</span><span class="st">&quot;20&quot;</span> <span class="er">maxlength</span><span class="ot">=</span><span class="st">&quot;30&quot;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ot">                value=</span><span class="st">'</span><span class="dt">&lt;%=</span><span class="ex"> user</span><span class="at">.getPassword</span><span class="ex">() </span><span class="dt">%&gt;</span><span class="st">'</span> <span class="kw">/&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/tr&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;tr&gt;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        Wiederholung Passwort<span class="dv">&amp;nbsp;</span>*</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;td&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        <span class="kw">&lt;input</span> <span class="er">class</span><span class="ot">=</span><span class="st">&quot;inp&quot;</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;password&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;confirmPassword&quot;</span> <span class="er">size</span><span class="ot">=</span><span class="st">&quot;20&quot;</span> <span class="er">maxlength</span><span class="ot">=</span><span class="st">&quot;30&quot;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="ot">                value=</span><span class="st">'</span><span class="dt">&lt;%=</span><span class="ex"> user</span><span class="at">.getPassword</span><span class="ex">() </span><span class="dt">%&gt;</span><span class="st">'</span> <span class="kw">/&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">&lt;/td&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/tr&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;hidden&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;</span><span class="dt">&lt;%=</span><span class="ex">customerBean</span><span class="at">.encodeStringByBeanID</span><span class="ex">( </span><span class="st">&quot;email&quot;</span><span class="ex"> )</span><span class="dt">%&gt;</span><span class="st">&quot;</span> <span class="er">value</span><span class="ot">=</span><span class="st">&quot;</span><span class="dt">&lt;%=</span><span class="ex">user</span><span class="at">.getEmail</span><span class="ex">()</span><span class="dt">%&gt;</span><span class="st">&quot;</span><span class="kw">/&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;hidden&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;</span><span class="dt">&lt;%=</span><span class="ex">customerBean</span><span class="at">.encodeStringByBeanID</span><span class="ex">( </span><span class="st">&quot;password&quot;</span><span class="ex"> )</span><span class="dt">%&gt;</span><span class="st">&quot;</span> <span class="er">value</span><span class="ot">=</span><span class="st">&quot;</span><span class="dt">&lt;%=</span><span class="ex">user</span><span class="at">.getPassword</span><span class="ex">()</span><span class="dt">%&gt;</span><span class="st">&quot;</span><span class="kw">/&gt;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;input</span> <span class="er">type</span><span class="ot">=</span><span class="st">&quot;hidden&quot;</span> <span class="er">name</span><span class="ot">=</span><span class="st">&quot;</span><span class="dt">&lt;%=</span><span class="ex">customerBean</span><span class="at">.encodeStringByBeanID</span><span class="ex">( </span><span class="st">&quot;confirmPassword&quot;</span><span class="ex"> )</span><span class="dt">%&gt;</span><span class="st">&quot;</span> <span class="er">value</span><span class="ot">=</span><span class="st">&quot;</span><span class="dt">&lt;%=</span><span class="ex">user</span><span class="at">.getPassword</span><span class="ex">()</span><span class="dt">%&gt;</span><span class="st">&quot;</span><span class="kw">/&gt;</span></span></code></pre></div>
 <h2 id="jokes-aside-this-is-real-know-how">Jokes aside, this is real know-how!</h2>
 <div class="sourceCode" id="cb5"><pre class="sourceCode php"><code class="sourceCode php"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">function</span> validateToken(<span class="va">$token</span><span class="ot">,</span> <span class="va">$sessionId</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>{</span>

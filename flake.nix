@@ -7,7 +7,7 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs = { url = "github:NixOS/nixpkgs/release-24.05"; };
+    nixpkgs = { url = "github:NixOS/nixpkgs/release-25.05"; };
   };
 
   outputs = { self, flake-utils, pre-commit-hooks, nixpkgs }:
@@ -18,7 +18,7 @@
           config = { allowBroken = true; };
         };
       let
-        haskellPackages = pkgs.haskellPackages.override {
+        haskellPackages = pkgs.haskell.packages.ghc910.override {
           overrides = self: super: {
             hakyll-shortcut-links = haskell.lib.doJailbreak super.hakyll-shortcut-links;
             shortcut-links = haskell.lib.doJailbreak super.shortcut-links;
@@ -58,7 +58,6 @@
             zlib
 
             haskellPackages.cabal-install
-            haskellPackages.fswatcher
             haskellPackages.haskell-language-server
 
             pre-commit-hooks.checks.${system}.hlint

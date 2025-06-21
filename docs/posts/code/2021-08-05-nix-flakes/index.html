@@ -56,7 +56,7 @@
 <p>You can no longer <code>import</code> a file from your local filesystem (or a predefined channel), which increases reproducibility and robustness. As an example: I had such <code>neovim</code> setup beforehand:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="op">{</span> <span class="va">config</span><span class="op">,</span> <span class="va">pkgs</span><span class="op">,</span> <span class="op">...</span> <span class="op">}</span>:</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a> <span class="kw">let</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">envy</span> <span class="op">=</span> <span class="bu">builtins</span>.fetchGit <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">envy</span> <span class="op">=</span> <span class="bu">builtins</span><span class="op">.</span>fetchGit <span class="op">{</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">url</span> <span class="op">=</span> <span class="st">&quot;https://github.com/Shados/envy&quot;</span><span class="op">;</span></span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">ref</span> <span class="op">=</span> <span class="st">&quot;master&quot;</span><span class="op">;</span></span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">};</span></span>
@@ -71,7 +71,7 @@
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">envy</span> = { <span class="va">url</span> = &quot;<span class="va">github</span>:<span class="va">Shados</span>/<span class="va">envy</span>&quot;; <span class="va">flake</span> = <span class="va">false</span>; <span class="op">}</span>;</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>};</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">.</span>..</span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>homeManagerModules = <span class="op">{</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="va">vim-envy</span> <span class="op">=</span> <span class="bu">import</span> <span class="st">&quot;</span><span class="sc">${</span>envy<span class="sc">}</span><span class="st">/home-manager.nix&quot;</span> <span class="op">{};</span></span>
@@ -185,7 +185,7 @@
 <p>After a while, I extended configuration to have a Linux support also:</p>
 <p>Adding following lines to the <code>flake.nix</code> file:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build and activate with `nix build .#cloudVM.activationPackage; ./result/activate`</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cloudVM = home<span class="op">-</span>manager.lib.homeManagerConfiguration <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>cloudVM = home<span class="op">-</span>manager<span class="op">.</span>lib<span class="op">.</span>homeManagerConfiguration <span class="op">{</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">system</span> <span class="op">=</span> <span class="st">&quot;x86_64-linux&quot;</span><span class="op">;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">stateVersion</span> <span class="op">=</span> <span class="st">&quot;21.05&quot;</span><span class="op">;</span></span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">homeDirectory</span> <span class="op">=</span> <span class="st">&quot;/home/maksar&quot;</span><span class="op">;</span></span>
