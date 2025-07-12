@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Terraform and nix integration</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Terraform and nix integration</h1>
+    
+<article>
+  <span class="header">
+    
+      July 11, 2025 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/terraform">terraform</a> #<a href="../../../tags/AWS">AWS</a> #<a href="../../../tags/nix">nix</a>
+  </span>
+  <section>
+    <p>There are some deficiencies related to <code>terraform</code> from the point of view of a <code>nix</code> user.</p>
+<!--more-->
+<ul>
+<li><h3 id="no-centralized-providers-version-management">No centralized providers version management</h3></li>
+</ul>
+<p>Each <code>terraform</code> project uses own lock file and therefore own versions of the providers. This might be a good thing to have if your sub-projects are dis-connected from each other and managed by different people/teams. But in my case, all of the sub-projects (in infrastructure monorepo) better to evolve almost simultaneously. After Updating provider in one of them, we’d really want to pay our taxes and also migrate others. But this becomes tedious work if versions are specified directly in <code>.tf</code> files. You have to update all of them one-by-one, re-init and apply. I’d prefer a centralized version management of <code>terraform</code> providers.</p>
+<ul>
+<li><h3 id="no-centralized-external-modules-version-management">No centralized external modules version management</h3></li>
+</ul>
+<p>Same problems as with providers, really. We had many places in <code>terraform</code> code, where same module is used, but with different versions. Contracts (inputs variables of the module) do change from version to version, sometimes there are breaking changed introduced. It is hard to follow the stream of changes and reason about what version supports what set of variables. Again, it would be great to have central place to say: “I want to use particular version of <code>s3-bucket</code> module”. And no, relying on the <strong>latest</strong> isn’t a good idea as there are no guarantees what <em>latest</em> really means in each particular case – no one is interested to inspect <code>.terraform/modules/modules.json</code> file.</p>
+<ul>
+<li><h3 id="installation-procedure-requires-internet-connection">Installation procedure requires internet connection</h3></li>
+</ul>
+<p>With a huge bandwidth… Even single <code>aws</code> provider takes <strong>731 Mb</strong>. Then there are <code>google</code> with <strong>120 Mb</strong>, <code>grafana</code> with <strong>78 Mb</strong>, etc. Yes, I’m aware about <code>TF_PLUGIN_CACHE_DIR</code> trick and we actually used it before. But it doesn’t play nice with <code>terraform init -update</code>, it also has no effect if you erase <code>.terraform.lock.hcl</code> and decide to re-initialize (indeed, how <code>terraform</code> would know which version to use).</p>
+<h2 id="research">Research</h2>
+<p>The solution I came up with was inspired by two things:</p>
+<ul>
+<li><em>native</em> <code>terraform</code> <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform/default.nix#L101">support</a> in <code>nix</code></li>
+<li><a href="https://github.com/nix-community/nixpkgs-terraform-providers-bin">nixpkgs-terraform-providers-bin</a> repository</li>
+</ul>
+<p>There is a way to setup <code>terraform.withPlugins</code>, where you can pre-select all of the plugins you are going to use. After entering <code>nix shell</code>, all of them will be <em>seen</em> by <code>terraform</code>. Terraform doesn’t support such feature out of the box, but thankfully, <code>nix</code> has a <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform/provider-path-0_15.patch">patch</a> to support mentioned behavior. Of course, <code>nix</code> also sets <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform/default.nix#L177">NIX_TERRAFORM_PLUGIN_DIR</a> environment variable to be always seen by <code>terraform</code>.</p>
+<p>Unfortunately, <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform-providers/providers.json">list</a> of providers in <code>nix</code> can sometimes be outdated and <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform-providers/update-provider">update script</a> can’t pin to a specific version, only to the latest. Further more, update script was build to update list of provider versions <em>inside</em> <code>nixpkgs</code>, it is un-ergonomic to maintain onw list of providers in the source code repository as <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform-providers/default.nix#L18">derivation builder</a> isn’t exposed.</p>
+<p><a href="https://github.com/nix-community/nixpkgs-terraform-providers-bin">nixpkgs-terraform-providers-bin</a> repository supposed to maintain more <em>recent</em> versions of providers with <a href="https://github.com/nix-community/nixpkgs-terraform-providers-bin/blob/master/.github/workflows/cron.yml">cron script</a>. But what if you want to pin some particular provider version to use to not be a latest?.. So I decided to make my own version of it.</p>
+<h2 id="solution">Solution</h2>
+<p>First, I create a specification <code>./terraform/versions.json</code> file with list of all providers and modules that are going to be used. Exact versions used here were initially extracted from terraform code (and lock files).</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode json"><code class="sourceCode json"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;modules&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-alb&quot;</span><span class="fu">:</span> <span class="st">&quot;v8.7.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-ec2-instance&quot;</span><span class="fu">:</span> <span class="st">&quot;v6.0.2&quot;</span><span class="fu">,</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-ecs&quot;</span><span class="fu">:</span> <span class="st">&quot;v4.1.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-lambda&quot;</span><span class="fu">:</span> <span class="st">&quot;v8.0.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tweag/terraform-nixos&quot;</span><span class="fu">:</span> <span class="st">&quot;646cacb12439ca477c05315a7bfd49e9832bc4e3&quot;</span><span class="fu">,</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-rds-aurora&quot;</span><span class="fu">:</span> <span class="st">&quot;v8.4.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-s3-bucket&quot;</span><span class="fu">:</span> <span class="st">&quot;v5.2.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-step-functions&quot;</span><span class="fu">:</span> <span class="st">&quot;v3.0.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;terraform-aws-modules/terraform-aws-vpc&quot;</span><span class="fu">:</span> <span class="st">&quot;v5.5.3&quot;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">&quot;providers&quot;</span><span class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;change-engine/slack-app&quot;</span><span class="fu">:</span> <span class="st">&quot;0.1.2&quot;</span><span class="fu">,</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;change-engine/slack-token&quot;</span><span class="fu">:</span> <span class="st">&quot;0.1.4&quot;</span><span class="fu">,</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;cloudposse/template&quot;</span><span class="fu">:</span> <span class="st">&quot;2.2.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;cloudposse/utils&quot;</span><span class="fu">:</span> <span class="st">&quot;1.30.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;figma/slack&quot;</span><span class="fu">:</span> <span class="st">&quot;1.3.2&quot;</span><span class="fu">,</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;gitlabhq/gitlab&quot;</span><span class="fu">:</span> <span class="st">&quot;18.1.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;grafana/grafana&quot;</span><span class="fu">:</span> <span class="st">&quot;3.25.7&quot;</span><span class="fu">,</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/archive&quot;</span><span class="fu">:</span> <span class="st">&quot;2.7.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/aws&quot;</span><span class="fu">:</span> <span class="st">&quot;6.3.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/awscc&quot;</span><span class="fu">:</span> <span class="st">&quot;1.49.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/external&quot;</span><span class="fu">:</span> <span class="st">&quot;2.3.5&quot;</span><span class="fu">,</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/google&quot;</span><span class="fu">:</span> <span class="st">&quot;6.43.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/http&quot;</span><span class="fu">:</span> <span class="st">&quot;3.5.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/local&quot;</span><span class="fu">:</span> <span class="st">&quot;2.5.3&quot;</span><span class="fu">,</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/null&quot;</span><span class="fu">:</span> <span class="st">&quot;3.2.4&quot;</span><span class="fu">,</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/random&quot;</span><span class="fu">:</span> <span class="st">&quot;3.7.2&quot;</span><span class="fu">,</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;hashicorp/tls&quot;</span><span class="fu">:</span> <span class="st">&quot;4.1.0&quot;</span><span class="fu">,</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;kreuzwerker/docker&quot;</span><span class="fu">:</span> <span class="st">&quot;3.6.2&quot;</span><span class="fu">,</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;metio/git&quot;</span><span class="fu">:</span> <span class="st">&quot;2025.6.20&quot;</span><span class="fu">,</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;salrashid123/http-full&quot;</span><span class="fu">:</span> <span class="st">&quot;1.3.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;scottwinkler/shell&quot;</span><span class="fu">:</span> <span class="st">&quot;1.7.10&quot;</span><span class="fu">,</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;tailscale/tailscale&quot;</span><span class="fu">:</span> <span class="st">&quot;0.21.1&quot;</span><span class="fu">,</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="dt">&quot;TheNicholi/json-formatter&quot;</span><span class="fu">:</span> <span class="st">&quot;0.1.1&quot;</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
+<p>Then, there is a small <code>ruby</code> script to fetch the exact download urls and <code>sha265</code> hashes out of the internet for <code>nix</code> to consume later:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode ruby"><code class="sourceCode ruby"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#! /usr/bin/env nix-shell</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co">#! nix-shell -i ruby -p 'ruby.withPackages (p: [p.parallel])' nix-prefetch-github</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span> <span class="vs">'json'</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span> <span class="vs">'net/http'</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span> <span class="vs">'open-uri'</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span> <span class="vs">'fileutils'</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span> <span class="vs">'rubygems'</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span> <span class="vs">'parallel'</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> provider_get(path)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="cn">JSON</span><span class="at">.parse</span> <span class="cn">URI</span><span class="at">.open</span>(<span class="st">&quot;https://registry.terraform.io/v1/providers/</span><span class="sc">#{</span>path<span class="sc">}</span><span class="st">&quot;</span>)<span class="at">.read</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> module_get(path)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="cn">JSON</span><span class="at">.parse</span> <span class="cn">URI</span><span class="at">.open</span>(<span class="st">&quot;https://registry.terraform.io/v1/modules/</span><span class="sc">#{</span>path<span class="sc">}</span><span class="st">&quot;</span>)<span class="at">.read</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> get_provider_version(owner, repo, version, os, arch)</span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  data <span class="op">=</span> provider_get(<span class="st">&quot;</span><span class="sc">#{</span>owner<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>repo<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>version<span class="sc">}</span><span class="st">/download/</span><span class="sc">#{</span>os<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>arch<span class="sc">}</span><span class="st">&quot;</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span> <span class="wa">sha256:</span> data<span class="kw">[</span><span class="st">&quot;shasum&quot;</span><span class="kw">]</span>, <span class="wa">url:</span> data<span class="kw">[</span><span class="st">&quot;download_url&quot;</span><span class="kw">]</span> <span class="op">}</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> update_provider(name, version)</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  owner, repo <span class="op">=</span> name<span class="at">.split</span>(<span class="st">&quot;/&quot;</span>)</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  versions <span class="op">=</span> provider_get(<span class="st">&quot;</span><span class="sc">#{</span>owner<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>repo<span class="sc">}</span><span class="st">/versions&quot;</span>)<span class="kw">[</span><span class="st">&quot;versions&quot;</span><span class="kw">]</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>  version_data <span class="op">=</span> versions<span class="at">.filter</span> <span class="op">{</span> <span class="cn">_1</span><span class="kw">[</span><span class="st">&quot;version&quot;</span><span class="kw">]</span> <span class="op">=~</span> <span class="ss">/^[</span><span class="sc">\d\.</span><span class="ss">]+$/</span> <span class="op">}</span><span class="at">.detect</span> <span class="op">{</span> <span class="cn">_1</span><span class="kw">[</span><span class="st">&quot;version&quot;</span><span class="kw">]</span> <span class="op">==</span> version <span class="op">}</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>  platforms <span class="op">=</span> version_data<span class="kw">[</span><span class="st">&quot;platforms&quot;</span><span class="kw">]</span><span class="at">.map.with_object</span>(<span class="op">{}</span>) <span class="cf">do</span> <span class="op">|</span>data, sum<span class="op">|</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    arch <span class="op">=</span> data<span class="kw">[</span><span class="st">&quot;arch&quot;</span><span class="kw">]</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>    os <span class="op">=</span> data<span class="kw">[</span><span class="st">&quot;os&quot;</span><span class="kw">]</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    sum<span class="kw">[</span><span class="st">&quot;</span><span class="sc">#{</span>os<span class="sc">}</span><span class="st">_</span><span class="sc">#{</span>arch<span class="sc">}</span><span class="st">&quot;</span><span class="kw">]</span> <span class="op">=</span> get_provider_version(owner, repo, version, os, arch) <span class="cf">if</span> os <span class="op">==</span> <span class="st">&quot;linux&quot;</span> <span class="op">&amp;&amp;</span> (arch <span class="op">==</span> <span class="st">&quot;arm64&quot;</span> <span class="op">||</span> arch <span class="op">==</span> <span class="st">&quot;amd64&quot;</span>)</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span> <span class="wa">platforms:</span> platforms<span class="at">.sort_by</span>(<span class="op">&amp;</span><span class="wa">:first</span>)<span class="at">.to_h</span>, <span class="wa">source:</span> <span class="op">{</span> <span class="wa">owner:</span> owner, <span class="wa">repo:</span> repo, <span class="wa">version:</span> version <span class="op">}</span> <span class="op">}</span><span class="at">.tap</span> <span class="cf">do</span> <span class="op">|</span>d<span class="op">|</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    latest_version <span class="op">=</span> versions<span class="at">.filter</span> <span class="op">{</span> <span class="cn">_1</span><span class="kw">[</span><span class="st">&quot;version&quot;</span><span class="kw">]</span> <span class="op">=~</span> <span class="ss">/^[</span><span class="sc">\d\.</span><span class="ss">]+$/</span> <span class="op">}</span><span class="at">.map</span> <span class="op">{</span> <span class="cn">_1</span><span class="kw">[</span><span class="st">&quot;version&quot;</span><span class="kw">]</span> <span class="op">}</span><span class="at">.sort_by</span> <span class="op">{</span> <span class="dt">Gem</span><span class="op">::</span><span class="dt">Version</span><span class="at">.new</span>(<span class="cn">_1</span>) <span class="op">}</span><span class="at">.last</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">puts</span> <span class="st">&quot;</span><span class="sc">#{</span>owner<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>repo<span class="sc">}</span><span class="st"> =&gt; </span><span class="sc">#{</span>version<span class="sc">}</span><span class="st"> (</span><span class="sc">#{</span><span class="st">&quot;but </span><span class="sc">#{</span>latest_version<span class="sc">}</span><span class="st"> &quot;</span> <span class="cf">if</span> version <span class="op">!=</span> latest_version<span class="sc">}</span><span class="st">is the latest)&quot;</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a><span class="cf">def</span> update_module(name, version)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  owner, repo <span class="op">=</span> name<span class="at">.split</span>(<span class="st">&quot;/&quot;</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="cn">JSON</span><span class="at">.parse</span>(<span class="in">`nix-prefetch-github </span><span class="sc">#{</span>owner<span class="sc">}</span><span class="in"> </span><span class="sc">#{</span>repo<span class="sc">}</span><span class="in"> --rev </span><span class="sc">#{</span>version<span class="sc">}</span><span class="in">`</span>)<span class="at">.tap</span> <span class="cf">do</span> <span class="op">|</span>data<span class="op">|</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>    latest_version <span class="op">=</span> module_get(<span class="st">&quot;</span><span class="sc">#{</span>owner<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>repo<span class="at">.sub</span>(<span class="st">&quot;terraform-aws-&quot;</span>, <span class="st">&quot;&quot;</span>)<span class="sc">}</span><span class="st">&quot;</span>)<span class="kw">[</span><span class="st">&quot;modules&quot;</span><span class="kw">]</span><span class="at">.first</span><span class="kw">[</span><span class="st">&quot;tag&quot;</span><span class="kw">]</span> <span class="cf">rescue</span> <span class="st">&quot;unknown&quot;</span></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>    <span class="fu">puts</span> <span class="st">&quot;</span><span class="sc">#{</span>owner<span class="sc">}</span><span class="st">/</span><span class="sc">#{</span>repo<span class="sc">}</span><span class="st"> =&gt; </span><span class="sc">#{</span>version<span class="sc">}</span><span class="st"> (</span><span class="sc">#{</span><span class="st">&quot;but </span><span class="sc">#{</span>latest_version<span class="sc">}</span><span class="st"> &quot;</span> <span class="cf">if</span> version <span class="op">!=</span> latest_version<span class="sc">}</span><span class="st">is the latest)&quot;</span></span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>  <span class="cf">end</span></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>input <span class="op">=</span> <span class="cn">JSON</span><span class="at">.parse</span>(<span class="dt">File</span><span class="at">.read</span>(<span class="st">&quot;terraform/versions.json&quot;</span>))</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="dt">File</span><span class="at">.write</span>(<span class="st">&quot;terraform/versions.lock.json&quot;</span>, <span class="cn">JSON</span><span class="at">.pretty_generate</span>(</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>  <span class="wa">providers:</span> <span class="dt">Hash</span><span class="kw">[</span><span class="dt">Parallel</span><span class="at">.map</span>(input<span class="kw">[</span><span class="st">&quot;providers&quot;</span><span class="kw">]</span>) <span class="op">{</span> <span class="op">|</span>name, version<span class="op">|</span> <span class="kw">[</span>name, update_provider(name, version)<span class="kw">]</span> <span class="op">}</span><span class="kw">]</span>,</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>  <span class="wa">modules:</span> <span class="dt">Hash</span><span class="kw">[</span><span class="dt">Parallel</span><span class="at">.map</span>(input<span class="kw">[</span><span class="st">&quot;modules&quot;</span><span class="kw">]</span>) <span class="op">{</span> <span class="op">|</span>name, version<span class="op">|</span> <span class="kw">[</span>name, update_module(name, version)<span class="kw">]</span> <span class="op">}</span><span class="kw">]</span></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div>
+<p>Upon execution, it prints out versions it fetched, suggests newer version to use and generates <code>./terraform/versions.lock.json</code> lock file with all information required for nix.</p>
+<pre class="text"><code>figma/slack =&gt; 1.3.2 (is the latest)
+change-engine/slack-token =&gt; 0.1.4 (is the latest)
+change-engine/slack-app =&gt; 0.1.2 (is the latest)
+cloudposse/template =&gt; 2.2.0 (is the latest)
+gitlabhq/gitlab =&gt; 18.1.1 (is the latest)
+grafana/grafana =&gt; 3.25.7 (is the latest)
+hashicorp/archive =&gt; 2.7.1 (is the latest)
+cloudposse/utils =&gt; 1.30.0 (is the latest)
+hashicorp/http =&gt; 3.5.0 (is the latest)
+hashicorp/external =&gt; 2.3.5 (is the latest)
+hashicorp/local =&gt; 2.5.3 (is the latest)
+hashicorp/null =&gt; 3.2.4 (is the latest)
+hashicorp/google =&gt; 6.43.0 (is the latest)
+hashicorp/awscc =&gt; 1.49.0 (is the latest)
+hashicorp/aws =&gt; 6.3.0 (is the latest)
+hashicorp/tls =&gt; 4.1.0 (is the latest)
+hashicorp/random =&gt; 3.7.2 (is the latest)
+kreuzwerker/docker =&gt; 3.6.2 (is the latest)
+salrashid123/http-full =&gt; 1.3.1 (is the latest)
+scottwinkler/shell =&gt; 1.7.10 (is the latest)
+tailscale/tailscale =&gt; 0.21.1 (is the latest)
+TheNicholi/json-formatter =&gt; 0.1.1 (is the latest)
+metio/git =&gt; 2025.6.20 (is the latest)
+tweag/terraform-nixos =&gt; 646cacb12439ca477c05315a7bfd49e9832bc4e3 (but unknown is the latest)
+terraform-aws-modules/terraform-aws-s3-bucket =&gt; v5.2.0 (is the latest)
+terraform-aws-modules/terraform-aws-lambda =&gt; v8.0.1 (is the latest)
+terraform-aws-modules/terraform-aws-step-functions =&gt; v3.0.0 (but v5.0.1 is the latest)
+terraform-aws-modules/terraform-aws-ec2-instance =&gt; v6.0.2 (is the latest)
+terraform-aws-modules/terraform-aws-ecs =&gt; v4.1.1 (but v6.0.5 is the latest)
+terraform-aws-modules/terraform-aws-alb =&gt; v8.7.0 (but v9.17.0 is the latest)
+terraform-aws-modules/terraform-aws-rds-aurora =&gt; v8.4.0 (but v9.15.0 is the latest)
+terraform-aws-modules/terraform-aws-vpc =&gt; v5.5.3 (but v6.0.1 is the latest)</code></pre>
+<p>With <code>./terraform/versions.lock.json</code> lock file in place, we can load it to <code>nix</code> and convert to the list of derivations of modules and providers:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>versions = importJSON <span class="ss">./terraform/versions.lock.json</span>;</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>terraformModules = pkgs<span class="op">.</span>linkFarm <span class="st">&quot;modules&quot;</span> <span class="op">(</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  mapAttrsToList <span class="op">(</span><span class="va">name</span><span class="op">:</span> <span class="va">path</span><span class="op">:</span> <span class="op">{</span> <span class="kw">inherit</span> <span class="va">name</span> <span class="va">path</span><span class="op">;</span> <span class="op">})</span> <span class="op">(</span>mapAttrs <span class="op">(</span>trivial<span class="op">.</span>const pkgs<span class="op">.</span>fetchFromGitHub<span class="op">)</span> versions<span class="op">.</span>modules<span class="op">)</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">)</span>;</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>terraformProviders = pkgs<span class="op">.</span>symlinkJoin <span class="op">{</span> <span class="va">name</span> <span class="op">=</span> <span class="st">&quot;providers&quot;</span><span class="op">;</span> <span class="va">paths</span> <span class="op">=</span> concatLists <span class="op">(</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  mapAttrsToList <span class="op">(</span><span class="va">name</span><span class="op">:</span> <span class="va">provider</span><span class="op">:</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    mapAttrsToList <span class="op">(</span>mkTerraformProvider provider<span class="op">.</span>source<span class="op">)</span> provider<span class="op">.</span>platforms</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">)</span> versions<span class="op">.</span>providers<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>mkTerraformProvider = makeOverridable <span class="op">({</span> <span class="va">owner</span><span class="op">,</span> <span class="va">repo</span><span class="op">,</span> <span class="va">version</span> <span class="op">}</span>:</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="va">platform</span><span class="op">:</span> <span class="va">url</span><span class="op">:</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  pkgs<span class="op">.</span>stdenv<span class="op">.</span>mkDerivation <span class="op">{</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="va">pname</span> <span class="op">=</span> <span class="st">&quot;terraform-provider-</span><span class="sc">${</span>repo<span class="sc">}</span><span class="st">-</span><span class="sc">${</span>platform<span class="sc">}</span><span class="st">&quot;</span><span class="op">;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="va">version</span> <span class="op">=</span> version<span class="op">;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="va">src</span> <span class="op">=</span> pkgs<span class="op">.</span>fetchurl url<span class="op">;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="va">unpackPhase</span> <span class="op">=</span> <span class="st">&quot;</span><span class="sc">${</span>pkgs<span class="op">.</span>unzip<span class="sc">}</span><span class="st">/bin/unzip -o $src&quot;</span><span class="op">;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="va">buildPhase</span> <span class="op">=</span> <span class="st">&quot;:&quot;</span><span class="op">;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    <span class="va">dontPatchELF</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="va">dontStrip</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="va">dontPatchShebangs</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="va">installPhase</span> <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="st">      dir=$out/libexec/terraform-providers/registry.terraform.io/</span><span class="sc">${</span>owner<span class="sc">}</span><span class="st">/</span><span class="sc">${</span>repo<span class="sc">}</span><span class="st">/</span><span class="sc">${</span>version<span class="sc">}</span><span class="st">/</span><span class="sc">${</span>platform<span class="sc">}</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="st">      mkdir -p &quot;$dir&quot;</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="st">      mv terraform-* &quot;$dir/&quot;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="st">    ''</span><span class="op">;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>  <span class="op">})</span>;</span></code></pre></div>
+<p>It is important to use the following spell to forbid <code>nix</code> from modifying binaries in the <code>$out</code> directory in any way. This preserves downloaded binaries and it is guaranteed to have the same have (being built with any value of <code>system</code> in nix):</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>dontPatchELF = <span class="cn">true</span>;</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dontStrip = <span class="cn">true</span>;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>dontPatchShebangs = <span class="cn">true</span>;</span></code></pre></div>
+<p>Unfortunately, stock <code>terraform.withPlugins</code> has a major flaw, as it creates an <a href="https://github.com/NixOS/nixpkgs/blob/release-25.05/pkgs/applications/networking/cluster/terraform/default.nix#L167-L170">extra wrapper</a> script. Well, with that wrapper terraform <strong>works</strong>, providers are recognized and being installed correctly, but <code>terraform</code> uses the wrapper file itself to calculate the hash of the provider (and put into <code>.terraform.lock.hcl</code> file). That leads to hard-to-debug behavior on different platforms.</p>
+<p>You install and lock a provider for both <code>amd64</code> and <code>arm64</code> on your <code>x86-64_linux</code> machine, only to realize that hashes of the providers doesn’t match on your CICD server, which is evaluated on <code>aarch64-linux</code> machine. All makes sense, since derivations in <code>nix</code> are architecture-dependant and a link inside a wrapper script would be different for each nix <code>system</code>.</p>
+<p>Lets write own <code>terraform</code> wrapper. This is pretty simple with handy <code>pkgs.symlinkJoin</code> builder:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>terraformWithProviders = pkgs<span class="op">.</span>symlinkJoin <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">name</span> <span class="op">=</span> <span class="st">&quot;terraform-with-providers&quot;</span><span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">paths</span> <span class="op">=</span> <span class="op">[</span> pkgs<span class="op">.</span>terraform <span class="op">];</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">nativeBuildInputs</span> <span class="op">=</span> <span class="op">[</span> pkgs<span class="op">.</span>makeWrapper <span class="op">];</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">postBuild</span> <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="st">    wrapProgram $out/bin/terraform --set NIX_TERRAFORM_PLUGIN_DIR </span><span class="sc">${</span>terraformProviders<span class="sc">}</span><span class="st">/libexec/terraform-providers</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="st">  ''</span><span class="op">;</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<p>Finally, <code>terraformWithProviders</code> and <code>terraformModules</code> are mentioned in <code>devShell</code> section of the <code>flake.nix</code> file:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>devShell = pkgs<span class="op">.</span>mkShell <span class="op">{</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">buildInputs</span> <span class="op">=</span> <span class="kw">with</span> pkgs<span class="op">;</span> <span class="op">[</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    terraformWithProviders</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">];</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="va">shellHook</span> <span class="op">=</span> <span class="st">''</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="st">    rm -rf terraform/modules</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">    ln -sf </span><span class="sc">${</span>terraformModules<span class="sc">}</span><span class="st"> terraform/modules</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">  ''</span><span class="op">;</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<p>Now, it should be possible to use any of the installed providers and modules in the <code>terraform</code> code:</p>
+<pre class="hcl"><code>provider &quot;slack&quot; {
+  token = data.aws_secretsmanager_secret_version.god.secret_string
+}
+
+provider &quot;gitlab&quot; {
+  token = data.aws_secretsmanager_secret_version.gitlab_token.secret_string
+}
+
+module &quot;some_bucket&quot; {
+  source = &quot;../terraform/modules/terraform-aws-modules/terraform-aws-s3-bucket&quot;
+}</code></pre>
+<p>After executing <code>./terraform/update.rb</code>, it is trivial (and fast, no internet connection required) to re-init <code>terraform</code> project:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode sh"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> .terraform.lock.hcl</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span> <span class="at">-rf</span> .terraform</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="ex">terraform</span> init</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="ex">terraform</span> providers lock <span class="at">-platform</span><span class="op">=</span>linux_arm64 <span class="at">-platform</span><span class="op">=</span>linux_amd64 <span class="at">-fs-mirror</span><span class="op">=</span><span class="va">$(</span><span class="fu">cat</span> .terraform/plugin_path <span class="kw">|</span> <span class="ex">jq</span> <span class="at">-r</span> <span class="st">'.[0]'</span><span class="va">)</span></span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>
