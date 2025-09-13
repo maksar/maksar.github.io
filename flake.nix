@@ -7,7 +7,7 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs = { url = "github:NixOS/nixpkgs/release-25.05"; };
+    nixpkgs = { url = "github:NixOS/nixpkgs/master"; };
   };
 
   outputs = { self, flake-utils, pre-commit-hooks, nixpkgs }:
