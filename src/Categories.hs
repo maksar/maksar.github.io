@@ -4,7 +4,7 @@ import Hakyll
 import Html
 import Text.Blaze.Html (toHtml, toValue, (!))
 import Text.Blaze.Html.Renderer.String (renderHtml)
-import qualified Text.Blaze.Html5 as H
+import Text.Blaze.Html5 qualified as H
 import Text.Blaze.Html5.Attributes (class_, href)
 
 categoryField' :: String -> Tags -> Context a

@@ -5,9 +5,9 @@ import Control.Monad
 import Control.Monad.Extra
 import Data.Foldable
 import Data.List
-import qualified Data.Map.Strict as Map
+import Data.Map.Strict qualified as Map
 import Data.Maybe
-import qualified Data.Set as Set
+import Data.Set qualified as Set
 import Hakyll
 import Html
 

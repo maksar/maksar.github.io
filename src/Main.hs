@@ -5,7 +5,7 @@ module Main where
 import Categories
 import Config
 import Data.List
-import qualified Data.Set as S
+import Data.Set qualified as S
 import Feed
 import Hakyll
 import Hakyll.Favicon

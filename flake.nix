@@ -7,21 +7,24 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nixpkgs = { url = "github:NixOS/nixpkgs/master"; };
+    nixpkgs = { url = "github:nixos/nixpkgs/26.05-pre"; };
   };
 
   outputs = { self, flake-utils, pre-commit-hooks, nixpkgs }:
     flake-utils.lib.eachDefaultSystem (system:
-      with import nixpkgs
-        {
-          inherit system;
-          config = { allowBroken = true; };
-        };
+      with import nixpkgs { inherit system; };
       let
-        haskellPackages = pkgs.haskell.packages.ghc910.override {
+        haskellPackages = pkgs.haskell.packages.ghc912.override {
           overrides = self: super: {
-            hakyll-shortcut-links = haskell.lib.doJailbreak super.hakyll-shortcut-links;
-            shortcut-links = haskell.lib.doJailbreak super.shortcut-links;
+            pandoc = haskell.lib.dontCheck super.pandoc;
+            unicode-data = haskell.lib.doJailbreak super.unicode-data_0_8_0;
+            hlibsass = self.callHackageDirect
+              {
+                pkg = "hlibsass";
+                ver = "0.1.10.3";
+                sha256 = "sha256-N1FtdDYp572kGMkhmOqpSPVJN+Ew/ug4RWnmiMBngM8=";
+              }
+              { };
           };
         };
 

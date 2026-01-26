@@ -4,7 +4,7 @@ import Data.Char
 import Hakyll
 import Text.Blaze.Html (toHtml, toValue, (!))
 import Text.Blaze.Html.Renderer.String (renderHtml)
-import qualified Text.Blaze.Html5 as H
+import Text.Blaze.Html5 qualified as H
 import Text.Blaze.Html5.Attributes (class_, href)
 
 renderLink :: String -> String -> Maybe FilePath -> Maybe H.Html
@@ -23,7 +23,9 @@ makeLink symbol tag url _ _ _ = renderHtml $ do
   H.a ! href (toValue url) $ toHtml tag
 
 capitalize :: String -> String
-capitalize tag = toUpper (head tag) : tail tag
+capitalize = \case
+  [] -> []
+  (x : xs) -> toUpper x : xs
 
 captionField :: String -> Context a
 captionField = constField "title"
