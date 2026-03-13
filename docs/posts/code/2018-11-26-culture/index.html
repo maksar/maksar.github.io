@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Культура разработки</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Культура разработки</h1>
+    
+<article>
+  <span class="header">
+    
+      November 26, 2018 &amp;<a href="../../../languages/russian">russian</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/code-review">code-review</a>
+  </span>
+  <section>
+    <p>Что такое “культура разработки?” Само слово <a href="https://ru.wikipedia.org/wiki/Культура">культура</a> очень многогранное. В рамках статьи мы поговорим не столько про процесс написания кода, сколько про грамотную работу со вспомогательными инструментами в стремлении сделать итоговый продукт максимально качественным. Мнением на эту тему поделился Александр Шестаков, который рассказал, почему так важна личная заинтересованность каждого сотрудника и какой путь уже проделан компанией в этом направлении.</p>
+<!--more-->
+<p><img src="../../../previews/culture/logo.jpg" class="center" /></p>
+<p>Документ, описывающий систему квалификаций разработчиков нашей компании, был опубликован довольно давно. Один из пунктов оценки, по которому возникало наибольшее количество вопросов – SDLC. Мы сформулировали его таким образом, чтобы он включал и методологии, применяемые в разработке ПО, и разнообразные утилиты, и инструменты и многое другое.</p>
+<p>Как расшифровывается этот пункт? Software Development Life Cycle – жизненный цикл разработки программного обеспечения. Это масштабное понятие, в которое входят и работа с системой управления задачами (issue-трекером), и методология разработки с описанным процессом (к примеру, Git-flow или Github-flow), работа с pull-реквестами, использование Continuous Integration и Continuous Delivery, наличие специальных DevOps-процессов и другое. Мы отразили данный пункт в системе квалификаций, потому что считаем: знание различных практик и методологий, а также умение их применять или даже внедрять непосредственно коррелирует с квалификацией инженера.</p>
+<p>Процесс разработки ПО состоит из многих этапов, каждый из которых отнюдь не прост, пусть даже представителям других профессий так и не кажется: “<em>Сиди себе в наушниках, да на кнопочки нажимай…</em>”. Но времена полевых воинов-одиночек прошли – без командной работы кашу из agile-а уже не сварить. Труд команды инженеров требует организации, общение команды с заказчиком само себя не зафасилитирует, да и менеджеру данные для составления отчетов по работникам нужны 😉 Так что не будем лезть в дебри, остановимся на основном – создании программного кода. Речь пойдет о “всеми любимых” pull request-ах, комментариях к коду и других аспектах взаимодействия разработчиков в команде.</p>
+<p>Вот какие практики мы рекомендуем использовать на всех проектах – Code Review, непрерывная интеграция (CI), разработка через pull-request-ы (при использовании feature branches). Следование этим методикам позволяет сделать процесс разработки прозрачным, предсказуемым и расширяемым.</p>
+<p>Основные проблемы с code review, встречающиеся на проектах, такие:</p>
+<ul>
+<li><p>Процесс code review не внедрен совсем 😉 Не часто, но все же встречается ситуация, когда разработка ведется в одной ветке source control-а (как делали во времена SVN-а). Проведению code review такая модель не очень помогает – изолировать commit-ы по определенной feature или bug-у не удобно, да и организовать схему с требованием approve-ов сложно.</p></li>
+<li><p>Code review проводит только технический лидер либо обсуждение происходит устно, с глазу на глаз. Причины и оправдания могут быть совершенно разные, однако такой способ проведения code review нельзя назвать эффективным. Code review нужен не только, да и не столько для обеспечения качества кода, но для обучения менее опытных специалистов, обсуждения возможных решений, к тому же это отличный способ обеспечить shared code responsibility.</p></li>
+<li><p>Процесс review вырождается в проставление approve-ов. История из практики: менеджер был уверен, что в части code review на проекте все отлично, и пообещал клиенту развернутый отчет. На первый взгляд, все было не так и плохо – около 2-х комментариев с замечаниями по коду в cреднем приходилось на каждый из 3 тысяч pull-ов. Но вот на второй взгляд… – комментарии присутствовали лишь в 20 pull request-ах, в остальных – просто approve, approve, approve. Пользы от такого процесса – никакой.</p></li>
+</ul>
+<p>Как выстроить процесс “правильно”? Каждый разработчик работает над своей задачей отдельно от остальных, в feature branch-е (при необходимости синхронизируясь с upstream-ом). По окончании (или в процессе) работы – публикует ее в виде pull request-а. Именно он, автор, следит за тем, чтобы изменения достигли главной ветки, код был доставлен на боевое окружение и правильно работал. Ответственность лежит именно на авторе, а не инженере по качеству или интеграторе. Оправдания в стиле “<em>я все сделал, это они не просмотрели пул</em>” выглядят неуместно. Творение разработчика не достигло финальной стадии? Значит, он не приложил всех необходимых усилий.</p>
+<p>Все системы CI без труда можно “подружить” с нашим Bitbucket-ом. Желательно, чтобы в каждый момент времени (на каждом commit-е, ну или хотя-бы на каждом pull request-е) участники проекта видели – завершена ли сборка успешно. Проходят ли все тесты, выявил успешно ли linter поправил форматирование, собрался ли docker образ и т.д. Если нет, то, наверное, неразумно тратить время остальных разработчиков на то, чтобы просматривать код. Но отмечу, что соглашения на конкретных проектах могут отличатся от описанного подхода. Главное, чтобы эти соглашения были 😉</p>
+<p>Если в pull request-ах встречается много комментариев по форматированию кода (грамматические ошибки, пробел перед запятой, после слова и другие элементарные вещи) – значит, написавший их потратил свое время зря! Видимо, техлид или технический координатор поленился и не внедрил систему автоматической проверки, которая исправляет такого рода замечания и экономит время команды.</p>
+<p>Кроме того, Bitbucket можно довольно гибко настраивать. Обратитесь за помощью к техническому координатору проекта, чтобы сконфигурировать запрет на push в ветки мимо pull request-ов, настроить связку с Jira (не пропустит commit-ы без указания ссылки на задачу), указать reviewer-ов по умолчанию и еще много полезных штук.</p>
+<p>Работаете на проекте один, у коллег нет экспертизы в вашей технологии/языке или он(а) письменно “скромничает”? Обратитесь к менеджеру – он обязательно поможет найти reviewer-а “со стороны”. Каждому пригодится дополнительная пара глаз для review. Кстати, Андрей Свиридов сделал отличный <a href="https://www.youtube.com/watch?v=krz372qNNHk&amp;t=4241s">доклад</a> о том, насколько важен процесс code review, рекомендую к просмотру.</p>
+<p>Хочется пожелать всем отличной и спокойной работы. Не ругайтесь в комментариях и в pull request-ах, не коммитьте туда пароли – и вообще, избавляйтесь от чувства беспокойства 😉. Психологи отмечают, что нервная работа грозит профессиональным выгоранием. А правильно поставленный рабочий процесс – залог того, что разработчики не будут холиварить по мелочам.</p>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>
