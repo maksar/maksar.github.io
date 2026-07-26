@@ -1,4 +1,4 @@
 packages: ./.
-optimization: False
+optimization: 2
 package *
   ghc-options: -j +RTS -A128m -n2m -RTS

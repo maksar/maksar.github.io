@@ -7,8 +7,181 @@
         <description><![CDATA[Personal blog of Shestakov Alex]]></description>
         <atom:link href="https://maksar.github.io/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Fri, 11 Jul 2025 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Sun, 26 Jul 2026 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Actually useful implicit arguments</title>
+    <link>https://maksar.github.io/posts/code/2026-07-26-implicits/index.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Actually useful implicit arguments</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Actually useful implicit arguments</h1>
+    
+<article>
+  <span class="header">
+    
+      July 26, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/haskell">haskell</a>
+  </span>
+  <section>
+    <p><a href="https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/implicit_parameters.html">Implicit parameters</a> is a underrated feature of haskell. Many programmers avoid it as it remind of or somehow is associated with <em>global state</em> in the minds. In this article I’ll try to demonstrate how implicit parameters can reduce boilerplate in the code, acting like a <code>ReaderT</code> without the need of using <code>ask</code>.</p>
+<!--more-->
+<p>Lets say you have a configuration data structure <code>ProjectConfig</code> defined like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">ProjectConfig</span> <span class="ot">=</span> <span class="dt">ProjectConfig</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> hitlogsStart ::</span> <span class="dt">SlidingDay</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> hitlogsLookback ::</span> <span class="dt">CalendarDiffDays</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> clientTimeZone ::</span> <span class="dt">TimeZoneConfig</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Generic</span>, <span class="dt">Show</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">FromJSON</span>, <span class="dt">ToJSON</span>) via <span class="dt">SnakifyJSON</span> <span class="dt">ProjectConfig</span></span></code></pre></div>
+<p>Where <code>TimeZoneConfig</code> is a very simple data structure.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">TimeZoneConfig</span> <span class="ot">=</span> <span class="dt">TimeZoneConfig</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  {<span class="ot"> abbreviation ::</span> <span class="dt">Text</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  ,<span class="ot"> ianaCode ::</span> <span class="dt">Text</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Generic</span>, <span class="dt">Show</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> (<span class="dt">FromJSON</span>, <span class="dt">ToJSON</span>) via <span class="dt">SnakifyJSON</span> <span class="dt">TimeZoneConfig</span></span></code></pre></div>
+<p>And <code>SlidingDay</code> is a little bit core complex one, with custom <code>FromJSON</code> instance for paring. It allows to either specify an <code>AbsoluteDate</code> exact date or specify a <code>RelativeDays</code> (to the current day) shift in days. That might be useful in different environments:
+- in production you want to always use an exact date;
+- in staging environment it might be useful to specify <code>- 1 day</code> relative value.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">data</span> <span class="dt">SlidingDay</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="ot">=</span> <span class="dt">RelativeDays</span> <span class="dt">Integer</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">|</span> <span class="dt">AbsoluteDate</span> <span class="dt">Day</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> stock (<span class="dt">Eq</span>, <span class="dt">Generic</span>, <span class="dt">Show</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">FromJSON</span> <span class="dt">SlidingDay</span> <span class="kw">where</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  parseJSON <span class="ot">=</span> withText <span class="st">&quot;SlidingDay&quot;</span> <span class="op">$</span> \t <span class="ot">-&gt;</span> <span class="kw">case</span> toString t <span class="kw">of</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="ch">'-'</span> <span class="op">:</span> rest <span class="ot">-&gt;</span> <span class="kw">case</span> stripSuffix <span class="st">&quot;days&quot;</span> (strip <span class="op">$</span> toText rest) <span class="op">&gt;&gt;=</span> readMaybe <span class="op">.</span> toString <span class="kw">of</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Just</span> v <span class="ot">-&gt;</span> <span class="fu">pure</span> <span class="op">$</span> <span class="dt">RelativeDays</span> v</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      <span class="dt">Nothing</span> <span class="ot">-&gt;</span> <span class="fu">fail</span> <span class="op">$</span> <span class="st">&quot;Invalid SlidingDay format: &quot;</span> <span class="op">+|</span> t <span class="op">|+</span> <span class="st">&quot;&quot;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    _ <span class="ot">-&gt;</span> <span class="dt">AbsoluteDate</span> <span class="op">&lt;$&gt;</span> parseJSON (<span class="dt">String</span> t)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">instance</span> <span class="dt">ToJSON</span> <span class="dt">SlidingDay</span> <span class="kw">where</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  toJSON <span class="ot">=</span> \<span class="kw">case</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    <span class="dt">RelativeDays</span> n <span class="ot">-&gt;</span> <span class="dt">String</span> <span class="op">$</span> <span class="st">&quot;-&quot;</span> <span class="op">&lt;&gt;</span> <span class="fu">show</span> n <span class="op">&lt;&gt;</span> <span class="st">&quot; days&quot;</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    <span class="dt">AbsoluteDate</span> day <span class="ot">-&gt;</span> toJSON day</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="ot">fromSliding ::</span> (<span class="dt">MonadIO</span> m) <span class="ot">=&gt;</span> <span class="dt">SlidingDay</span> <span class="ot">-&gt;</span> m <span class="dt">Day</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>fromSliding <span class="ot">=</span> \<span class="kw">case</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">RelativeDays</span> n <span class="ot">-&gt;</span> <span class="kw">do</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    <span class="dt">UTCTime</span> {utctDay} <span class="ot">&lt;-</span> liftIO Time.getCurrentTime</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pure</span> <span class="op">$</span> subtractGregorianDurationRollOver (scaleCalendarDiffDays (<span class="fu">fromIntegral</span> n) calendarDay) utctDay</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  <span class="dt">AbsoluteDate</span> day <span class="ot">-&gt;</span> <span class="fu">pure</span> day</span></code></pre></div>
+<p>The goal is to make <code>ProjectConfig</code> available anywhere in the application code (function in <code>ProjectMonad a</code> monad). Standard approach would be to let <code>MonadProject</code> have instance of <code>MonadReader ProjectConfig</code>. It is relatively easy to write, something like this in <code>mtl</code> style:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">newtype</span> <span class="dt">ProjectMonad</span> a <span class="ot">=</span> <span class="dt">ProjectMonad</span> (<span class="dt">ReaderT</span> <span class="dt">ProjectConfig</span> <span class="dt">IO</span> a)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> <span class="kw">newtype</span> (<span class="dt">Functor</span>, <span class="dt">Applicative</span>, <span class="dt">Monad</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">deriving</span> <span class="kw">newtype</span> (<span class="dt">MonadIO</span>, <span class="dt">MonadIO</span>, <span class="dt">MonadReader</span> <span class="dt">ProjectConfig</span>)</span></code></pre></div>
+<p>Somewhere close to application’s <code>main</code> function, you’d parse the config, fill in fields of the <code>ProjectConfig</code> and run the application code with a <code>runReaderT</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ot">runProject ::</span> <span class="dt">ProjectConfig</span> <span class="ot">-&gt;</span> <span class="dt">ProjectMonad</span> a <span class="ot">-&gt;</span> <span class="dt">IO</span> a</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>runProject config (<span class="dt">ProjectMonad</span> app) <span class="ot">=</span> runReaderT app config</span></code></pre></div>
+<p>However, this comes with an obligation to use monadic <a href="https://hackage-content.haskell.org/package/lens-5.3.6/docs/Control-Lens-Getter.html#v:view"><code>view</code></a> getters or even implement custom accessor functions, which would have to be monadic too. So in application code, you’ll have to rely on <code>&lt;-</code> every time you want to get a field from a project configuration data structure.</p>
+<p>And that is perfectly fine, if you are experienced haskell developer, everything looks normal and familiar. But what if there are less experienced (in haskell) people, who have to work with the project’s code or, at least, being able to read and understand the code inside <code>ProjectMonad a</code> functions? Type signatures like <code>view :: MonadReader s m =&gt; Getting a s a -&gt; m a</code> ot type class declarations like <code>class Monad m =&gt; MonadReader r (m :: Type -&gt; Type) | m -&gt; r</code> can be very scary to novices. Implicit parameters to the rescue!</p>
+<p>We define a <code>HasProjectConfig</code> constraint, which <em>inherits</em> <code>HasTimeZoneConfig</code> constraint. Both of them are just demands several implicit parameters to be present. In haskell, tuple of a constraints can be <em>nested</em>, very handy.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">HasProjectConfig</span> <span class="ot">=</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  ( <span class="op">?</span><span class="ot">hitlogsStart ::</span> <span class="dt">Day</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  , <span class="op">?</span><span class="ot">hitlogsLookback ::</span> <span class="dt">CalendarDiffDays</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  , <span class="dt">HasTimeZoneConfig</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">type</span> <span class="dt">HasTimeZoneConfig</span> <span class="ot">=</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  ( <span class="op">?</span><span class="ot">clientTimeZoneAbbreviation ::</span> <span class="dt">Text</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  , <span class="op">?</span><span class="ot">clientTimeZoneIanaCode ::</span> <span class="dt">Text</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div>
+<p>Then we define <code>provideProjectConfig</code> function, which being given a computation requiring a <code>HasProjectConfig</code> constraint and a <code>ProjectConfig</code> – runs the computation by filling in blanks – required identifiers with question marks. Notice, that this helper is also responsible for using the <code>fromSliding</code> function, which has to be in <code>IO</code> because ir has to know current date. The rest of application code just sees the final calculated code. So we don’t have to use the separate data structure (either manual or via type families over parametrized data structures) for parsing the config and for using it.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ot">provideProjectConfig ::</span> (<span class="dt">MonadIO</span> m) <span class="ot">=&gt;</span> ((<span class="dt">HasProjectConfig</span>) <span class="ot">=&gt;</span> m a) <span class="ot">-&gt;</span> <span class="dt">ProjectConfig</span> <span class="ot">-&gt;</span> m a</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>provideProjectConfig go <span class="dt">ProjectConfig</span> {<span class="op">..</span>} <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  hitlogsStartDay <span class="ot">&lt;-</span> fromSliding hitlogsStart</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span>hitlogsStart <span class="ot">=</span> hitlogsStartDay</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span>hitlogsLookback <span class="ot">=</span> hitlogsLookback</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span>tableClientStartDate <span class="ot">=</span> tableClientStartDate</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>   <span class="kw">in</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    provideTimeZone go clientTimeZone</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="ot">provideTimeZone ::</span> ((<span class="dt">HasTimeZoneConfig</span>) <span class="ot">=&gt;</span> a) <span class="ot">-&gt;</span> <span class="dt">TimeZoneConfig</span> <span class="ot">-&gt;</span> a</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>provideTimeZone go <span class="dt">TimeZoneConfig</span> {<span class="op">..</span>} <span class="ot">=</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span>clientTimeZoneAbbreviation <span class="ot">=</span> Text.toLower abbreviation</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">?</span>clientTimeZoneIanaCode <span class="ot">=</span> ianaCode</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>   <span class="kw">in</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    go</span></code></pre></div>
+<p>Finally, helper <code>withProjectConfig</code> function, which serves the purpose of the <code>runProject</code> from before. It should be called in the very top of the application structure (close to <code>main</code>) , to parse the config, fill in the implicit parameter holes and run the application.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ot">withProjectConfig ::</span> (<span class="dt">MonadIO</span> m) <span class="ot">=&gt;</span> ((<span class="dt">HasProjectConfig</span>) <span class="ot">=&gt;</span> m a) <span class="ot">-&gt;</span> m a</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>withProjectConfig rest <span class="ot">=</span> withParsedConfig <span class="op">$</span> provideProjectConfig rest</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">where</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ot">    withParsedConfig ::</span> <span class="kw">forall</span> a b m<span class="op">.</span> (<span class="dt">MonadIO</span> m, <span class="dt">FromJSON</span> a, <span class="dt">Typeable</span> a) <span class="ot">=&gt;</span> (a <span class="ot">-&gt;</span> m b) <span class="ot">-&gt;</span> m b</span></code></pre></div>
+<p>Using this approach, application logic doesn’t have to use monadic accessors, if you need to access something from the <code>ProjectConfig</code>, you can easily do it in any place of the code, even from non-monadic functions:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="ot">someApplicationLogic ::</span> (<span class="dt">HasProjectConfig</span>) <span class="ot">=&gt;</span> <span class="dt">ProjectMonad</span> [<span class="dt">Client</span>]</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>someApplicationLogic <span class="ot">=</span> <span class="kw">do</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  logDebug <span class="op">$</span> <span class="st">&quot;Searching clients from &quot;</span> <span class="op">&lt;&gt;</span> <span class="op">?</span>clientTimeZoneAbbreviation <span class="op">&lt;&gt;</span> <span class="st">&quot; time zone&quot;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  executeQuery <span class="op">$</span> <span class="st">&quot;SELECT * FROM clients WHERE timeZone = ?&quot;</span> clientTimeZoneCodeForSQL</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="ot">clientTimeZoneCodeForSQL ::</span> (<span class="dt">HasProjectConfig</span>) <span class="ot">=&gt;</span> <span class="dt">Text</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>clientTimeZoneCodeForSQL <span class="ot">=</span> Text.toTitle <span class="op">?</span>clientTimeZoneIanaCode</span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>]]></description>
+    <pubDate>Sun, 26 Jul 2026 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/code/2026-07-26-implicits/index.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
     <title>Terraform and nix integration</title>
     <link>https://maksar.github.io/posts/code/2025-07-11-terraform-pins/index.html</link>
     <description><![CDATA[<!doctype html>
