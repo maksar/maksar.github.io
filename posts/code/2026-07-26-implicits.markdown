@@ -4,7 +4,7 @@ tags: haskell
 language: english
 ---
 
-[Implicit parameters](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/implicit_parameters.html) is a underrated feature of haskell. Many programmers avoid it as it remind of or somehow is associated with _global state_ in the minds. In this article I'll try to demonstrate how implicit parameters can reduce boilerplate in the code, acting like a `ReaderT` without the need of using `ask`.
+[Implicit parameters](https://ghc.gitlab.haskell.org/ghc/doc/users_guide/exts/implicit_parameters.html) is an underrated feature of haskell. Many programmers avoid it as it reminds of or somehow is associated with _global state_ in the minds. In this article I'll try to demonstrate how implicit parameters can reduce boilerplate in the code, acting like a `ReaderT` without the need of using `ask`.
 
 <!--more-->
 
@@ -31,7 +31,7 @@ data TimeZoneConfig = TimeZoneConfig
   deriving (FromJSON, ToJSON) via SnakifyJSON TimeZoneConfig
 ```
 
-And `SlidingDay` is a little bit core complex one, with custom `FromJSON` instance for paring. It allows to either specify an `AbsoluteDate` exact date or specify a `RelativeDays` (to the current day) shift in days. That might be useful in different environments:
+And `SlidingDay` is a little bit more complex one, with custom `FromJSON` instance for paring. It allows to either specify an `AbsoluteDate` exact date or specify a `RelativeDays` (to the current day) shift in days. That might be useful in different environments:
 - in production you want to always use an exact date;
 - in staging environment it might be useful to specify `- 1 day` relative value.
 
@@ -78,9 +78,9 @@ runProject config (ProjectMonad app) = runReaderT app config
 
 However, this comes with an obligation to use monadic [`view`](https://hackage-content.haskell.org/package/lens-5.3.6/docs/Control-Lens-Getter.html#v:view) getters or even implement custom accessor functions, which would have to be monadic too. So in application code, you'll have to rely on `<-` every time you want to get a field from a project configuration data structure.
 
-And that is perfectly fine, if you are experienced haskell developer, everything looks normal and familiar. But what if there are less experienced (in haskell) people, who have to work with the project's code or, at least, being able to read and understand the code inside `ProjectMonad a` functions? Type signatures like `view :: MonadReader s m => Getting a s a -> m a` ot type class declarations like `class Monad m => MonadReader r (m :: Type -> Type) | m -> r` can be very scary to novices. Implicit parameters to the rescue!
+And that is perfectly fine, if you are experienced haskell developer, everything looks normal and familiar. But what if there are less experienced (in haskell) people, who have to work with the project's code or, at least, being able to read and understand the code inside `ProjectMonad a` functions? Type signatures like `view :: MonadReader s m => Getting a s a -> m a` or type class declarations like `class Monad m => MonadReader r (m :: Type -> Type) | m -> r` can be very scary to novices. Implicit parameters to the rescue!
 
-We define a `HasProjectConfig` constraint, which _inherits_ `HasTimeZoneConfig` constraint. Both of them are just demands several implicit parameters to be present. In haskell, tuple of a constraints can be _nested_, very handy.
+We define a `HasProjectConfig` constraint, which _inherits_ `HasTimeZoneConfig` constraint. Both of them just demand several implicit parameters to be present. In haskell, tuple of a constraints can be _nested_, very handy.
 
 ```haskell
 type HasProjectConfig =
@@ -117,11 +117,11 @@ provideTimeZone go TimeZoneConfig {..} =
     go
 ```
 
-Finally, helper `withProjectConfig` function, which serves the purpose of the `runProject` from before. It should be called in the very top of the application structure (close to `main`) , to parse the config, fill in the implicit parameter holes and run the application.
+Finally, helper `withProjectConfig` function, which serves the purpose of the `runProject` from before. It should be called at the very top of the application structure (close to `main`), to parse the config, fill in the implicit parameter holes and run the application.
 
 ```haskell
 withProjectConfig :: (MonadIO m) => ((HasProjectConfig) => m a) -> m a
-withProjectConfig rest = withParsedConfig $ provideProjectConfig rest
+withProjectConfig app = withParsedConfig $ provideProjectConfig app
   where
     withParsedConfig :: forall a b m. (MonadIO m, FromJSON a, Typeable a) => (a -> m b) -> m b
 ```
