@@ -7,10 +7,106 @@
         <description><![CDATA[Personal blog of Shestakov Alex]]></description>
         <atom:link href="https://maksar.github.io/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Sun, 26 Jul 2026 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Mon, 27 Jul 2026 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Collecting all dependencies for haskell nix project</title>
+    <link>https://maksar.github.io/posts/shorts/2026-07-27-nix-collect-deps/index.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Collecting all dependencies for haskell nix project</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Collecting all dependencies for haskell nix project</h1>
+    
+<article>
+  <span class="header">
+    
+      July 27, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/nix">nix</a>
+  </span>
+  <section>
+    <p>If you are developing a library or a binary with a single cabal file in a repository, nix integration is very straightforward:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devShell = haskellPkgs<span class="op">.</span>shellFor <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">withHoogle</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">packages</span> <span class="op">=</span> <span class="va">p</span><span class="op">:</span> <span class="kw">with</span> p<span class="op">;</span> <span class="op">[</span> your-project-name <span class="op">];</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">nativeBuildInputs</span> <span class="op">=</span> <span class="kw">with</span> haskellPkgs<span class="op">;</span> <span class="op">[</span> cabal-install hpack haskell-language-server <span class="op">];</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<p>But what to do if there are several cabal libraries in your repository and you manage dependencies for them separately… What, in that case, you have to put into <code>packages = p: with p; [ ... ];</code> place?</p>
+<p>The naïve answer is – just put all of your libraries there. But doing that can play a bad trick, because libraries does depend on each other. So it you have <code>your-project-lib-a</code> and <code>your-project-lib-b</code>, which depends on <code>your-project-lib-a</code> – then <code>your-project-lib-a</code> will end up in the list of dependencies that <code>shellFor</code> wants to have built with nix in order to provision your <code>nix-shell</code>.</p>
+<p>It creates a strange self-dependant loop, in which the very fact of entering <code>nix-shell</code> <strong>requires</strong> to be built <code>your-project-lib-</code> with nix…</p>
+<p>The trick is to use somewhat not-well documented <code>genericBuilderArgsModifier</code> feature of the <code>shellFor</code> in nix – it allows to filter-out some dependencies.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>devShell = haskellPkgs<span class="op">.</span>shellFor <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">withHoogle</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">packages</span> <span class="op">=</span> <span class="va">p</span><span class="op">:</span> <span class="kw">with</span> p<span class="op">;</span> <span class="op">[</span> your-project-lib-a your-project-lib-b <span class="op">];</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">genericBuilderArgsModifier</span> <span class="op">=</span> pkgs<span class="op">.</span>lib<span class="op">.</span>mapAttrs <span class="op">(</span><span class="va">_n</span><span class="op">:</span> <span class="va">v</span><span class="op">:</span> <span class="kw">if</span> pkgs<span class="op">.</span>lib<span class="op">.</span>isList v <span class="kw">then</span> <span class="bu">builtins</span><span class="op">.</span>filter <span class="op">(</span><span class="va">a</span><span class="op">:</span> a == <span class="cn">null</span> <span class="op">||</span> <span class="op">!(</span>pkgs<span class="op">.</span>lib<span class="op">.</span>hasPrefix <span class="st">&quot;your-project-lib-&quot;</span> a<span class="op">.</span>pname<span class="op">))</span> v <span class="kw">else</span> v<span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="va">nativeBuildInputs</span> <span class="op">=</span> <span class="kw">with</span> haskellPkgs<span class="op">;</span> <span class="op">[</span> cabal-install hpack haskell-language-server <span class="op">];</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<p>So when <code>shellFor</code> iterates over <code>[ your-project-lib-a your-project-lib-b ]</code> to discover dependencies of each of them, it will ignore every dependency which starts from <code>your-project-lib-</code> prefix.</p>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>]]></description>
+    <pubDate>Mon, 27 Jul 2026 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/shorts/2026-07-27-nix-collect-deps/index.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
     <title>Actually useful implicit arguments</title>
-    <link>https://maksar.github.io/posts/code/2026-07-26-implicits/index.html</link>
+    <link>https://maksar.github.io/posts/code/2026-07-26-implicit-parameters/index.html</link>
     <description><![CDATA[<!doctype html>
 <html lang="en">
 
@@ -178,7 +274,7 @@
 </body>
 </html>]]></description>
     <pubDate>Sun, 26 Jul 2026 00:00:00 UT</pubDate>
-    <guid>https://maksar.github.io/posts/code/2026-07-26-implicits/index.html</guid>
+    <guid>https://maksar.github.io/posts/code/2026-07-26-implicit-parameters/index.html</guid>
     <dc:creator>Shestakov Alex</dc:creator>
 </item>
 <item>
@@ -725,7 +821,7 @@ module &quot;some_bucket&quot; {
 </item>
 <item>
     <title>Self-referential deployment pointers</title>
-    <link>https://maksar.github.io/posts/shorts/2024-11-13/index.html</link>
+    <link>https://maksar.github.io/posts/shorts/2024-11-13-self-referential-deployment-pointers/index.html</link>
     <description><![CDATA[<!doctype html>
 <html lang="en">
 
@@ -832,12 +928,12 @@ output &quot;release_version&quot; {
 </body>
 </html>]]></description>
     <pubDate>Wed, 13 Nov 2024 00:00:00 UT</pubDate>
-    <guid>https://maksar.github.io/posts/shorts/2024-11-13/index.html</guid>
+    <guid>https://maksar.github.io/posts/shorts/2024-11-13-self-referential-deployment-pointers/index.html</guid>
     <dc:creator>Shestakov Alex</dc:creator>
 </item>
 <item>
     <title>HLS support for multi-target Cabal projects</title>
-    <link>https://maksar.github.io/posts/shorts/2024-11-12/index.html</link>
+    <link>https://maksar.github.io/posts/shorts/2024-11-12-hls-multi-targets/index.html</link>
     <description><![CDATA[<!doctype html>
 <html lang="en">
 
@@ -1008,12 +1104,12 @@ def collect($f): $sources | map((.[$f] // [])[]) | unique | sort;
 </body>
 </html>]]></description>
     <pubDate>Tue, 12 Nov 2024 00:00:00 UT</pubDate>
-    <guid>https://maksar.github.io/posts/shorts/2024-11-12/index.html</guid>
+    <guid>https://maksar.github.io/posts/shorts/2024-11-12-hls-multi-targets/index.html</guid>
     <dc:creator>Shestakov Alex</dc:creator>
 </item>
 <item>
     <title>wget and read-only file system don&#39;t play well together</title>
-    <link>https://maksar.github.io/posts/shorts/2024-10-29/index.html</link>
+    <link>https://maksar.github.io/posts/shorts/2024-10-29-wget-read-only-filesystems/index.html</link>
     <description><![CDATA[<!doctype html>
 <html lang="en">
 
@@ -1118,7 +1214,7 @@ def collect($f): $sources | map((.[$f] // [])[]) | unique | sort;
 </body>
 </html>]]></description>
     <pubDate>Tue, 29 Oct 2024 00:00:00 UT</pubDate>
-    <guid>https://maksar.github.io/posts/shorts/2024-10-29/index.html</guid>
+    <guid>https://maksar.github.io/posts/shorts/2024-10-29-wget-read-only-filesystems/index.html</guid>
     <dc:creator>Shestakov Alex</dc:creator>
 </item>
 <item>
