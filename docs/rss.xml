@@ -7,8 +7,127 @@
         <description><![CDATA[Personal blog of Shestakov Alex]]></description>
         <atom:link href="https://maksar.github.io/rss.xml" rel="self"
                    type="application/rss+xml" />
-        <lastBuildDate>Tue, 28 Jul 2026 00:00:00 UT</lastBuildDate>
+        <lastBuildDate>Wed, 29 Jul 2026 00:00:00 UT</lastBuildDate>
         <item>
+    <title>Creating shell completions and man pages with opt-env-conf</title>
+    <link>https://maksar.github.io/posts/shorts/2026-07-29-shell-completion-and-man/index.html</link>
+    <description><![CDATA[<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Creating shell completions and man pages with opt-env-conf</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Creating shell completions and man pages with opt-env-conf</h1>
+    
+<article>
+  <span class="header">
+    
+    <a href="../../../series/haskell-nix">4 / 4 on haskell-nix</a>
+    
+      July 29, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/nix">nix</a> #<a href="../../../tags/Cabal">Cabal</a>
+  </span>
+  <section>
+    <p>Wonderful <a href="https://hackage.haskell.org/package/opt-env-conf">opt-env-conf</a> package provides a way to generate nice-looking man pages and also shell completion scripts.</p>
+<p>However, there was a slight problem – my program have some colors in <code>--help</code> output. That made both shell completions and man pages to look a bit ugly, because raw coloring escape sequences were there.</p>
+<p>I didn’t want to touch contents of the script (it might change in future versions), so I decided to strip escape sequences from the program output with <code>.completion-helper-${exeName}</code> shim.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>installManpage = <span class="va">exeName</span><span class="op">:</span> <span class="va">drv</span><span class="op">:</span> hlib<span class="op">.</span>overrideCabal drv <span class="op">(</span><span class="va">old</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">postInstall</span> <span class="op">=</span> <span class="op">(</span>old<span class="op">.</span>postInstall <span class="kw">or</span> <span class="st">&quot;&quot;</span><span class="op">)</span> <span class="op">+</span> <span class="st">''</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="st">    mkdir -p $out/share/man/man1/</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="st">    export NO_COLOR=1</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="st">    $out/bin/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st"> --render-man-page | </span><span class="sc">${</span>pkgs<span class="op">.</span>colorized<span class="op">-</span>logs<span class="sc">}</span><span class="st">/bin/ansi2txt &gt; </span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st">.1</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="st">    </span><span class="sc">${</span>pkgs<span class="op">.</span>gzip<span class="sc">}</span><span class="st">/bin/gzip -9 -c </span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st">.1 &gt; $out/share/man/man1/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st">.1.gz</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="st">  ''</span><span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="op">})</span>;</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>installManpages = <span class="va">exeNames</span><span class="op">:</span> <span class="va">drv</span><span class="op">:</span> lib<span class="op">.</span>foldr installManpage drv exeNames;</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>installCompletion = <span class="va">exeName</span><span class="op">:</span> <span class="va">drv</span><span class="op">:</span> hlib<span class="op">.</span>overrideCabal drv <span class="op">(</span><span class="va">old</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="va">postInstall</span> <span class="op">=</span> <span class="op">(</span>old<span class="op">.</span>postInstall <span class="kw">or</span> <span class="st">&quot;&quot;</span><span class="op">)</span> <span class="op">+</span> <span class="st">''</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">    bashCompDir=$out/share/bash-completion/completions</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">    zshCompDir=$out/share/zsh/vendor-completions</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="st">    fishCompDir=$out/share/fish/vendor_completions.d</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="st">    mkdir -p $bashCompDir $zshCompDir $fishCompDir</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="st">    completionHelper=$out/bin/.completion-helper-</span><span class="sc">${</span>exeName<span class="sc">}</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="st">    echo &quot;#!</span><span class="sc">${</span>pkgs<span class="op">.</span>bash<span class="sc">}</span><span class="st">/bin/bash&quot; &gt; $completionHelper</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="st">    echo &quot;$out/bin/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st"> \$@ | </span><span class="sc">${</span>pkgs<span class="op">.</span>colorized<span class="op">-</span>logs<span class="sc">}</span><span class="st">/bin/ansi2txt&quot; &gt;&gt; $completionHelper</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="st">    chmod +x $completionHelper</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="st">    $out/bin/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st"> --bash-completion-script $completionHelper &gt; $bashCompDir/</span><span class="sc">${</span>exeName<span class="sc">}</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="st">    $out/bin/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st"> --zsh-completion-script $completionHelper &gt; $zshCompDir/_</span><span class="sc">${</span>exeName<span class="sc">}</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="st">    $out/bin/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st"> --fish-completion-script $completionHelper &gt; $fishCompDir/</span><span class="sc">${</span>exeName<span class="sc">}</span><span class="st">.fish</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="st">  ''</span><span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="op">})</span>;</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>installCompletions = <span class="va">exeNames</span><span class="op">:</span> <span class="va">drv</span><span class="op">:</span> lib<span class="op">.</span>foldr installCompletion drv exeNames;</span></code></pre></div>
+<p>To enable everything in one go, you can wrap your binary with <code>installManpagesAndCompletions</code> combinator.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>installManpagesAndCompletions = <span class="va">exeNames</span><span class="op">:</span> <span class="va">drv</span><span class="op">:</span> installManpages exeNames <span class="op">(</span>installCompletions exeNames drv<span class="op">)</span>;</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>haskellOverlay = <span class="va">hfinal</span><span class="op">:</span> <span class="va">hprev</span><span class="op">:</span> <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">project</span> <span class="op">=</span> installManpagesAndCompletions <span class="op">[</span><span class="st">&quot;project-bin&quot;</span><span class="op">]</span> <span class="op">(</span>hfinal<span class="op">.</span>callCabal2nix <span class="st">&quot;project&quot;</span> <span class="ss">./.</span> <span class="op">{</span> <span class="op">});</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>]]></description>
+    <pubDate>Wed, 29 Jul 2026 00:00:00 UT</pubDate>
+    <guid>https://maksar.github.io/posts/shorts/2026-07-29-shell-completion-and-man/index.html</guid>
+    <dc:creator>Shestakov Alex</dc:creator>
+</item>
+<item>
     <title>Re-using common parts of the Cabal configuration</title>
     <link>https://maksar.github.io/posts/shorts/2026-07-28-cabal-reuse/index.html</link>
     <description><![CDATA[<!doctype html>
@@ -49,7 +168,7 @@
 <article>
   <span class="header">
     
-    <a href="../../../series/haskell-nix">3 / 3 on haskell-nix</a>
+    <a href="../../../series/haskell-nix">3 / 4 on haskell-nix</a>
     
       July 28, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/nix">nix</a> #<a href="../../../tags/Cabal">Cabal</a>
   </span>
@@ -201,7 +320,7 @@
 <article>
   <span class="header">
     
-    <a href="../../../series/haskell-nix">2 / 3 on haskell-nix</a>
+    <a href="../../../series/haskell-nix">2 / 4 on haskell-nix</a>
     
       July 27, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/nix">nix</a> #<a href="../../../tags/Cabal">Cabal</a>
   </span>
@@ -1126,7 +1245,7 @@ output &quot;release_version&quot; {
 <article>
   <span class="header">
     
-    <a href="../../../series/haskell-nix">1 / 3 on haskell-nix</a>
+    <a href="../../../series/haskell-nix">1 / 4 on haskell-nix</a>
     
       November 12, 2024 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/HLS">HLS</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/Cabal">Cabal</a>
   </span>
