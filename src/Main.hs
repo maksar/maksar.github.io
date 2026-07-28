@@ -46,14 +46,14 @@ main = hakyllWith config $ do
         >>= loadAndApplyTemplate "templates/tags/default.html" ctx
         >>= defaultCompiler ctx
 
-  tagsRules categories $ \cetegory pat -> do
+  tagsRules categories $ \category pat -> do
     route idRoute
     compile $ do
       posts <- loadPosts pat
-      let ctx = categoryTitleField cetegory <> postsField posts (postCtxWithTags tags empty empty series) <> context
+      let ctx = categoryTitleField category <> postsField posts (postCtxWithTags tags empty empty series) <> context
 
       makeItem ""
-        >>= loadAndApplyTemplate (fromFilePath ("templates/categories/" <> cetegory <> ".html")) ctx
+        >>= loadAndApplyTemplate (fromFilePath ("templates/categories/" <> category <> ".html")) ctx
         >>= defaultCompiler ctx
 
   tagsRules languages $ \language pat -> do
