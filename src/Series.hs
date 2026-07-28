@@ -2,8 +2,6 @@ module Series where
 
 import Control.Applicative
 import Control.Monad
-import Control.Monad.Extra
-import Data.Foldable
 import Data.List
 import Data.Map.Strict qualified as Map
 import Data.Maybe
@@ -46,12 +44,11 @@ seriesField tags =
     seriesName item = do
       let identifier = itemIdentifier item
       series <- getSeries identifier
-      pure $ fromMaybe empty series
+      pure $ fromMaybe mempty series
 
     otherPostsInSeries item = do
       name <- seriesName item
-      let posts = lookup name (tagsMap tags)
-      pure $ fromMaybe empty posts
+      sortChronological $ fromMaybe mempty $ lookup name $ tagsMap tags
 
 seriesTitleField :: String -> Context a
 seriesTitleField serie = captionField $ capitalize serie

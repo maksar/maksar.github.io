@@ -1,6 +1,6 @@
 ---
 title: People membership validation in JIRA fields against Active Directory
-tags: haskell, aeson, servant
+tags: haskell, aeson, servant, Cabal
 language: english
 ---
 

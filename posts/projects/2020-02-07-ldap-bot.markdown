@@ -1,6 +1,6 @@
 ---
 title: Workplace bot for managing Active Directory groups
-tags: haskell, polysemy, aeson, servant
+tags: haskell, polysemy, aeson, servant, Cabal
 language: english
 ---
 

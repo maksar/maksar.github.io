@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Re-using common parts of the Cabal configuration</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Re-using common parts of the Cabal configuration</h1>
+    
+<article>
+  <span class="header">
+    
+    <a href="../../../series/haskell-nix">3 / 3 on haskell-nix</a>
+    
+      July 28, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/shorts">shorts</a> #<a href="../../../tags/haskell">haskell</a> #<a href="../../../tags/nix">nix</a> #<a href="../../../tags/Cabal">Cabal</a>
+  </span>
+  <section>
+    <p>When a your haskell repository consists of several Cabal libraries, it is very handy (from nix perspective) to have folders isolated from each other. Each sub-folder contains own <code>.cabal</code> file inside. That allows to declare derivations in very clean way:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>haskellOverlay = <span class="va">hfinal</span><span class="op">:</span> <span class="va">hprev</span><span class="op">:</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">let</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="va">build</span> <span class="op">=</span> <span class="va">name</span><span class="op">:</span> <span class="va">source</span><span class="op">:</span> hfinal<span class="op">.</span>callCabal2nix <span class="st">&quot;project-</span><span class="sc">${</span>name<span class="sc">}</span><span class="st">&quot;</span> <span class="op">(</span>gitignore<span class="op">-</span>nix<span class="op">-</span>src<span class="op">.</span>gitignoreSource source<span class="op">)</span> <span class="op">{</span> <span class="op">};</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="va">project</span> <span class="op">=</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>      <span class="va">project-types</span> <span class="op">=</span> build <span class="st">&quot;types&quot;</span> <span class="ss">./src/types</span><span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>      <span class="va">project-core</span> <span class="op">=</span> build <span class="st">&quot;core&quot;</span> <span class="ss">./src/core</span><span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>      <span class="va">project-tests</span> <span class="op">=</span> build <span class="st">&quot;tests&quot;</span> <span class="ss">./tests</span><span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">};</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">in</span> project <span class="op">//</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="va">project</span> <span class="op">=</span> <span class="bu">builtins</span><span class="op">.</span>attrValues project<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span></code></pre></div>
+<p>That <strong>project</strong> <code>attrSet</code> is useful inside <code>shellFor</code> to discover dependencies from all of the libraries without the need to list all names again in <code>packages</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>haskellPkgs<span class="op">.</span>shellFor <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">withHoogle</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">packages</span> <span class="op">=</span> <span class="va">p</span><span class="op">:</span> p<span class="op">.</span>project<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">genericBuilderArgsModifier</span> <span class="op">=</span> pkgs<span class="op">.</span>lib<span class="op">.</span>mapAttrs <span class="op">(</span><span class="va">_n</span><span class="op">:</span> <span class="va">v</span><span class="op">:</span> <span class="kw">if</span> pkgs<span class="op">.</span>lib<span class="op">.</span>isList v <span class="kw">then</span> <span class="bu">builtins</span><span class="op">.</span>filter <span class="op">(</span><span class="va">a</span><span class="op">:</span> a == <span class="cn">null</span> <span class="op">||</span> <span class="op">!(</span>pkgs<span class="op">.</span>lib<span class="op">.</span>hasPrefix <span class="st">&quot;project-&quot;</span> a<span class="op">.</span>pname<span class="op">))</span> v <span class="kw">else</span> v<span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Having multiple <code>.cabal</code> files is sure handy for <code>nix</code>, but it certainly hurts feelings of minimalist like me, because there has to be lots of repetitions. Even if you use <code>hpack</code> for generating <code>.cabal</code> files, you’ll have to repeat things like:</p>
+<ul>
+<li>default extensions</li>
+<li>common dependencies (each of the libraries use)</li>
+<li><code>ghc-options</code>, etc.</li>
+</ul>
+<p>The solution I found is to use <code>!include</code> directive, which <code>hpack</code> natively supports. Put <code>package.common.yaml</code> file in the root of the repository, create a symlink to it in each of the sub-folders.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># package.common.yaml</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">_all</span><span class="kw">:</span><span class="at"> </span><span class="ot">&amp;all</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">&quot;0.0.0.0&quot;</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">author</span><span class="kw">:</span><span class="at"> Alexander Shestakov</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">license</span><span class="kw">:</span><span class="at"> AllRightsReserved</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">language</span><span class="kw">:</span><span class="at"> GHC2024</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">default-extensions</span><span class="kw">:</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> DefaultSignatures</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> DeriveAnyClass</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> DerivingVia</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> NoImplicitPrelude</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> OverloadedLabels</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> OverloadedStrings</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> QuantifiedConstraints</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> TypeFamilies</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> UndecidableInstances</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> base</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> deriving-aeson</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ghc-options</span><span class="kw">:</span><span class="at"> -Wall</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">source-dirs</span><span class="kw">:</span><span class="at"> .</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="fu">_executable</span><span class="kw">:</span><span class="at"> </span><span class="ot">&amp;executable</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">ghc-options</span><span class="kw">:</span><span class="at"> -Wall -rtsopts &quot;-with-rtsopts=-N&quot; -threaded</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">main</span><span class="kw">:</span><span class="at"> Main.hs</span></span></code></pre></div>
+<p><code>hpack</code> will happily apply <code>YAML</code> merge keys defined in a <code>package.common.yaml</code> file. So each <code>package.yaml</code> becomes trivially short.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># package.yaml from types folder</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">_common</span><span class="kw">:</span><span class="at"> !include &quot;package.common.yaml&quot;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">&lt;&lt;</span><span class="kw">:</span><span class="at"> </span><span class="ot">*all</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> project-types</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span><span class="kw">:</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> aeson</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> ordered-containers</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> reflection</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> relude</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> scientific</span></span></code></pre></div>
+<p>To re-generate all the <code>.cabal</code> files, there is a short entry in project’s <code>Justfile</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode makefile"><code class="sourceCode makefile"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dv">hpack:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>find -iname package.yaml -exec hpack {} \;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="dv">build:</span><span class="dt"> hpack</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="er">  </span>cabal build all</span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>

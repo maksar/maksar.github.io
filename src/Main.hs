@@ -69,7 +69,7 @@ main = hakyllWith config $ do
   tagsRules series $ \serie pat -> do
     route idRoute
     compile $ do
-      posts <- loadPosts pat
+      posts <- loadPostsChronological pat
       let ctx = seriesTitleField serie <> postsField posts (postCtxWithTags tags empty empty series) <> context
 
       makeItem ""
@@ -121,6 +121,8 @@ postsField :: [Item a] -> Context a -> Context b
 postsField posts ctx = listField "posts" ctx (return posts)
 
 loadPosts pat = recentFirst =<< loadAll pat
+
+loadPostsChronological pat = chronological =<< loadAll pat
 
 cleanRoute :: Routes
 cleanRoute = customRoute $ \iden -> takeDirectory (toFilePath iden) </> takeBaseName (toFilePath iden) </> takeFileName indexHtml

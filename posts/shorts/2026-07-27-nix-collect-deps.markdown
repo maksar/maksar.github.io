@@ -1,6 +1,7 @@
 ---
 title: Collecting all dependencies for haskell nix project
-tags: haskell, nix
+tags: haskell, nix, Cabal
+series: haskell-nix
 language: english
 ---
 
