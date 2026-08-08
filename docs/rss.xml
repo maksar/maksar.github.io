@@ -5494,7 +5494,7 @@ def collect($f): $sources | map((.[$f] // [])[]) | unique | sort;
 <p>Several questions for the void:</p>
 <ul>
 <li>Why can’t I use name of my favorite anime characters in the password?</li>
-<li>Why spaces are not allows, the longer – the better, right?</li>
+<li>Why spaces are not allowed, the longer – the better, right?</li>
 <li>Size does matter, but why 18 is the limit? Your password may be shorted, but I want to go to the extreme!</li>
 </ul>
 <p>P.S. If “we have that in the requirements” is the answer, such requirements are bad and must be a subject of change.</p>

@@ -11,7 +11,7 @@ I am a bit tired from such regular expressions to check password complexity.
 Several questions for the void:
 
 - Why can't I use name of my favorite anime characters in the password?
-- Why spaces are not allows, the longer – the better, right?
+- Why spaces are not allowed, the longer – the better, right?
 - Size does matter, but why 18 is the limit? Your password may be shorted, but I want to go to the extreme!
 
 
