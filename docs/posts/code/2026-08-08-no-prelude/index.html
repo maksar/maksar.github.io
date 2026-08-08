@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shestakov Alex Blog Three strategies for using custom Prelude</title>
+  <link rel="stylesheet" href="../../../css/default.css" />
+
+  <script type="text/javascript" src="../../../vendor/jquery/jquery-3.6.0.min.js"></script>
+  <script type="text/javascript" src="../../../vendor/fresco/js/fresco.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="../../../vendor/fresco/css/fresco.css" />
+
+  <link rel="stylesheet" href="../../../vendor/highlight/styles/atom-one-dark.min.css">
+  <script src="../../../vendor/highlight/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"><link rel="shortcut icon" href="../../../images/favicons/favicon32.png"><link rel="apple-touch-icon-precomposed" sizes="144x144" href="../../../images/favicons/favicon144.png"><link rel="apple-touch-icon-precomposed" sizes="114x114" href="../../../images/favicons/favicon114.png"><link rel="apple-touch-icon-precomposed" sizes="72x72" href="../../../images/favicons/favicon72.png"><link rel="apple-touch-icon-precomposed" sizes="57x57" href="../../../images/favicons/favicon57.png">
+</head>
+
+<body>
+  <header>
+    <div class="logo">
+      <a href="../../../">Shestakov Alex</a>
+    </div>
+    <nav>
+      &amp;<a href="../../../languages/english">english</a> &amp;<a href="../../../languages/russian">russian</a>
+      @<a href="../../../categories/WAT">WAT</a> @<a href="../../../categories/code">code</a> @<a href="../../../categories/projects">projects</a> @<a href="../../../categories/shorts">shorts</a>
+      <a href="../../../about">About</a>
+    </nav>
+  </header>
+
+  <main role="main">
+    <h1>Three strategies for using custom Prelude</h1>
+    
+<article>
+  <span class="header">
+    
+      August  8, 2026 &amp;<a href="../../../languages/english">english</a> @<a href="../../../categories/code">code</a> #<a href="../../../tags/haskell">haskell</a>
+  </span>
+  <section>
+    <p>There are several packages to replace haskell’s built-in <code>Prelude</code> module. Each has own reasoning and underlying philosophy. The point is – custom <code>Prelude</code>s are a popular things. Lets discuss several ways to bring them into your project.</p>
+<!--more-->
+<h1 id="base-without-prelude"><code>base</code> without <code>Prelude</code></h1>
+<p>Instead of depending on <code>base</code> package, you can simply replace it with <code>base-noprelude</code> in your <code>package.yaml</code> or <code>project.cabal</code> file. This package <em>mimics</em> the structure of corresponding version of <code>base</code>, but does not provide/exposr the <code>Prelude</code> module. This unlocks very simple thing trick – to create a <code>Prelude</code> module directly in your project.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Prelude</span> (<span class="kw">module</span> <span class="dt">X</span>) <span class="kw">where</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Applicative</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Base</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Bool</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Container</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Debug</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.File</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Foldable</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Function</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Functor</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.List</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Monad</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Monoid</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Print</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.String</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Extra.Map</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (<span class="dt">Key</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Async</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Concurrent</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (yield)</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Directory</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Environment</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (getEnv)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Exception</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (catchIO)</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Foreign</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (withArray)</span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.IO</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.STM</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Temporary</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens.Getter</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Generics.Labels</span> ()</span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Aeson</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (<span class="dt">One</span>)</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Aeson.Text</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.HTTP.Client</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (<span class="dt">Proxy</span>)</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Network.HTTP.Client.TLS</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.FilePath</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (isPathSeparator, pathSeparator)</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Conduit</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Conduit.Combinators</span> <span class="kw">as</span> <span class="dt">X</span> (iterM)</span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Conduit.List</span> <span class="kw">as</span> <span class="dt">X</span> (chunksOf)</span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Conduit.TMChan</span> <span class="kw">as</span> <span class="dt">X</span></span></code></pre></div>
+<p>In regular haskell files of your project, you don’t need to change anything, it <em>just works</em> ©</p>
+<p>Note, that <code>base-noprelude</code> package isn’t well-supported, so you might need to bring it in from some fork:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>base<span class="op">-</span>noprelude = hfinal<span class="op">.</span>callCabal2nix <span class="st">&quot;base-noprelude&quot;</span> <span class="op">(</span>pkgs<span class="op">.</span>fetchFromGitHub <span class="op">{</span> <span class="va">owner</span> <span class="op">=</span> <span class="st">&quot;Holmusk&quot;</span><span class="op">;</span> <span class="va">repo</span> <span class="op">=</span> <span class="st">&quot;base-noprelude&quot;</span><span class="op">;</span> <span class="va">rev</span> <span class="op">=</span> <span class="st">&quot;jan/base-4.21.0.0&quot;</span><span class="op">;</span> <span class="va">hash</span> <span class="op">=</span> <span class="st">&quot;sha256-sooplvtRIy7BLrxXIFFD/GbQY63+Vg8McTNzd8XHH90=&quot;</span><span class="op">;</span> <span class="op">})</span> <span class="op">{</span> <span class="op">}</span>;</span></code></pre></div>
+<h1 id="mixins">Mixins</h1>
+<p>Another fairly simple way to bring custom prelude is to use <strong>mixins</strong> feature from cabal (also well-supported with <code>hpack</code>):</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dependencies</span><span class="kw">:</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">name</span><span class="kw">:</span><span class="at"> base</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">mixin</span><span class="kw">:</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> hiding (Prelude)</span></span></code></pre></div>
+<p>Then you can either import some package (<a href="https://hackage.haskell.org/package/relude-1.2.2.2#mixins">relude</a> for example), which does provide custom <code>Prelude</code> module or define your own as before:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ot">{-# LANGUAGE PatternSynonyms #-}</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Prelude</span> (<span class="kw">module</span> <span class="dt">X</span>, jq) <span class="kw">where</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Map.NonEmpty</span> <span class="kw">as</span> <span class="dt">X</span> (<span class="dt">NEMap</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Scientific</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Set.NonEmpty</span> <span class="kw">as</span> <span class="dt">X</span> (<span class="dt">NESet</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Text</span> <span class="kw">as</span> <span class="dt">X</span> (pattern <span class="dt">Empty</span>, stripPrefix, dropAround)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Time.Clock</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Time.Clock.POSIX</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Time.Format.ISO8601</span> <span class="kw">as</span> <span class="dt">X</span> (iso8601Show)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Path</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Applicative</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Base</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (natVal, someNatVal)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Bool</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Container</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Debug</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Enum</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Exception</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.File</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Foldable</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Function</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Functor</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.List</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Monad</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (reader)</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Monoid</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Nub</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Numeric</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.String</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Time.Pretty</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.TypeLits</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (<span class="dt">Abs</span>)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Reflection</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Extra.Map</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Extra.Tuple</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Relude.Extra.Type</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Aeson.QQ</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Aeson.Schema</span> <span class="kw">as</span> <span class="dt">X</span> (schema, unwrap, toMap)</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.String.Interpolate</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Time.Clock.Duration</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Time.QQ</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Fmt</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Fmt.Terminal</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.URI</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.URI.QQ</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex.Lens</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex.Posix</span> <span class="kw">as</span> <span class="dt">X</span> (<span class="dt">Regex</span>)</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Text.Regex.Quote</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Colog</span> <span class="kw">as</span> <span class="dt">X</span> (log, logException, pattern <span class="dt">D</span>, pattern <span class="dt">I</span>, pattern <span class="dt">E</span>, pattern <span class="dt">W</span>)</span>
+<span id="cb4-54"><a href="#cb4-54" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">System.Environment</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-55"><a href="#cb4-55" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO</span> <span class="kw">as</span> <span class="dt">X</span> (<span class="dt">MonadUnliftIO</span>, tryAny, throwIO, handleAny)</span>
+<span id="cb4-56"><a href="#cb4-56" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">UnliftIO.Exception</span> <span class="kw">as</span> <span class="dt">X</span> (throwString)</span>
+<span id="cb4-57"><a href="#cb4-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-58"><a href="#cb4-58" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens.At</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-59"><a href="#cb4-59" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens.Fold</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-60"><a href="#cb4-60" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens.Getter</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb4-61"><a href="#cb4-61" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens.Setter</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> ((.=), setting)</span>
+<span id="cb4-62"><a href="#cb4-62" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Generics.Labels</span> ()</span>
+<span id="cb4-63"><a href="#cb4-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-64"><a href="#cb4-64" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Aeson.Schema</span> <span class="kw">qualified</span></span>
+<span id="cb4-65"><a href="#cb4-65" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Language.Haskell.TH.Quote</span> <span class="kw">qualified</span></span>
+<span id="cb4-66"><a href="#cb4-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-67"><a href="#cb4-67" aria-hidden="true" tabindex="-1"></a><span class="ot">jq ::</span> <span class="dt">Language.Haskell.TH.Quote.QuasiQuoter</span></span>
+<span id="cb4-68"><a href="#cb4-68" aria-hidden="true" tabindex="-1"></a>jq <span class="ot">=</span> Data.Aeson.Schema.get</span></code></pre></div>
+<h1 id="custom-project-prelude">Custom project prelude</h1>
+<p>Nothing is wrong of course with just creating a custom <code>Prelude</code> for your project. First, I’d recommend to enable <code>NoImplicitPrelude</code> globally.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode yaml"><code class="sourceCode yaml"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">default-extensions</span><span class="kw">:</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> NoImplicitPrelude</span></span></code></pre></div>
+<p>And then you are free to even have several <code>Prelude</code>s to choose from:</p>
+<ul>
+<li>Minimal <code>Prelude</code>, useful for low-level common modules</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Prelude.Minimal</span> (<span class="kw">module</span> <span class="dt">X</span>) <span class="kw">where</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Backends.Database</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens</span> <span class="kw">as</span> <span class="dt">X</span> (<span class="dt">ASetter</span>, at, filtered, folding, toListOf, (%=), (.=), (&lt;&gt;~))</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Control.Lens.Getter</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (like)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Data</span> <span class="kw">as</span> <span class="dt">X</span> (<span class="dt">Data</span>)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Data.Lens</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Generics.Product</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (<span class="dt">IsList</span>, field, param)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Data.Generics.Wrapped</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Fmt</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (format)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">GHC.TypeLits</span> <span class="kw">as</span> <span class="dt">X</span> <span class="kw">hiding</span> (natVal, someNatVal)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prawda.Location</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">DateRange</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">JSON</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Time</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Val</span> <span class="kw">as</span> <span class="dt">X</span></span></code></pre></div>
+<ul>
+<li>Main <code>Prelude</code>, useful for high-level abstract modules, which usually include utility modules (which used <code>Prelude.Minimal</code>)</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> <span class="dt">Prelude.Main</span> (<span class="kw">module</span> <span class="dt">X</span>) <span class="kw">where</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Prelude.Minimal</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Vars.Types</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Config.TimeZoneConfig</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Programs</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">PromisedLand</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Replays</span> <span class="kw">as</span> <span class="dt">X</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="dt">Utilities</span> <span class="kw">as</span> <span class="dt">X</span></span></code></pre></div>
+<h1 id="bonus-pre-commit-hook">Bonus: pre-commit hook</h1>
+<p>It might be useful to add <code>git</code> pre-commit hook to prevent developers from using stock <code>Prelude</code> by accident (in qualified or non-qualifies way).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode nix"><code class="sourceCode nix"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>no<span class="op">-</span>prelude = <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="va">enable</span> <span class="op">=</span> <span class="cn">true</span><span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="va">entry</span> <span class="op">=</span> <span class="st">''bash -c 'grep -E -n -H &quot;^import Prelude($|\s)&quot; &quot;$@&quot; &amp;&amp; exit 1 || exit 0' --''</span><span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="va">types</span> <span class="op">=</span> <span class="op">[</span> <span class="st">&quot;haskell&quot;</span> <span class="op">];</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+  </section>
+</article>
+
+<div id="disqus_thread"></div>
+<script>
+  /**
+  *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+  *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables    */
+  /*
+  var disqus_config = function () {
+  this.page.url = PAGE_URL;  // Replace PAGE_URL with your page's canonical URL variable
+  this.page.identifier = PAGE_IDENTIFIER; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+  };
+  */
+  (function() { // DON'T EDIT BELOW THIS LINE
+  var d = document, s = d.createElement('script');
+  s.src = 'https://https-maksar-github-io.disqus.com/embed.js';
+  s.setAttribute('data-timestamp', +new Date());
+  (d.head || d.body).appendChild(s);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </main>
+
+  <footer>
+    <a type="application/rss+xml" href="../../../rss.xml">RSS Feed</a>
+    Site generated by
+    <a href="http://jaspervdj.be/hakyll">Hakyll</a>
+  </footer>
+</body>
+</html>
